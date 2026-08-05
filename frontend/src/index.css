@@ -1,0 +1,205 @@
+/* ─── Theme Variables (RGB values for Tailwind opacity support) ── */
+:root {
+  --color-canvas: 255 255 255;
+  --color-surface: 250 250 250;
+  --color-surface-alt: 245 245 245;
+  --color-ink: 31 31 31;
+  --color-ink-soft: 61 61 61;
+  --color-muted: 168 168 168;
+  --color-hairline: 229 229 229;
+  --color-hairline-soft: 237 237 237;
+  --color-hairline-strong: 199 199 199;
+  --color-cream: 255 248 224;
+  --color-cream-deeper: 255 240 194;
+  --color-beige-deep: 230 213 168;
+  --color-slate: 74 74 74;
+  --color-steel: 106 106 106;
+  --color-stone: 138 138 138;
+}
+
+html.dark {
+  --color-canvas: 28 28 30;
+  --color-surface: 44 44 44;
+  --color-surface-alt: 58 58 58;
+  --color-ink: 245 245 245;
+  --color-ink-soft: 212 212 212;
+  --color-muted: 106 106 106;
+  --color-hairline: 58 58 58;
+  --color-hairline-soft: 47 47 47;
+  --color-hairline-strong: 74 74 74;
+  --color-cream: 42 37 24;
+  --color-cream-deeper: 61 52 32;
+  --color-beige-deep: 74 64 48;
+  --color-slate: 176 176 176;
+  --color-steel: 154 154 154;
+  --color-stone: 122 122 122;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ─────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    @apply bg-canvas text-ink;
+  }
+
+  body {
+    @apply font-body text-body-md antialiased;
+  }
+
+  h1 {
+    @apply font-display text-heading-1 text-ink;
+  }
+  h2 {
+    @apply font-display text-heading-2 text-ink;
+  }
+  h3 {
+    @apply font-display text-heading-3 text-ink;
+  }
+  h4 {
+    @apply font-display text-heading-4 text-ink;
+  }
+  h5 {
+    @apply font-display text-heading-5 text-ink;
+  }
+
+  a {
+    @apply text-link no-underline;
+  }
+  hr {
+    @apply border-hairline border-t;
+  }
+}
+
+/* ─── Components ───────────────────────────────────────────────── */
+@layer components {
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center
+           font-body text-button text-on-primary bg-primary
+           rounded-md px-lg py-sm min-h-touch
+           transition-colors duration-150;
+  }
+  .btn-primary:active {
+    @apply bg-primary-deep;
+  }
+  .btn-primary:disabled {
+    @apply bg-hairline text-muted cursor-not-allowed;
+  }
+
+  .btn-dark {
+    @apply inline-flex items-center justify-center
+           font-body text-button text-on-dark bg-ink
+           rounded-md px-lg py-sm min-h-touch
+           transition-colors duration-150;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center
+           font-body text-button text-ink bg-transparent
+           border border-hairline-strong
+           rounded-md px-lg py-sm min-h-touch
+           transition-colors duration-150;
+  }
+
+  .btn-cream {
+    @apply inline-flex items-center justify-center
+           font-body text-button text-ink bg-cream
+           border border-beige-deep
+           rounded-md px-lg py-sm min-h-touch
+           transition-colors duration-150;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-canvas rounded-lg p-xl border border-hairline-soft transition-colors duration-200;
+  }
+  .card-cream {
+    @apply bg-cream rounded-lg p-2xl border border-beige-deep text-ink transition-colors duration-200;
+  }
+  .card-feature {
+    @apply bg-canvas rounded-lg p-2xl border border-hairline-soft shadow-card transition-colors duration-200;
+  }
+
+  /* Caption & labels */
+  .caption {
+    @apply font-body text-caption text-steel;
+  }
+  .micro-label {
+    @apply font-body text-micro-uppercase uppercase text-steel;
+  }
+
+  /* Badges */
+  .badge-orange {
+    @apply inline-flex items-center bg-primary text-on-primary text-caption-bold rounded-full px-sm py-xxs;
+  }
+  .badge-cream {
+    @apply inline-flex items-center bg-cream-deeper text-ink text-caption-bold rounded-full px-sm py-xxs;
+  }
+  .badge-dark {
+    @apply inline-flex items-center bg-ink text-on-dark text-caption-bold rounded-full px-sm py-xxs;
+  }
+
+  /* Inputs */
+  .input-field {
+    @apply w-full bg-canvas border border-hairline-strong
+           text-ink font-body text-body-md rounded-md
+           py-sm px-md h-[44px]
+           placeholder:text-muted
+           focus:border-primary focus:border-2 focus:outline-none
+           transition-colors duration-150;
+  }
+  .textarea-field {
+    @apply w-full bg-canvas border border-hairline-strong
+           text-ink font-body text-body-md rounded-md p-md
+           placeholder:text-muted
+           focus:border-primary focus:border-2 focus:outline-none
+           transition-colors duration-150;
+  }
+
+  /* Sunset stripe */
+  .sunset-stripe {
+    background: linear-gradient(
+      90deg,
+      #fa520f 0%,
+      #ffa110 25%,
+      #ffb83e 50%,
+      #ffd900 75%,
+      #fff8e0 100%
+    );
+    @apply w-full h-[6px];
+  }
+
+  /* Navigation */
+  .nav-link {
+    @apply font-body text-body-sm-medium text-ink;
+  }
+  .wordmark {
+    @apply font-display text-heading-4 text-ink tracking-tight;
+  }
+
+  /* Pill tabs */
+  .pill-tab {
+    @apply inline-flex items-center font-body text-body-sm-medium text-steel bg-canvas border border-hairline rounded-full px-md py-xs;
+  }
+  .pill-tab-active {
+    @apply inline-flex items-center font-body text-body-sm-medium text-on-dark bg-ink border border-ink rounded-full px-md py-xs;
+  }
+
+  /* Code block */
+  .code-block {
+    @apply bg-surface-code text-on-dark font-mono text-code rounded-md p-md;
+  }
+
+  /* Footer */
+  .footer-region {
+    @apply bg-cream text-ink py-section px-2xl transition-colors duration-200;
+  }
+
+  /* Section */
+  .section {
+    @apply py-section;
+  }
+}

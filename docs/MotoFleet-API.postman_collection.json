@@ -1,0 +1,595 @@
+{
+  "info": {
+    "name": "MotoFleet MVP API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Complete API collection for MotoFleet MVP backend testing"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "userToken", "value": "" },
+    { "key": "riderToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "riderId", "value": "" },
+    { "key": "motorcycleId", "value": "" },
+    { "key": "contractId", "value": "" },
+    { "key": "errandId", "value": "" },
+    { "key": "pricingRuleId", "value": "" },
+    { "key": "cosignerId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/users/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"German Arbelaez\",\n  \"phone\": \"3001234567\",\n  \"email\": \"german@test.com\",\n  \"address\": \"Calle 10 #20-30 Medellin\",\n  \"password\": \"Test1234\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('userId', res.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Rider",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/riders/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Carlos Rider\",\n  \"phone\": \"3109876543\",\n  \"email\": \"carlos@rider.com\",\n  \"address\": \"Carrera 50 #30-10\",\n  \"password\": \"Rider1234\",\n  \"license_number\": \"LIC-12345\",\n  \"license_expiry\": \"2027-12-31\",\n  \"insurance_number\": \"SEG-99999\",\n  \"insurance_expiry\": \"2027-06-30\",\n  \"bond_amount\": 500000,\n  \"emergency_contact_name\": \"Maria Rider\",\n  \"emergency_contact_phone\": \"3201112233\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('riderId', res.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"german@test.com\",\n  \"password\": \"Test1234\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) pm.collectionVariables.set('userToken', res.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as Rider",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"carlos@rider.com\",\n  \"password\": \"Rider1234\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) pm.collectionVariables.set('riderToken', res.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as Admin",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@motofleet.com\",\n  \"password\": \"Admin1234\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) pm.collectionVariables.set('adminToken', res.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Invalid Credentials",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"noexiste@test.com\",\n  \"password\": \"wrong123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Motorcycles (Admin)",
+      "item": [
+        {
+          "name": "Create Motorcycle",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/motorcycles",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plate\": \"ABC123\",\n  \"brand\": \"Yamaha\",\n  \"model\": \"FZ25\",\n  \"year\": 2024,\n  \"color\": \"Negro\",\n  \"engine_cc\": 250,\n  \"soat_expiry\": \"2027-03-15\",\n  \"inspection_expiry\": \"2027-06-20\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('motorcycleId', res.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Motorcycles",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/motorcycles",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "Update Motorcycle",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/motorcycles/{{motorcycleId}}",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"color\": \"Rojo\",\n  \"engine_cc\": 300\n}"
+            }
+          }
+        },
+        {
+          "name": "Change Status to Maintenance",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/motorcycles/{{motorcycleId}}/status",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"maintenance\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cosigners (Admin)",
+      "item": [
+        {
+          "name": "Create Cosigner",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/riders/{{riderId}}/cosigners",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maria Garcia\",\n  \"address\": \"Calle 20 #15-30\",\n  \"phone\": \"3005554433\",\n  \"relationship\": \"Madre\",\n  \"identity_document\": \"1234567890\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('cosignerId', res.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Cosigners",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/riders/{{riderId}}/cosigners",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "Update Cosigner",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/cosigners/{{cosignerId}}",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"3009998877\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contracts (Admin)",
+      "item": [
+        {
+          "name": "Create Contract",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/contracts",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rider_id\": \"{{riderId}}\",\n  \"motorcycle_id\": \"{{motorcycleId}}\",\n  \"start_date\": \"2026-08-01\",\n  \"end_date\": \"2027-08-01\",\n  \"monthly_amount\": 350000,\n  \"payment_day\": 5\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('contractId', res.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Contracts",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/contracts",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "Renew Contract",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/contracts/{{contractId}}/renew",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"end_date\": \"2028-08-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancel Contract",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/contracts/{{contractId}}/cancel",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments (Admin)",
+      "item": [
+        {
+          "name": "Register Payment",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/contracts/{{contractId}}/payments",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 350000,\n  \"payment_date\": \"2026-08-05\",\n  \"payment_method\": \"cash\",\n  \"period\": \"2026-08\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Payments",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/contracts/{{contractId}}/payments",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pricing Rules (Admin)",
+      "item": [
+        {
+          "name": "Create Pricing Rule",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/pricing-rules",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"errand_type\": \"object_transport\",\n  \"base_rate\": 5000,\n  \"rate_per_km\": 1500,\n  \"commission_percentage\": 15\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('pricingRuleId', res.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Pricing Rules",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/pricing-rules",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "Deactivate Pricing Rule",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/pricing-rules/{{pricingRuleId}}/deactivate",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Errands",
+      "item": [
+        {
+          "name": "Create Errand (User)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/errands",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"object_transport\",\n  \"description\": \"Llevar paquete de documentos importantes al destino indicado\",\n  \"origin_address\": \"Centro Comercial Santafe, Medellin\",\n  \"origin_lat\": 6.2518,\n  \"origin_lng\": -75.5636,\n  \"destination_address\": \"Parque Lleras, Medellin\",\n  \"destination_lat\": 6.2088,\n  \"destination_lng\": -75.5672,\n  \"payment_method\": \"cash\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('errandId', res.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Available Errands (Rider)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/errands/available",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "Accept Errand (Rider)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/errands/{{errandId}}/accept",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "Mark Pickup (Rider)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/errands/{{errandId}}/pickup",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "Mark Delivered (Rider)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/errands/{{errandId}}/deliver",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "Cancel Errand (User)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/errands/{{errandId}}/cancel",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Ya no necesito este servicio, encontre otra solucion\"\n}"
+            }
+          }
+        },
+        {
+          "name": "My Errands (User)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/errands/my",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "My Errands (Rider)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/errands/my",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Metrics",
+      "item": [
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/metrics",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "Admin Errand List",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/errands",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authorization Tests",
+      "item": [
+        {
+          "name": "User tries Admin endpoint (403)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/motorcycles",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "No token (401)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/motorcycles"
+          }
+        },
+        {
+          "name": "Rider tries Admin endpoint (403)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/motorcycles",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plate\": \"XYZ999\",\n  \"brand\": \"Honda\",\n  \"model\": \"CB190\",\n  \"year\": 2024,\n  \"color\": \"Azul\",\n  \"engine_cc\": 190,\n  \"soat_expiry\": \"2027-01-01\",\n  \"inspection_expiry\": \"2027-01-01\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

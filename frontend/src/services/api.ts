@@ -1,0 +1,130 @@
+const BASE_URL = "/api";
+
+interface RequestOptions {
+  method?: string;
+  body?: unknown;
+  token?: string | null;
+}
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly code: string,
+    message: string,
+    public readonly details?: Record<string, string[]>,
+  ) {
+    super(message);
+  }
+}
+
+export const api = {
+  async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+    const { method = "GET", body, token } = options;
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new ApiError(data.status, data.code, data.message, data.details);
+    }
+
+    return data as T;
+  },
+
+  // --- Auth ---
+  login(email: string, password: string) {
+    return this.request<{ token: string; role: string }>("/auth/login", {
+      method: "POST",
+      body: { email, password },
+    });
+  },
+
+  registerUser(data: Record<string, unknown>) {
+    return this.request("/users/register", { method: "POST", body: data });
+  },
+
+  registerRider(data: Record<string, unknown>) {
+    return this.request("/riders/register", { method: "POST", body: data });
+  },
+
+  // --- Errands ---
+  createErrand(token: string, data: Record<string, unknown>) {
+    return this.request("/errands", { method: "POST", body: data, token });
+  },
+
+  getAvailableErrands(token: string) {
+    return this.request("/errands/available", { token });
+  },
+
+  getMyErrands(token: string, params?: string) {
+    const query = params ? `?${params}` : "";
+    return this.request(`/errands/my${query}`, { token });
+  },
+
+  acceptErrand(token: string, errandId: string) {
+    return this.request(`/errands/${errandId}/accept`, {
+      method: "PATCH",
+      token,
+    });
+  },
+
+  pickupErrand(token: string, errandId: string) {
+    return this.request(`/errands/${errandId}/pickup`, {
+      method: "PATCH",
+      token,
+    });
+  },
+
+  deliverErrand(token: string, errandId: string) {
+    return this.request(`/errands/${errandId}/deliver`, {
+      method: "PATCH",
+      token,
+    });
+  },
+
+  cancelErrand(token: string, errandId: string, reason?: string) {
+    return this.request(`/errands/${errandId}/cancel`, {
+      method: "PATCH",
+      token,
+      body: reason ? { reason } : undefined,
+    });
+  },
+
+  // --- Admin ---
+  getMotorcycles(token: string) {
+    return this.request("/motorcycles", { token });
+  },
+
+  createMotorcycle(token: string, data: Record<string, unknown>) {
+    return this.request("/motorcycles", { method: "POST", body: data, token });
+  },
+
+  getContracts(token: string) {
+    return this.request("/contracts", { token });
+  },
+
+  getPricingRules(token: string) {
+    return this.request("/pricing-rules", { token });
+  },
+
+  getMetrics(token: string) {
+    return this.request("/admin/metrics", { token });
+  },
+
+  getAdminErrands(token: string) {
+    return this.request("/admin/errands", { token });
+  },
+};

@@ -1,0 +1,17 @@
+# Config files - no architectural value
+package.json
+package-lock.json
+tsconfig.json
+tsconfig*.json
+postcss.config.js
+tailwind.config.js
+vite.config.ts
+vitest.config.ts
+frontend/package.json
+frontend/package-lock.json
+frontend/tsconfig.json
+frontend/tsconfig*.json
+frontend/postcss.config.js
+frontend/vite.config.ts
+.env
+.env.*
