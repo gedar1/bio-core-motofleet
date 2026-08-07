@@ -32,6 +32,14 @@ export const AdminErrands: React.FC = () => {
                     <p className="font-body text-body-sm text-slate mt-xs">
                       {e.origin_address} → {e.destination_address}
                     </p>
+                    {(e as any).rider_name && (
+                      <p className="font-body text-body-sm text-steel mt-xs">
+                        🏍️ {(e as any).rider_name}{" "}
+                        {(e as any).motorcycle_plate
+                          ? `· ${(e as any).motorcycle_plate}`
+                          : ""}
+                      </p>
+                    )}
                   </div>
                   <p className="font-display text-heading-5 text-ink">
                     ${e.fare}

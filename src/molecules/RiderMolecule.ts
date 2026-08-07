@@ -1,19 +1,20 @@
 import type Database from "better-sqlite3";
 import { v4 as uuidv4 } from "uuid";
+import type { RiderDocumentType } from "../atoms/schemas.js";
 import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule } from "./IMolecule.js";
 import { hashPassword } from "../atoms/password.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
 
-/**
- * Data required to register a new rider (motorcyclist).
- */
+/** Data required to register a new rider (motorcyclist). */
 export interface CreateRiderInput {
   name: string;
   phone: string;
   email: string;
   address: string;
   password: string;
+  document_type: RiderDocumentType;
+  document_number: string;
   license_number: string;
   license_expiry: string;
   insurance_number: string;
@@ -23,9 +24,7 @@ export interface CreateRiderInput {
   emergency_contact_phone: string;
 }
 
-/**
- * Rider record as stored in the database.
- */
+/** Rider record as stored in the database. */
 export interface Rider {
   id: string;
   name: string;
@@ -33,6 +32,10 @@ export interface Rider {
   email: string;
   address: string;
   password_hash: string;
+  /** Null only for riders created before identity documents were required. */
+  document_type: RiderDocumentType | null;
+  /** Null only for riders created before identity documents were required. */
+  document_number: string | null;
   license_number: string;
   license_expiry: string;
   insurance_number: string;
@@ -47,10 +50,9 @@ export interface Rider {
 }
 
 /**
- * Molecule responsible for rider registration, retrieval, and availability management.
- * Validates uniqueness of email/phone across BOTH users AND riders tables,
- * validates license/insurance expiry dates, hashes passwords,
- * and interacts with the riders table in SQLite.
+ * Manages rider registration, retrieval, and availability. Identity-document
+ * checks remain here, rather than in routes, so every registration path shares
+ * the same persistence and uniqueness rules.
  */
 export class RiderMolecule implements IMolecule {
   readonly name = "riders";
@@ -62,18 +64,18 @@ export class RiderMolecule implements IMolecule {
   ) {}
 
   /**
-   * Registers a new rider after validating cross-table email/phone uniqueness
-   * and verifying that license and insurance dates are in the future.
-   * Hashes the password with bcrypt and assigns a UUID.
-   * @throws AppError(409, 'CONFLICT') if email or phone already exists in users or riders.
-   * @throws AppError(400, 'VALIDATION_ERROR') if license or insurance date is not future.
+   * Registers a rider after validating account uniqueness, valid document
+   * identity, and future license/insurance dates.
    */
   async register(data: CreateRiderInput): Promise<Rider> {
-    // Cross-table email uniqueness check (users + riders)
+    const documentType = data.document_type
+      .trim()
+      .toUpperCase() as RiderDocumentType;
+    const documentNumber = data.document_number.trim().toUpperCase();
+
     const emailInUsers = this.db
       .prepare("SELECT id FROM users WHERE email = ?")
       .get(data.email) as { id: string } | undefined;
-
     if (emailInUsers) {
       throw new AppError(409, "CONFLICT", "Email is already in use");
     }
@@ -81,16 +83,13 @@ export class RiderMolecule implements IMolecule {
     const emailInRiders = this.db
       .prepare("SELECT id FROM riders WHERE email = ?")
       .get(data.email) as { id: string } | undefined;
-
     if (emailInRiders) {
       throw new AppError(409, "CONFLICT", "Email is already in use");
     }
 
-    // Cross-table phone uniqueness check (users + riders)
     const phoneInUsers = this.db
       .prepare("SELECT id FROM users WHERE phone = ?")
       .get(data.phone) as { id: string } | undefined;
-
     if (phoneInUsers) {
       throw new AppError(409, "CONFLICT", "Phone is already in use");
     }
@@ -98,18 +97,28 @@ export class RiderMolecule implements IMolecule {
     const phoneInRiders = this.db
       .prepare("SELECT id FROM riders WHERE phone = ?")
       .get(data.phone) as { id: string } | undefined;
-
     if (phoneInRiders) {
       throw new AppError(409, "CONFLICT", "Phone is already in use");
     }
 
-    // Validate license expiry date is in the future
+    const existingDocument = this.db
+      .prepare(
+        "SELECT id FROM riders WHERE document_type = ? AND document_number = ?",
+      )
+      .get(documentType, documentNumber) as { id: string } | undefined;
+    if (existingDocument) {
+      throw new AppError(
+        409,
+        "CONFLICT",
+        "Identity document is already registered",
+      );
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const licenseDate = new Date(data.license_expiry);
     licenseDate.setHours(0, 0, 0, 0);
-
     if (licenseDate <= today) {
       throw new AppError(
         400,
@@ -118,10 +127,8 @@ export class RiderMolecule implements IMolecule {
       );
     }
 
-    // Validate insurance expiry date is in the future
     const insuranceDate = new Date(data.insurance_expiry);
     insuranceDate.setHours(0, 0, 0, 0);
-
     if (insuranceDate <= today) {
       throw new AppError(
         400,
@@ -132,75 +139,81 @@ export class RiderMolecule implements IMolecule {
 
     const id = uuidv4();
     const passwordHash = await hashPassword(data.password);
-
     const stmt = this.db.prepare(`
-      INSERT INTO riders (id, name, phone, email, address, password_hash, license_number, license_expiry, insurance_number, insurance_expiry, bond_amount, emergency_contact_name, emergency_contact_phone, status, available)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', 0)
+      INSERT INTO riders (
+        id, name, phone, email, address, password_hash, document_type,
+        document_number, license_number, license_expiry, insurance_number,
+        insurance_expiry, bond_amount, emergency_contact_name,
+        emergency_contact_phone, status, available
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', 0)
     `);
 
-    stmt.run(
-      id,
-      data.name,
-      data.phone,
-      data.email,
-      data.address,
-      passwordHash,
-      data.license_number,
-      data.license_expiry,
-      data.insurance_number,
-      data.insurance_expiry,
-      data.bond_amount,
-      data.emergency_contact_name,
-      data.emergency_contact_phone,
-    );
+    try {
+      stmt.run(
+        id,
+        data.name,
+        data.phone,
+        data.email,
+        data.address,
+        passwordHash,
+        documentType,
+        documentNumber,
+        data.license_number,
+        data.license_expiry,
+        data.insurance_number,
+        data.insurance_expiry,
+        data.bond_amount,
+        data.emergency_contact_name,
+        data.emergency_contact_phone,
+      );
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.includes("riders.document_type, riders.document_number")
+      ) {
+        throw new AppError(
+          409,
+          "CONFLICT",
+          "Identity document is already registered",
+        );
+      }
+      throw error;
+    }
 
     this.logger.info("Rider registered", { riderId: id, email: data.email });
-
     return this.getById(id) as Rider;
   }
 
-  /**
-   * Retrieves a rider by their UUID.
-   * @returns The rider record or null if not found.
-   */
+  /** Retrieves a rider by UUID, including nullable legacy identity fields. */
   getById(id: string): Rider | null {
     const row = this.db.prepare("SELECT * FROM riders WHERE id = ?").get(id) as
       | Rider
       | undefined;
-
     return row ?? null;
   }
 
-  /**
-   * Retrieves a rider by their email address.
-   * @returns The rider record or null if not found.
-   */
+  /** Retrieves a rider by email. */
   getByEmail(email: string): Rider | null {
     const row = this.db
       .prepare("SELECT * FROM riders WHERE email = ?")
       .get(email) as Rider | undefined;
-
     return row ?? null;
   }
 
-  /**
-   * Updates the availability status of a rider.
-   * Sets available to 1 (true) or 0 (false).
-   */
+  /** Updates the rider availability flag. */
   setAvailability(riderId: string, available: boolean): void {
-    const stmt = this.db.prepare(`
-      UPDATE riders SET available = ?, updated_at = datetime('now') WHERE id = ?
-    `);
-
-    const result = stmt.run(available ? 1 : 0, riderId);
+    const result = this.db
+      .prepare(
+        "UPDATE riders SET available = ?, updated_at = datetime('now') WHERE id = ?",
+      )
+      .run(available ? 1 : 0, riderId);
 
     if (result.changes === 0) {
       this.logger.warn("Rider not found for availability update", { riderId });
-    } else {
-      this.logger.info("Rider availability updated", {
-        riderId,
-        available,
-      });
+      return;
     }
+
+    this.logger.info("Rider availability updated", { riderId, available });
   }
 }

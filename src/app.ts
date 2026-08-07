@@ -43,7 +43,10 @@ export interface MoleculeContainer {
  * Creates and configures the Express application.
  * Mounts JSON parser, CORS headers, all route modules, and global error handler.
  */
-export function createApp(molecules: MoleculeContainer): express.Application {
+export function createApp(
+  molecules: MoleculeContainer,
+  db?: import("better-sqlite3").Database,
+): express.Application {
   const app = express();
 
   // --- Body parsing ---
@@ -78,7 +81,7 @@ export function createApp(molecules: MoleculeContainer): express.Application {
   app.use("/api/motorcycles", createMotorcycleRoutes(molecules.motorcycles));
   app.use("/api/contracts", createContractRoutes(molecules.contracts));
   app.use("/api/pricing-rules", createPricingRoutes(molecules.pricing));
-  app.use("/api/admin", createMetricsRoutes(molecules.metrics));
+  app.use("/api/admin", createMetricsRoutes(molecules.metrics, db!));
 
   // --- Cosigner routes (mounted at specific paths) ---
   app.use("/api/riders", createCosignerRoutes(molecules.cosigners));

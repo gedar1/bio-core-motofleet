@@ -66,6 +66,33 @@ const futureDateSchema = z.string().refine(
   { message: "Date must be a future date" },
 );
 
+export const riderDocumentTypes = ["CC", "CE", "PPT", "PASAPORTE"] as const;
+
+export type RiderDocumentType = (typeof riderDocumentTypes)[number];
+
+export const documentTypeSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .pipe(
+    z.enum(riderDocumentTypes, {
+      errorMap: () => ({
+        message: "Document type must be CC, CE, PPT or PASAPORTE",
+      }),
+    }),
+  );
+
+export const documentNumberSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .min(5, "Document number must be at least 5 characters")
+  .max(30, "Document number must be at most 30 characters")
+  .regex(
+    /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/,
+    "Document number must be alphanumeric and may include hyphens between characters",
+  );
+
 export const createRiderSchema = z.object({
   name: z
     .string()
@@ -78,6 +105,8 @@ export const createRiderSchema = z.object({
     .min(5, "Address must be at least 5 characters")
     .max(200, "Address must be at most 200 characters"),
   password: passwordSchema,
+  document_type: documentTypeSchema,
+  document_number: documentNumberSchema,
   license_number: z.string().min(1, "License number is required"),
   license_expiry: futureDateSchema,
   insurance_number: z.string().min(1, "Insurance number is required"),

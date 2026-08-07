@@ -1,6 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { usePricingRules } from "../../hooks";
-import { Card } from "../../components/ui";
+import { Card, Button } from "../../components/ui";
 import { t, translateStatus } from "../../i18n";
 
 export const PricingRules: React.FC = () => {
@@ -12,7 +13,12 @@ export const PricingRules: React.FC = () => {
   return (
     <div className="section px-2xl">
       <div className="max-w-[1280px] mx-auto">
-        <h2 className="mb-2xl">{t.admin.pricingTitle}</h2>
+        <div className="flex justify-between items-center mb-2xl">
+          <h2>{t.admin.pricingTitle}</h2>
+          <Link to="/admin/pricing/create">
+            <Button>{t.adminForms.crear}</Button>
+          </Link>
+        </div>
         {rules.length === 0 ? (
           <p className="text-muted font-body text-body-md">
             {t.admin.noPricing}

@@ -351,7 +351,12 @@ export class ContractMolecule implements IMolecule {
       conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
 
     const countSql = `SELECT COUNT(*) as total FROM rental_contracts${whereClause}`;
-    const dataSql = `SELECT * FROM rental_contracts${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+    const dataSql = `
+      SELECT rc.*, r.name as rider_name, m.plate as motorcycle_plate
+      FROM rental_contracts rc
+      LEFT JOIN riders r ON r.id = rc.rider_id
+      LEFT JOIN motorcycles m ON m.id = rc.motorcycle_id
+      ${whereClause} ORDER BY rc.created_at DESC LIMIT ? OFFSET ?`;
 
     const totalRow = this.db.prepare(countSql).get(...params) as {
       total: number;

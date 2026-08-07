@@ -1,6 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { useContracts } from "../../hooks";
-import { Card } from "../../components/ui";
+import { Card, Button } from "../../components/ui";
 import { t, translateStatus } from "../../i18n";
 
 export const Contracts: React.FC = () => {
@@ -12,7 +13,12 @@ export const Contracts: React.FC = () => {
   return (
     <div className="section px-2xl">
       <div className="max-w-[1280px] mx-auto">
-        <h2 className="mb-2xl">{t.admin.contractsTitle}</h2>
+        <div className="flex justify-between items-center mb-2xl">
+          <h2>{t.admin.contractsTitle}</h2>
+          <Link to="/admin/contracts/create">
+            <Button>{t.adminForms.crear}</Button>
+          </Link>
+        </div>
         {contracts.length === 0 ? (
           <p className="text-muted font-body text-body-md">
             {t.admin.noContracts}
@@ -26,6 +32,14 @@ export const Contracts: React.FC = () => {
                   ${c.monthly_amount?.toLocaleString()}
                   {t.admin.perMonth} — {t.admin.day} {c.payment_day}
                 </p>
+                {(c as any).rider_name && (
+                  <p className="font-body text-body-sm text-ink mt-xs">
+                    👤 {(c as any).rider_name}{" "}
+                    {(c as any).motorcycle_plate
+                      ? `· 🏍️ ${(c as any).motorcycle_plate}`
+                      : ""}
+                  </p>
+                )}
                 <p className="font-body text-body-sm text-slate mt-xs">
                   {c.start_date} → {c.end_date}
                 </p>

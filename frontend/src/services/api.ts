@@ -127,4 +127,43 @@ export const api = {
   getAdminErrands(token: string) {
     return this.request("/admin/errands", { token });
   },
+
+  getRiders(token: string) {
+    return this.request("/admin/riders", { token });
+  },
+
+  getRidersForSelect(token: string) {
+    return this.request<
+      Array<{ id: string; name: string; phone: string; status: string }>
+    >("/admin/riders-select", { token });
+  },
+
+  getMotorcyclesForSelect(token: string) {
+    return this.request<
+      Array<{
+        id: string;
+        plate: string;
+        brand: string;
+        model: string;
+        status: string;
+      }>
+    >("/admin/motorcycles-select", { token });
+  },
+
+  // --- Rider availability ---
+  toggleRiderAvailability(token: string, riderId: string, available: boolean) {
+    return this.request(`/admin/riders/${riderId}/availability`, {
+      method: "PATCH",
+      token,
+      body: { available },
+    });
+  },
+
+  toggleMyAvailability(token: string, available: boolean) {
+    return this.request("/riders/me/availability", {
+      method: "PATCH",
+      token,
+      body: { available },
+    });
+  },
 };

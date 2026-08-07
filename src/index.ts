@@ -85,7 +85,7 @@ async function main(): Promise<void> {
   };
 
   // --- Create Express app ---
-  const app = createApp(molecules);
+  const app = createApp(molecules, db);
 
   // --- Register scheduler tasks ---
   const scheduler = new Scheduler(createLogger("Scheduler"));

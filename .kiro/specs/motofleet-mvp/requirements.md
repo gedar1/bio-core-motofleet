@@ -306,3 +306,17 @@ Este MVP valida la hipótesis central: que los usuarios solicitan mandados y los
 5. THE Plataforma SHALL permitir la transición de Estado_Motocicleta a retirada desde los estados disponible y mantenimiento por solicitud del Admin, y SHALL bloquear la transición desde rentada mientras exista un Contrato_de_Renta activo asociado.
 6. IF el Admin intenta una transición de Estado_Motocicleta no permitida, THEN THE Plataforma SHALL rechazar la operación sin modificar el Estado_Motocicleta actual e indicar en la respuesta las transiciones válidas desde el estado actual.
 7. THE Plataforma SHALL tratar el estado retirada como terminal: una Motocicleta en estado retirada no SHALL admitir transición a ningún otro Estado_Motocicleta.
+
+---
+
+### Rider identity document enhancement
+
+**User Story:** Como Admin, quiero registrar obligatoriamente la identidad colombiana de cada nuevo Motociclista, para distinguir de forma confiable a las personas registradas sin interrumpir los registros históricos.
+
+#### Acceptance Criteria
+
+1. WHEN el Admin registra un nuevo Motociclista, THE Plataforma SHALL requerir `document_type` y `document_number` además de los campos existentes de registro.
+2. THE Plataforma SHALL aceptar exclusivamente los valores canónicos `CC` (Cédula de ciudadanía), `CE` (Cédula de extranjería), `PPT` (Permiso por Protección Temporal) y `PASAPORTE` para `document_type`.
+3. THE Plataforma SHALL recortar espacios y convertir a mayúsculas `document_type` y `document_number`, y SHALL rechazar un número que no tenga entre 5 y 30 caracteres alfanuméricos o que use guiones fuera de posiciones interiores.
+4. IF un nuevo registro repite el mismo par canónico (`document_type`, `document_number`) de otro Motociclista, THEN THE Plataforma SHALL rechazarlo antes de persistirlo y la base de datos SHALL impedir duplicados concurrentes.
+5. WHEN la migración se aplica a una base de datos existente, THE Plataforma SHALL mantener utilizables a los Motociclistas históricos sin datos de documento; las vistas administrativas que muestren su identidad SHALL marcarlos como pendientes y ninguna vista pública, de Usuario o de Motociclista SHALL exponer números de documento.
