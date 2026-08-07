@@ -12,17 +12,17 @@
   "frontend/src/App.tsx": {
     "mtime": 1786058470.3700116,
     "ast_hash": "aeb8a06728b1ca69b1b5d4d697c3eec8",
-    "semantic_hash": "aeb8a06728b1ca69b1b5d4d697c3eec8"
+    "semantic_hash": ""
   },
   "frontend/src/components/layout/Footer.tsx": {
     "mtime": 1785957668.1973708,
     "ast_hash": "3f3839fd0467ea8776819c04054b8ca0",
-    "semantic_hash": "3f3839fd0467ea8776819c04054b8ca0"
+    "semantic_hash": ""
   },
   "frontend/src/components/layout/TopNav.tsx": {
     "mtime": 1785957554.3457983,
     "ast_hash": "040cb04e09f9c8bb6e2c478db3361415",
-    "semantic_hash": "040cb04e09f9c8bb6e2c478db3361415"
+    "semantic_hash": ""
   },
   "frontend/src/components/layout/index.ts": {
     "mtime": 1785862362.953432,
@@ -32,7 +32,7 @@
   "frontend/src/components/ui/Button.tsx": {
     "mtime": 1785941069.0691257,
     "ast_hash": "95db36f0aa4c82ce34243561d05d5523",
-    "semantic_hash": "95db36f0aa4c82ce34243561d05d5523"
+    "semantic_hash": ""
   },
   "frontend/src/components/ui/Caption.tsx": {
     "mtime": 1785862226.6461937,
@@ -42,12 +42,12 @@
   "frontend/src/components/ui/Card.tsx": {
     "mtime": 1785941076.8556857,
     "ast_hash": "41957e33869642363108551e170ec9ac",
-    "semantic_hash": "41957e33869642363108551e170ec9ac"
+    "semantic_hash": ""
   },
   "frontend/src/components/ui/Input.tsx": {
     "mtime": 1785941085.2806914,
     "ast_hash": "6607e99a5c12e8f33e18093c7b6c521e",
-    "semantic_hash": "6607e99a5c12e8f33e18093c7b6c521e"
+    "semantic_hash": ""
   },
   "frontend/src/components/ui/index.ts": {
     "mtime": 1785862279.429394,
@@ -67,77 +67,77 @@
   "frontend/src/pages/Dashboard.tsx": {
     "mtime": 1786059765.091841,
     "ast_hash": "448646ad87b43a8d40de973c86d9a433",
-    "semantic_hash": "448646ad87b43a8d40de973c86d9a433"
+    "semantic_hash": ""
   },
   "frontend/src/pages/Home.tsx": {
     "mtime": 1786056078.5772607,
     "ast_hash": "37bf52e6dce60ddffdb4382e2d47c43f",
-    "semantic_hash": "37bf52e6dce60ddffdb4382e2d47c43f"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/AdminErrands.tsx": {
     "mtime": 1785976734.738832,
     "ast_hash": "2f7131223cc1d41cae5ab1be52c6b77d",
-    "semantic_hash": "2f7131223cc1d41cae5ab1be52c6b77d"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/Contracts.tsx": {
     "mtime": 1785976763.4524062,
     "ast_hash": "1c23217a2790d18dd0ed56a07e43e068",
-    "semantic_hash": "1c23217a2790d18dd0ed56a07e43e068"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/Metrics.tsx": {
     "mtime": 1785971552.17078,
     "ast_hash": "41256d1e05671318ffa5edf5edcdab62",
-    "semantic_hash": "41256d1e05671318ffa5edf5edcdab62"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/Motorcycles.tsx": {
     "mtime": 1785973711.4884915,
     "ast_hash": "fe7a775f83557400dc35c4dab9780a62",
-    "semantic_hash": "fe7a775f83557400dc35c4dab9780a62"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/PricingRules.tsx": {
     "mtime": 1785973718.3858793,
     "ast_hash": "c7ad0b52f8574b1bef5c17b78b5fb9ff",
-    "semantic_hash": "c7ad0b52f8574b1bef5c17b78b5fb9ff"
+    "semantic_hash": ""
   },
   "frontend/src/pages/auth/Login.tsx": {
     "mtime": 1785957459.0277078,
     "ast_hash": "af62c90ae04fa1e6f7ea6ef72864a9f5",
-    "semantic_hash": "af62c90ae04fa1e6f7ea6ef72864a9f5"
+    "semantic_hash": ""
   },
   "frontend/src/pages/auth/Register.tsx": {
     "mtime": 1785957465.010507,
     "ast_hash": "e33d5c9e4299b35dcef63c803593ce14",
-    "semantic_hash": "e33d5c9e4299b35dcef63c803593ce14"
+    "semantic_hash": ""
   },
   "frontend/src/pages/rider/AvailableErrands.tsx": {
     "mtime": 1785971602.2025294,
     "ast_hash": "5dd95e0a690671f5720a121f0c4564a1",
-    "semantic_hash": "5dd95e0a690671f5720a121f0c4564a1"
+    "semantic_hash": ""
   },
   "frontend/src/pages/rider/RiderErrands.tsx": {
     "mtime": 1785971622.480181,
     "ast_hash": "7d7833592d96baeeb42c9b6cfada97a5",
-    "semantic_hash": "7d7833592d96baeeb42c9b6cfada97a5"
+    "semantic_hash": ""
   },
   "frontend/src/pages/user/CreateErrand.tsx": {
     "mtime": 1785962885.9995353,
     "ast_hash": "f604b5a0f57867e656415ca825a4ca25",
-    "semantic_hash": "f604b5a0f57867e656415ca825a4ca25"
+    "semantic_hash": ""
   },
   "frontend/src/pages/user/MyErrands.tsx": {
     "mtime": 1785971581.1726086,
     "ast_hash": "b63c338afb4ffc177cbb4fc2e93013b3",
-    "semantic_hash": "b63c338afb4ffc177cbb4fc2e93013b3"
+    "semantic_hash": ""
   },
   "frontend/src/services/api.ts": {
     "mtime": 1786059616.1915095,
     "ast_hash": "53c35329f9a9715a90e66bd640cfcacf",
-    "semantic_hash": "53c35329f9a9715a90e66bd640cfcacf"
+    "semantic_hash": ""
   },
   "frontend/src/types/api.ts": {
     "mtime": 1786061051.1108162,
     "ast_hash": "86a579121cbe4a2a3a754161f55d3d61",
-    "semantic_hash": "86a579121cbe4a2a3a754161f55d3d61"
+    "semantic_hash": ""
   },
   "frontend/src/types/api.types.ts": {
     "mtime": 1785849191.86088,
@@ -152,7 +152,7 @@
   "src/app.ts": {
     "mtime": 1785978045.8700955,
     "ast_hash": "f3e71d79dfc5b3f16198ac35571d9370",
-    "semantic_hash": "f3e71d79dfc5b3f16198ac35571d9370"
+    "semantic_hash": ""
   },
   "src/atoms/haversine.ts": {
     "mtime": 1785811013.544293,
@@ -167,7 +167,7 @@
   "src/atoms/schemas.ts": {
     "mtime": 1786061047.888513,
     "ast_hash": "72ffab1f1a653b56dcb656a9bfb4013b",
-    "semantic_hash": "72ffab1f1a653b56dcb656a9bfb4013b"
+    "semantic_hash": ""
   },
   "src/atoms/stateMachines.ts": {
     "mtime": 1785813546.769094,
@@ -182,7 +182,7 @@
   "src/index.ts": {
     "mtime": 1785978060.0185559,
     "ast_hash": "f53ea4148d6bbcf7f96fe513aee05dcb",
-    "semantic_hash": "f53ea4148d6bbcf7f96fe513aee05dcb"
+    "semantic_hash": ""
   },
   "src/infrastructure/database.ts": {
     "mtime": 1785867614.1841323,
@@ -232,7 +232,7 @@
   "src/molecules/ContractMolecule.ts": {
     "mtime": 1785976700.2542515,
     "ast_hash": "d4b138238e2840b371bf4a599a58ec16",
-    "semantic_hash": "d4b138238e2840b371bf4a599a58ec16"
+    "semantic_hash": ""
   },
   "src/molecules/CosignerMolecule.ts": {
     "mtime": 1785813645.1052563,
@@ -252,7 +252,7 @@
   "src/molecules/MetricsMolecule.ts": {
     "mtime": 1786061078.6666844,
     "ast_hash": "e40ccbb311cfd5a596ee4370e41649ee",
-    "semantic_hash": "e40ccbb311cfd5a596ee4370e41649ee"
+    "semantic_hash": ""
   },
   "src/molecules/MotorcycleMolecule.ts": {
     "mtime": 1785813674.7678409,
@@ -277,7 +277,7 @@
   "src/molecules/RiderMolecule.ts": {
     "mtime": 1786061068.8124433,
     "ast_hash": "ada8bdb8732194d5a4cc72128ab422e7",
-    "semantic_hash": "ada8bdb8732194d5a4cc72128ab422e7"
+    "semantic_hash": ""
   },
   "src/molecules/UserMolecule.ts": {
     "mtime": 1785813605.788217,
@@ -307,7 +307,7 @@
   "src/routes/metrics.routes.ts": {
     "mtime": 1786059531.1302454,
     "ast_hash": "402277571bbacf3cb934e6d66139514a",
-    "semantic_hash": "402277571bbacf3cb934e6d66139514a"
+    "semantic_hash": ""
   },
   "src/routes/motorcycle.routes.ts": {
     "mtime": 1785813886.2844877,
@@ -327,7 +327,7 @@
   "src/routes/rider.routes.ts": {
     "mtime": 1786061075.3851495,
     "ast_hash": "32dd4f62a5b40dd80d5a5138f43e7830",
-    "semantic_hash": "32dd4f62a5b40dd80d5a5138f43e7830"
+    "semantic_hash": ""
   },
   "src/routes/user.routes.ts": {
     "mtime": 1785813050.3005526,
@@ -377,102 +377,102 @@
   "frontend/src/hooks/index.ts": {
     "mtime": 1785962758.793805,
     "ast_hash": "98b293c5e7a23ba77f69f1ace477c85b",
-    "semantic_hash": "98b293c5e7a23ba77f69f1ace477c85b"
+    "semantic_hash": ""
   },
   "frontend/src/hooks/useContracts.ts": {
     "mtime": 1785962713.190178,
     "ast_hash": "e79dfdbdd90a856d5511c3864757332e",
-    "semantic_hash": "e79dfdbdd90a856d5511c3864757332e"
+    "semantic_hash": ""
   },
   "frontend/src/hooks/useDarkMode.ts": {
     "mtime": 1785941683.4125676,
     "ast_hash": "49849cd266201f110a709d0ba1ebed01",
-    "semantic_hash": "49849cd266201f110a709d0ba1ebed01"
+    "semantic_hash": ""
   },
   "frontend/src/hooks/useErrands.ts": {
     "mtime": 1785962739.5566964,
     "ast_hash": "c771121a2c5ca7375e5c021b8a730a21",
-    "semantic_hash": "c771121a2c5ca7375e5c021b8a730a21"
+    "semantic_hash": ""
   },
   "frontend/src/hooks/useMetrics.ts": {
     "mtime": 1785962749.3948472,
     "ast_hash": "489f93dbb91f9560e5f9314a28bc7a66",
-    "semantic_hash": "489f93dbb91f9560e5f9314a28bc7a66"
+    "semantic_hash": ""
   },
   "frontend/src/hooks/useMotorcycles.ts": {
     "mtime": 1785962703.533353,
     "ast_hash": "b1a4bc6ecf289a056ca9ba3cd5d7dc9a",
-    "semantic_hash": "b1a4bc6ecf289a056ca9ba3cd5d7dc9a"
+    "semantic_hash": ""
   },
   "frontend/src/hooks/usePricingRules.ts": {
     "mtime": 1785962723.3514812,
     "ast_hash": "9719837bb6a2c56964b521adf67a805f",
-    "semantic_hash": "9719837bb6a2c56964b521adf67a805f"
+    "semantic_hash": ""
   },
   "frontend/src/hooks/useRiders.ts": {
     "mtime": 1786061050.4058588,
     "ast_hash": "7f27e0264b0662b1ccef70064cdf3cc9",
-    "semantic_hash": "7f27e0264b0662b1ccef70064cdf3cc9"
+    "semantic_hash": ""
   },
   "frontend/src/i18n/es.ts": {
     "mtime": 1786057301.612406,
     "ast_hash": "c15a21b9cd9a809ed3f4c2bcf53fc34a",
-    "semantic_hash": "c15a21b9cd9a809ed3f4c2bcf53fc34a"
+    "semantic_hash": ""
   },
   "frontend/src/i18n/index.ts": {
     "mtime": 1785971430.5299895,
     "ast_hash": "04176b3f9c6eb224816c6f8271b2ab5d",
-    "semantic_hash": "04176b3f9c6eb224816c6f8271b2ab5d"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/CreateContract.tsx": {
     "mtime": 1785978370.886258,
     "ast_hash": "a5646872924f27b16ed90dc9958feba7",
-    "semantic_hash": "a5646872924f27b16ed90dc9958feba7"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/CreateCosigner.tsx": {
     "mtime": 1785973837.665463,
     "ast_hash": "88195ea7d51b54cea1ce8141b4d7921f",
-    "semantic_hash": "88195ea7d51b54cea1ce8141b4d7921f"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/CreateMotorcycle.tsx": {
     "mtime": 1785973807.2609618,
     "ast_hash": "23105aa9f4e26a8a0e3afdbd025809c1",
-    "semantic_hash": "23105aa9f4e26a8a0e3afdbd025809c1"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/CreatePayment.tsx": {
     "mtime": 1785973868.5676565,
     "ast_hash": "6626a912bc7784ce82e830ac32a54adb",
-    "semantic_hash": "6626a912bc7784ce82e830ac32a54adb"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/CreatePricingRule.tsx": {
     "mtime": 1785973851.8159416,
     "ast_hash": "ad4550307df0d3ace1ab7f15e7fe3b60",
-    "semantic_hash": "ad4550307df0d3ace1ab7f15e7fe3b60"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/CreateRider.tsx": {
     "mtime": 1786061088.912965,
     "ast_hash": "f8014c9ad25292f587c12f2e80f9b5ad",
-    "semantic_hash": "f8014c9ad25292f587c12f2e80f9b5ad"
+    "semantic_hash": ""
   },
   "frontend/src/pages/admin/Riders.tsx": {
     "mtime": 1786061079.633437,
     "ast_hash": "65a8d2ac4584f15ed1ad84eb322e3e8e",
-    "semantic_hash": "65a8d2ac4584f15ed1ad84eb322e3e8e"
+    "semantic_hash": ""
   },
   "src/migrations/002_add_rider_identity_documents.sql": {
     "mtime": 1786061043.841731,
     "ast_hash": "6a973cfaa3d4ba639a0d7bf900e62d26",
-    "semantic_hash": "6a973cfaa3d4ba639a0d7bf900e62d26"
+    "semantic_hash": ""
   },
   "tests/atoms/riderIdentity.test.ts": {
     "mtime": 1786061049.800305,
     "ast_hash": "5b08f9a456a13f7c15dbf43c0410957e",
-    "semantic_hash": "5b08f9a456a13f7c15dbf43c0410957e"
+    "semantic_hash": ""
   },
   "tests/molecules/riderIdentity.test.ts": {
     "mtime": 1786061102.3512356,
     "ast_hash": "480353a95398ed9a00f92ac1378cf51b",
-    "semantic_hash": "480353a95398ed9a00f92ac1378cf51b"
+    "semantic_hash": ""
   },
   ".kiro/skills/graphify/SKILL.md": {
     "mtime": 1785894652.3615212,
