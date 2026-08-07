@@ -400,3 +400,10 @@ Standalone Express + SQLite REST API for motorcycle fleet rental and errand mark
   ]
 }
 ```
+
+- [x] 13. Rider identity documents enhancement
+  - [x] 13.1 Add forward-only SQLite migration `002_add_rider_identity_documents.sql` with nullable legacy-safe `document_type` and `document_number` columns and a partial unique index on their non-null pair.
+  - [x] 13.2 Extend rider Zod validation and `RiderMolecule` registration/persistence with canonical Colombia document types, normalized number validation, and duplicate rejection.
+  - [x] 13.3 Add required type/number controls to the Admin rider registration form and show document type or pending status only in admin list/selection views.
+  - [x] 13.4 Add focused document schema tests and validate backend plus frontend builds.
+  - _Requirements: 3.1, 3.2, 3.5, 3.6; Rider identity document enhancement_

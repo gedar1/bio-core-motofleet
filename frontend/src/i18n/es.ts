@@ -11,7 +11,7 @@ export const es = {
   home: {
     hero: "Mueve lo que importa.",
     subtitle:
-      "Solicita favoress, renta motocicletas y entrega por toda la ciudad — todo desde una plataforma.",
+      "Solicita favores, renta motocicletas y entrega por toda la ciudad — todo desde una plataforma.",
     getStarted: "Comenzar",
     signIn: "Iniciar Sesión",
     howItWorks: "CÓMO FUNCIONA",
@@ -133,6 +133,58 @@ export const es = {
   footer: {
     tagline: "Alquiler de flotas de motocicletas y marketplace de favores",
     copyright: "© 2026 MotoFleet. Todos los derechos reservados.",
+  },
+
+  // Admin Forms
+  adminForms: {
+    // Motorcycle
+    createMotorcycleTitle: "Crear Motocicleta",
+    plate: "Placa",
+    brand: "Marca",
+    model: "Modelo",
+    year: "Año",
+    color: "Color",
+    engineCc: "Cilindraje (CC)",
+    soatExpiry: "Vencimiento SOAT",
+    inspectionExpiry: "Vencimiento Revisión Técnica",
+    // Contract
+    createContractTitle: "Crear Contrato",
+    riderId: "ID del Motociclista",
+    motorcycleId: "ID de la Motocicleta",
+    startDate: "Fecha de Inicio",
+    endDate: "Fecha de Fin",
+    monthlyAmount: "Monto Mensual",
+    paymentDay: "Día de Pago",
+    notes: "Notas (opcional)",
+    // Cosigner
+    createCosignerTitle: "Crear Codeudor",
+    name: "Nombre",
+    address: "Dirección",
+    phone: "Teléfono",
+    relationship: "Parentesco",
+    identityDocument: "Documento de Identidad",
+    // Pricing Rule
+    createPricingRuleTitle: "Crear Regla de Tarifa",
+    errandType: "Tipo de Favor",
+    objectTransport: "Envío de Objetos",
+    purchase: "Compra",
+    errand: "Trámite",
+    baseRate: "Tarifa Base",
+    ratePerKm: "Tarifa por Km",
+    commissionPercentage: "Porcentaje de Comisión",
+    // Payment
+    createPaymentTitle: "Registrar Pago",
+    contractId: "ID del Contrato",
+    amount: "Monto",
+    paymentDate: "Fecha de Pago",
+    paymentMethod: "Método de Pago",
+    cash: "Efectivo",
+    transfer: "Transferencia",
+    period: "Período (YYYY-MM)",
+    // Common form
+    submitBtn: "Guardar",
+    submittingBtn: "Guardando...",
+    crear: "Crear",
   },
 
   // Common

@@ -21,7 +21,7 @@ export const Home: React.FC = () => {
   return (
     <>
       {/* Hero Section — warm sunset gradient */}
-      <section className="relative flex flex-col items-center justify-center min-h-screen px-2xl py-hero text-center bg-gradient-to-br from-sunshine-300 via-sunshine-500 to-primary">
+      <section className="relative flex flex-col items-center justify-center min-h-screen px-2xl py-hero text-center ">
         <h1 className="text-hero font-display text-ink max-w-[800px]">
           {t.home.hero}
         </h1>

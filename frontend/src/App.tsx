@@ -11,6 +11,13 @@ import { Contracts } from "./pages/admin/Contracts";
 import { PricingRules } from "./pages/admin/PricingRules";
 import { AdminErrands } from "./pages/admin/AdminErrands";
 import { Metrics } from "./pages/admin/Metrics";
+import { Riders } from "./pages/admin/Riders";
+import { CreateRider } from "./pages/admin/CreateRider";
+import { CreateMotorcycle } from "./pages/admin/CreateMotorcycle";
+import { CreateContract } from "./pages/admin/CreateContract";
+import { CreateCosigner } from "./pages/admin/CreateCosigner";
+import { CreatePricingRule } from "./pages/admin/CreatePricingRule";
+import { CreatePayment } from "./pages/admin/CreatePayment";
 import { CreateErrand } from "./pages/user/CreateErrand";
 import { UserMyErrands } from "./pages/user/MyErrands";
 import { AvailableErrands } from "./pages/rider/AvailableErrands";
@@ -69,6 +76,30 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route
+        path="/admin/riders"
+        element={
+          <ProtectedRoute>
+            <Riders />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/riders/create"
+        element={
+          <ProtectedRoute>
+            <CreateRider />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/motorcycles/create"
+        element={
+          <ProtectedRoute>
+            <CreateMotorcycle />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin/contracts"
         element={
           <ProtectedRoute>
@@ -77,10 +108,42 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route
+        path="/admin/contracts/create"
+        element={
+          <ProtectedRoute>
+            <CreateContract />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin/pricing"
         element={
           <ProtectedRoute>
             <PricingRules />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/pricing/create"
+        element={
+          <ProtectedRoute>
+            <CreatePricingRule />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/cosigners/create"
+        element={
+          <ProtectedRoute>
+            <CreateCosigner />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/payments/create"
+        element={
+          <ProtectedRoute>
+            <CreatePayment />
           </ProtectedRoute>
         }
       />
@@ -97,6 +160,48 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <Metrics />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Admin create forms */}
+      <Route
+        path="/admin/motorcycles/create"
+        element={
+          <ProtectedRoute>
+            <CreateMotorcycle />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/contracts/create"
+        element={
+          <ProtectedRoute>
+            <CreateContract />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/cosigners/create"
+        element={
+          <ProtectedRoute>
+            <CreateCosigner />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/pricing/create"
+        element={
+          <ProtectedRoute>
+            <CreatePricingRule />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/payments/create"
+        element={
+          <ProtectedRoute>
+            <CreatePayment />
           </ProtectedRoute>
         }
       />
@@ -143,9 +248,9 @@ const AppRoutes: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-canvas">
+      <div className="min-h-screen bg-canvas flex flex-col">
         <TopNav />
-        <main className="pt-[64px]">
+        <main className="pt-[64px] flex-1">
           <AppRoutes />
         </main>
         <Footer />

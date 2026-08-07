@@ -1143,3 +1143,9 @@ npx vitest --run tests/atoms/
 # Con cobertura
 npx vitest --run --coverage
 ```
+
+### Rider identity document enhancement
+
+New rider registrations persist canonical English-named `document_type` and `document_number` fields. `document_type` is one of `CC` (Cédula de ciudadanía), `CE` (Cédula de extranjería), `PPT` (Permiso por Protección Temporal), or `PASAPORTE`; `document_number` is trimmed, uppercased, and limited to 5–30 alphanumeric characters with interior hyphens only. Zod validates and normalizes the request at the API boundary, while `RiderMolecule` checks the canonical `(document_type, document_number)` pair before inserting it.
+
+Migration `002_add_rider_identity_documents.sql` adds nullable fields and a partial unique index for the pair. The columns intentionally remain nullable so records created before the enhancement remain readable and usable. Admin-only rider lists and selectors receive `document_type` to identify legacy records as pending; document numbers are not included in general rider, user, or public views.

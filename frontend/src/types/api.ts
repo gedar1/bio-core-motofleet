@@ -74,6 +74,8 @@ export interface Rider {
   telefono: string;
   email: string;
   direccion: string;
+  /** Null for riders created before identity documents became mandatory. */
+  document_type: "CC" | "CE" | "PPT" | "PASAPORTE" | null;
   licencia_numero: string;
   licencia_vencimiento: string;
   seguro_numero: string;

@@ -91,9 +91,11 @@ html.dark {
 
   .btn-dark {
     @apply inline-flex items-center justify-center
-           font-body text-button text-on-dark bg-ink
+           font-body text-button
            rounded-md px-lg py-sm min-h-touch
            transition-colors duration-150;
+    background-color: #fa520f;
+    color: #ffffff;
   }
 
   .btn-secondary {

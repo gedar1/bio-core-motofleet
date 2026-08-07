@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+import { api } from "../services/api";
 import { Button } from "../components/ui";
 import { t } from "../i18n";
 
@@ -33,6 +34,7 @@ const AdminDashboard: React.FC = () => (
       title={t.dashboard.motorcycles.toUpperCase()}
       href="/admin/motorcycles"
     />
+    <DashCard title="MOTOCICLISTAS" href="/admin/riders" />
     <DashCard
       title={t.dashboard.contracts.toUpperCase()}
       href="/admin/contracts"
@@ -59,18 +61,72 @@ const UserDashboard: React.FC = () => (
   </div>
 );
 
-const RiderDashboard: React.FC = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
-    <DashCard
-      title={t.dashboard.availableErrands.toUpperCase()}
-      href="/rider/available"
-    />
-    <DashCard
-      title={t.dashboard.myErrands.toUpperCase()}
-      href="/rider/errands"
-    />
-  </div>
-);
+const RiderDashboard: React.FC = () => {
+  const { token } = useAuth();
+  const [available, setAvailable] = useState<boolean>(false);
+  const [toggling, setToggling] = useState(false);
+
+  const loadStatus = useCallback(async () => {
+    if (!token) return;
+    try {
+      const errands: any = await api.getMyErrands(token);
+      // If no in-progress errand, availability can be toggled
+    } catch {
+      /* ignore */
+    }
+  }, [token]);
+
+  useEffect(() => {
+    loadStatus();
+  }, [loadStatus]);
+
+  const handleToggle = async () => {
+    if (!token) return;
+    setToggling(true);
+    try {
+      await api.toggleMyAvailability(token, !available);
+      setAvailable(!available);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Error");
+    } finally {
+      setToggling(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="card-cream p-xl mb-xl flex justify-between items-center">
+        <div>
+          <p className="font-body text-body-md-medium text-ink">
+            Mi disponibilidad
+          </p>
+          <p className="caption mt-xxs">
+            {available
+              ? "Estás recibiendo mandados"
+              : "No estás recibiendo mandados"}
+          </p>
+        </div>
+        <Button
+          variant={available ? "secondary" : "primary"}
+          onClick={handleToggle}
+          disabled={toggling}
+        >
+          {available ? "Desactivar" : "Activar"}
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
+        <DashCard
+          title={t.dashboard.availableErrands.toUpperCase()}
+          href="/rider/available"
+        />
+        <DashCard
+          title={t.dashboard.myErrands.toUpperCase()}
+          href="/rider/errands"
+        />
+      </div>
+    </div>
+  );
+};
 
 const DashCard: React.FC<{ readonly title: string; readonly href: string }> = ({
   title,

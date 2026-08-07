@@ -30,6 +30,8 @@ export interface AdminErrand {
   id: string;
   user_id: string;
   rider_id: string | null;
+  rider_name: string | null;
+  motorcycle_plate: string | null;
   type: string;
   description: string;
   origin_address: string;
@@ -149,40 +151,48 @@ export class MetricsMolecule implements IMolecule {
     const params: unknown[] = [];
 
     if (filters?.status) {
-      conditions.push("status = ?");
+      conditions.push("e.status = ?");
       params.push(filters.status);
     }
 
     if (filters?.type) {
-      conditions.push("type = ?");
+      conditions.push("e.type = ?");
       params.push(filters.type);
     }
 
     if (filters?.rider_id) {
-      conditions.push("rider_id = ?");
+      conditions.push("e.rider_id = ?");
       params.push(filters.rider_id);
     }
 
     if (filters?.start_date) {
-      conditions.push("requested_at >= ?");
+      conditions.push("e.requested_at >= ?");
       params.push(filters.start_date);
     }
 
     if (filters?.end_date) {
-      conditions.push("requested_at <= ?");
+      conditions.push("e.requested_at <= ?");
       params.push(filters.end_date + " 23:59:59");
     }
 
     const whereClause =
       conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
 
-    const countSql = `SELECT COUNT(*) as total FROM errands${whereClause}`;
-    const dataSql = `SELECT * FROM errands${whereClause} ORDER BY requested_at DESC LIMIT ? OFFSET ?`;
-
+    const countSql = `SELECT COUNT(*) as total FROM errands e${whereClause}`;
     const totalRow = this.db.prepare(countSql).get(...params) as {
       total: number;
     };
     const total = totalRow.total;
+
+    const dataSql = `
+      SELECT e.*, r.name as rider_name,
+        (SELECT m.plate FROM rental_contracts rc
+         JOIN motorcycles m ON m.id = rc.motorcycle_id
+         WHERE rc.rider_id = e.rider_id LIMIT 1) as motorcycle_plate
+      FROM errands e
+      LEFT JOIN riders r ON r.id = e.rider_id
+      ${whereClause}
+      ORDER BY e.requested_at DESC LIMIT ? OFFSET ?`;
 
     const dataParams = [...params, pageSize, offset];
     const data = this.db.prepare(dataSql).all(...dataParams) as AdminErrand[];
@@ -197,4 +207,59 @@ export class MetricsMolecule implements IMolecule {
       totalPages,
     };
   }
+}
+
+// --- Additional admin methods appended ---
+
+/**
+ * Standalone function to list all riders for admin (used by metrics routes).
+ * Needs db passed directly since it's outside the class.
+ */
+export function listAllRiders(
+  db: import("better-sqlite3").Database,
+): Array<Record<string, unknown>> {
+  return db
+    .prepare(
+      `SELECT id, name, phone, email, address, document_type, license_number,
+              license_expiry, insurance_number, insurance_expiry, bond_amount,
+              status, available, created_at
+       FROM riders ORDER BY created_at DESC`,
+    )
+    .all() as Array<Record<string, unknown>>;
+}
+
+export function listMotorcyclesForSelection(
+  db: import("better-sqlite3").Database,
+): Array<{
+  id: string;
+  plate: string;
+  brand: string;
+  model: string;
+  status: string;
+}> {
+  return db
+    .prepare(
+      "SELECT id, plate, brand, model, status FROM motorcycles ORDER BY plate",
+    )
+    .all() as Array<{
+    id: string;
+    plate: string;
+    brand: string;
+    model: string;
+    status: string;
+  }>;
+}
+
+/** Lightweight admin selector intentionally excludes identity-document values. */
+export function listRidersForSelection(
+  db: import("better-sqlite3").Database,
+): Array<{ id: string; name: string; phone: string; status: string }> {
+  return db
+    .prepare("SELECT id, name, phone, status FROM riders ORDER BY name")
+    .all() as Array<{
+    id: string;
+    name: string;
+    phone: string;
+    status: string;
+  }>;
 }
