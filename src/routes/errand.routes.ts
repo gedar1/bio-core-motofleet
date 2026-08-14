@@ -17,6 +17,7 @@ import type { Role } from "../molecules/IMolecule.js";
  * - POST /api/errands — user
  * - GET /api/errands/available — rider
  * - GET /api/errands/my — user | rider
+ * - GET /api/errands/:id/route-preview — rider Mapbox preview for an existing errand
  * - PATCH /api/errands/:id/accept — rider
  * - PATCH /api/errands/:id/pickup — rider
  * - PATCH /api/errands/:id/deliver — rider
@@ -101,6 +102,23 @@ export function createErrandRoutes(
         }
 
         res.status(200).json(result);
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
+
+  // GET /api/errands/:id/route-preview — rider Mapbox preview for an existing errand
+  router.get(
+    "/:id/route-preview",
+    roleGuard("rider"),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const route = await errandMolecule.getRoutePreviewForRider(
+          req.params.id as string,
+          req.user!.id,
+        );
+        res.status(200).json(route);
       } catch (error) {
         next(error);
       }

@@ -1,6 +1,12 @@
 import { useRef, useState } from "react";
 import { Geocoder } from "@mapbox/search-js-react";
-import Map, { Layer, Marker, Source, type MapRef } from "react-map-gl/mapbox";
+import Map, {
+  Layer,
+  Marker,
+  NavigationControl,
+  Source,
+  type MapRef,
+} from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { RouteEstimateResponse } from "../../types/api";
 import { Button } from "./Button";
@@ -45,6 +51,15 @@ const MAPBOX_PUBLIC_TOKEN = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN as
   | undefined;
 const INITIAL_VIEW = { longitude: -75.5812, latitude: 6.2442, zoom: 12 };
 
+type ReverseGeocodingResponse = {
+  readonly features?: ReadonlyArray<{
+    readonly properties?: { readonly full_address?: string };
+    readonly full_address?: string;
+    readonly place_formatted?: string;
+    readonly name?: string;
+  }>;
+};
+
 const routeLayer = {
   id: "estimated-route",
   type: "line" as const,
@@ -71,19 +86,45 @@ export const RoutePickerMapbox = ({
     if (kind === "origin") setActivePoint("destination");
   };
 
-  const selectCoordinates = (
+  const selectCoordinates = async (
     kind: PointKind,
     latitude: number,
     longitude: number,
   ) => {
+    const fallbackAddress =
+      kind === "origin"
+        ? "Punto de recogida seleccionado"
+        : "Punto de entrega seleccionado";
+
     selectLocation(kind, {
-      address:
-        kind === "origin"
-          ? "Punto de recogida seleccionado"
-          : "Punto de entrega seleccionado",
+      address: fallbackAddress,
       latitude,
       longitude,
     });
+    setMessage("Buscando la dirección del punto seleccionado...");
+
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${longitude}&latitude=${latitude}&country=CO&language=es&access_token=${encodeURIComponent(MAPBOX_PUBLIC_TOKEN ?? "")}`,
+      );
+      if (!response.ok) return;
+
+      const result = (await response.json()) as ReverseGeocodingResponse;
+      const feature = result.features?.[0];
+      const address =
+        feature?.properties?.full_address ??
+        feature?.full_address ??
+        feature?.place_formatted ??
+        feature?.name;
+
+      if (address) {
+        selectLocation(kind, { address, latitude, longitude });
+      }
+    } catch {
+      setMessage(
+        "Ubicación seleccionada. No fue posible obtener la dirección.",
+      );
+    }
   };
 
   const handleRetrieve = (feature: GeocoderFeature) => {
@@ -207,10 +248,12 @@ export const RoutePickerMapbox = ({
           initialViewState={INITIAL_VIEW}
           mapboxAccessToken={MAPBOX_PUBLIC_TOKEN}
           mapStyle="mapbox://styles/mapbox/streets-v12"
+          touchZoomRotate
           onClick={(event) =>
             selectCoordinates(activePoint, event.lngLat.lat, event.lngLat.lng)
           }
         >
+          <NavigationControl position="top-right" showCompass={false} />
           {value.origin && (
             <Marker
               longitude={value.origin.longitude}

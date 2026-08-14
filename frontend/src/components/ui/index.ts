@@ -8,3 +8,4 @@ export {
   type RoutePreview,
   type RouteValue,
 } from "./RoutePickerMapbox";
+export { RiderRouteActions } from "./RiderRouteActions";

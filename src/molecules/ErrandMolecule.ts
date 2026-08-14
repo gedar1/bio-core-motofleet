@@ -514,6 +514,44 @@ export class ErrandMolecule implements IMolecule {
     return this.getById(errandId) as Errand;
   }
 
+  async getRoutePreviewForRider(
+    errandId: string,
+    riderId: string,
+  ): ReturnType<RoutingProvider["getRoute"]> {
+    const errand = this.getById(errandId);
+
+    if (!errand) {
+      throw new AppError(404, "NOT_FOUND", "Errand not found");
+    }
+
+    const isAvailable = errand.status === "requested";
+    const isAssignedToRider = errand.rider_id === riderId;
+    if (!isAvailable && !isAssignedToRider) {
+      throw new AppError(403, "FORBIDDEN", "Errand route is not available");
+    }
+
+    if (
+      errand.origin_lat == null ||
+      errand.origin_lng == null ||
+      errand.destination_lat == null ||
+      errand.destination_lng == null
+    ) {
+      throw new AppError(
+        409,
+        "ROUTE_UNAVAILABLE",
+        "Errand route is not available",
+      );
+    }
+
+    return this.estimateRoute(
+      { latitude: errand.origin_lat, longitude: errand.origin_lng },
+      {
+        latitude: errand.destination_lat,
+        longitude: errand.destination_lng,
+      },
+    );
+  }
+
   /**
    * Lists available errands (status=requested), ordered by requested_at DESC.
    */

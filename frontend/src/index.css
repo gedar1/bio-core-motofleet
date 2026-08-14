@@ -206,17 +206,44 @@ html.dark {
   }
 }
 
-/* Mapbox route picker */
+/* Mobile-first Mapbox workspaces for user and rider operational flows. */
 .route-picker-mapbox {
-  height: 340px;
+  order: -1;
+  height: min(52svh, 440px);
+  min-height: 320px;
   width: 100%;
   overflow: hidden;
   border: 1px solid rgb(var(--color-hairline-strong));
-  border-radius: 0.375rem;
+  border-radius: 0;
   background: rgb(var(--color-surface));
 }
 
 .route-picker-mapbox .mapboxgl-ctrl-logo,
 .route-picker-mapbox .mapboxgl-ctrl-attrib {
   display: block;
+}
+
+.rider-route-map {
+  height: min(56svh, 460px);
+  min-height: 320px;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(var(--color-hairline-strong));
+  border-radius: 0;
+  background: rgb(var(--color-surface));
+}
+
+@media (min-width: 1024px) {
+  .route-picker-mapbox {
+    order: initial;
+    height: 340px;
+    min-height: 0;
+    border-radius: 0.375rem;
+  }
+
+  .rider-route-map {
+    height: 280px;
+    min-height: 0;
+    border-radius: 0.375rem;
+  }
 }

@@ -75,6 +75,13 @@ export const api = {
     });
   },
 
+  getRiderErrandRoutePreview(token: string, errandId: string) {
+    return this.request<RouteEstimateResponse>(
+      `/errands/${errandId}/route-preview`,
+      { token },
+    );
+  },
+
   getAvailableErrands(token: string) {
     return this.request("/errands/available", { token });
   },
