@@ -4,15 +4,20 @@ import type { NotificationMolecule } from "../molecules/NotificationMolecule.js"
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createErrandSchema } from "../atoms/schemas.js";
+import {
+  createErrandSchema,
+  routeEstimateRequestSchema,
+} from "../atoms/schemas.js";
 import type { ErrandState } from "../atoms/stateMachines.js";
 import type { Role } from "../molecules/IMolecule.js";
 
 /**
  * Creates errand routes with mixed role access.
+ * - POST /api/errands/route-estimate — user
  * - POST /api/errands — user
  * - GET /api/errands/available — rider
  * - GET /api/errands/my — user | rider
+ * - GET /api/errands/:id/route-preview — rider Mapbox preview for an existing errand
  * - PATCH /api/errands/:id/accept — rider
  * - PATCH /api/errands/:id/pickup — rider
  * - PATCH /api/errands/:id/deliver — rider
@@ -27,14 +32,32 @@ export function createErrandRoutes(
   // All errand routes require authentication
   router.use(authMiddleware);
 
+  // POST /api/errands/route-estimate — user route preview without side effects
+  router.post(
+    "/route-estimate",
+    roleGuard("user"),
+    validate(routeEstimateRequestSchema),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const estimate = await errandMolecule.estimateRoute(
+          req.body.origin,
+          req.body.destination,
+        );
+        res.status(200).json(estimate);
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
+
   // POST /api/errands — user creates an errand
   router.post(
     "/",
     roleGuard("user"),
     validate(createErrandSchema),
-    (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const errand = errandMolecule.create(req.user!.id, req.body);
+        const errand = await errandMolecule.create(req.user!.id, req.body);
         res.status(201).json(errand);
       } catch (error) {
         next(error);
@@ -79,6 +102,23 @@ export function createErrandRoutes(
         }
 
         res.status(200).json(result);
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
+
+  // GET /api/errands/:id/route-preview — rider Mapbox preview for an existing errand
+  router.get(
+    "/:id/route-preview",
+    roleGuard("rider"),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const route = await errandMolecule.getRoutePreviewForRider(
+          req.params.id as string,
+          req.user!.id,
+        );
+        res.status(200).json(route);
       } catch (error) {
         next(error);
       }

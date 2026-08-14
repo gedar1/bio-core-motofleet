@@ -1,47 +1,98 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useErrandActions } from "../../hooks";
-import { Button, Input } from "../../components/ui";
+import {
+  Button,
+  Input,
+  RoutePickerMapbox,
+  type RoutePreview,
+  type RouteValue,
+} from "../../components/ui";
 import { t } from "../../i18n";
 
 export const CreateErrand: React.FC = () => {
   const navigate = useNavigate();
-  const { create } = useErrandActions();
+  const { create, estimateRoute } = useErrandActions();
   const [error, setError] = useState<string | null>(null);
+  const [routePreview, setRoutePreview] = useState<RoutePreview | null>(null);
+  const [routeEstimateError, setRouteEstimateError] = useState<string | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
+  const [route, setRoute] = useState<RouteValue>({
+    origin: null,
+    destination: null,
+  });
   const [form, setForm] = useState({
     type: "object_transport",
     description: "",
-    origin_address: "",
-    origin_lat: "",
-    origin_lng: "",
-    destination_address: "",
-    destination_lat: "",
-    destination_lng: "",
     payment_method: "cash",
   });
 
   const handleChange =
-    (field: string) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    (field: keyof typeof form) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setForm((previous) => ({ ...previous, [field]: event.target.value }));
     };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  useEffect(() => {
+    let current = true;
+    const { origin, destination } = route;
+
+    if (!origin || !destination) {
+      setRoutePreview(null);
+      setRouteEstimateError(null);
+      return () => {
+        current = false;
+      };
+    }
+
+    setRoutePreview(null);
+    setRouteEstimateError(null);
+    estimateRoute(origin, destination)
+      .then((estimate) => {
+        if (current) setRoutePreview(estimate);
+      })
+      .catch(() => {
+        if (current) {
+          setRouteEstimateError(
+            "No fue posible previsualizar la ruta. Ajusta los puntos o inténtalo de nuevo.",
+          );
+        }
+      });
+
+    return () => {
+      current = false;
+    };
+  }, [
+    estimateRoute,
+    route.destination?.latitude,
+    route.destination?.longitude,
+    route.origin?.latitude,
+    route.origin?.longitude,
+  ]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError(null);
+
+    if (!route.origin || !route.destination) {
+      setError(
+        "Selecciona el origen y el destino en el mapa antes de continuar.",
+      );
+      return;
+    }
+
+    setLoading(true);
     try {
       await create({
         ...form,
-        origin_lat: form.origin_lat ? parseFloat(form.origin_lat) : undefined,
-        origin_lng: form.origin_lng ? parseFloat(form.origin_lng) : undefined,
-        destination_lat: form.destination_lat
-          ? parseFloat(form.destination_lat)
-          : undefined,
-        destination_lng: form.destination_lng
-          ? parseFloat(form.destination_lng)
-          : undefined,
+        origin_address: route.origin.address,
+        origin_lat: route.origin.latitude,
+        origin_lng: route.origin.longitude,
+        destination_address: route.destination.address,
+        destination_lat: route.destination.latitude,
+        destination_lng: route.destination.longitude,
       });
       navigate("/user/errands");
     } catch (err: unknown) {
@@ -52,96 +103,76 @@ export const CreateErrand: React.FC = () => {
   };
 
   return (
-    <div className="section px-2xl">
-      <div className="max-w-[600px] mx-auto">
-        <h2 className="mb-2xl">{t.user.createErrandTitle}</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
-          <div className="w-full">
-            <label className="block mb-xs font-body text-body-sm-medium text-ink">
-              {t.user.type}
-            </label>
-            <select
-              value={form.type}
-              onChange={handleChange("type")}
-              className="input-field"
-            >
-              <option value="object_transport">{t.user.objectTransport}</option>
-              <option value="purchase">{t.user.purchase}</option>
-              <option value="errand">{t.user.errand}</option>
-            </select>
+    <div className="section px-0 lg:px-2xl">
+      <div className="mx-auto max-w-[600px] lg:max-w-[600px]">
+        <h2 className="hidden mb-2xl lg:block">{t.user.createErrandTitle}</h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-0 lg:gap-lg">
+          <div className="order-1 w-full lg:order-2">
+            <RoutePickerMapbox
+              value={route}
+              onChange={setRoute}
+              routePreview={routePreview}
+            />
+            {routeEstimateError && (
+              <p className="px-xl pt-sm font-body text-caption text-error lg:px-0">
+                {routeEstimateError}
+              </p>
+            )}
           </div>
 
-          <Input
-            label={t.user.description}
-            value={form.description}
-            onChange={handleChange("description")}
-            placeholder={t.user.descPlaceholder}
-            required
-          />
-          <Input
-            label={t.user.originAddress}
-            value={form.origin_address}
-            onChange={handleChange("origin_address")}
-            required
-          />
+          <section className="order-2 z-10 -mt-md flex flex-col gap-lg rounded-t-xl bg-canvas px-xl py-2xl shadow-card lg:order-1 lg:mt-0 lg:rounded-lg lg:border lg:border-hairline-soft">
+            <div>
+              <h2 className="mb-xs lg:hidden">{t.user.createErrandTitle}</h2>
+              <p className="caption lg:hidden">
+                Selecciona origen y destino directamente en el mapa.
+              </p>
+            </div>
+            <div className="w-full">
+              <label className="block mb-xs font-body text-body-sm-medium text-ink">
+                {t.user.type}
+              </label>
+              <select
+                value={form.type}
+                onChange={handleChange("type")}
+                className="input-field"
+              >
+                <option value="object_transport">
+                  {t.user.objectTransport}
+                </option>
+                <option value="purchase">{t.user.purchase}</option>
+                <option value="errand">{t.user.errand}</option>
+              </select>
+            </div>
 
-          <div className="grid grid-cols-2 gap-lg">
             <Input
-              label={t.user.originLat}
-              value={form.origin_lat}
-              onChange={handleChange("origin_lat")}
-              placeholder="6.2518"
+              label={t.user.description}
+              value={form.description}
+              onChange={handleChange("description")}
+              placeholder={t.user.descPlaceholder}
+              required
             />
-            <Input
-              label={t.user.originLng}
-              value={form.origin_lng}
-              onChange={handleChange("origin_lng")}
-              placeholder="-75.5636"
-            />
-          </div>
 
-          <Input
-            label={t.user.destAddress}
-            value={form.destination_address}
-            onChange={handleChange("destination_address")}
-            required
-          />
+            <div className="w-full">
+              <label className="block mb-xs font-body text-body-sm-medium text-ink">
+                {t.user.paymentMethod}
+              </label>
+              <select
+                value={form.payment_method}
+                onChange={handleChange("payment_method")}
+                className="input-field"
+              >
+                <option value="cash">{t.user.cash}</option>
+                <option value="transfer">{t.user.transfer}</option>
+              </select>
+            </div>
 
-          <div className="grid grid-cols-2 gap-lg">
-            <Input
-              label={t.user.destLat}
-              value={form.destination_lat}
-              onChange={handleChange("destination_lat")}
-              placeholder="6.2088"
-            />
-            <Input
-              label={t.user.destLng}
-              value={form.destination_lng}
-              onChange={handleChange("destination_lng")}
-              placeholder="-75.5672"
-            />
-          </div>
-
-          <div className="w-full">
-            <label className="block mb-xs font-body text-body-sm-medium text-ink">
-              {t.user.paymentMethod}
-            </label>
-            <select
-              value={form.payment_method}
-              onChange={handleChange("payment_method")}
-              className="input-field"
-            >
-              <option value="cash">{t.user.cash}</option>
-              <option value="transfer">{t.user.transfer}</option>
-            </select>
-          </div>
-
-          {error && (
-            <p className="font-body text-caption text-error">{error}</p>
-          )}
-          <Button type="submit" className="mt-lg w-full" disabled={loading}>
-            {loading ? t.user.creatingBtn : t.user.createBtn}
-          </Button>
+            {error && (
+              <p className="font-body text-caption text-error">{error}</p>
+            )}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? t.user.creatingBtn : t.user.createBtn}
+            </Button>
+          </section>
         </form>
       </div>
     </div>

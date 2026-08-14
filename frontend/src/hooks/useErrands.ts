@@ -7,10 +7,17 @@ export interface Errand {
   type: string;
   description: string;
   origin_address: string;
+  origin_lat: number | null;
+  origin_lng: number | null;
   destination_address: string;
+  destination_lat: number | null;
+  destination_lng: number | null;
   fare: number;
   platform_commission: number;
   rider_earnings: number;
+  rider_id: string | null;
+  rider_name: string | null;
+  motorcycle_plate: string | null;
   status: string;
   payment_method: string;
   requested_at: string;
@@ -140,5 +147,32 @@ export const useErrandActions = () => {
     [token],
   );
 
-  return { accept, pickup, deliver, cancel, create };
+  const estimateRoute = useCallback(
+    async (
+      origin: { latitude: number; longitude: number },
+      destination: { latitude: number; longitude: number },
+    ) => {
+      if (!token) throw new Error("Not authenticated");
+      return api.estimateErrandRoute(token, { origin, destination });
+    },
+    [token],
+  );
+
+  const getRoutePreview = useCallback(
+    async (errandId: string) => {
+      if (!token) throw new Error("Not authenticated");
+      return api.getRiderErrandRoutePreview(token, errandId);
+    },
+    [token],
+  );
+
+  return {
+    accept,
+    pickup,
+    deliver,
+    cancel,
+    create,
+    estimateRoute,
+    getRoutePreview,
+  };
 };

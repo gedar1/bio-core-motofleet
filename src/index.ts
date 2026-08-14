@@ -19,6 +19,7 @@ import { PricingMolecule } from "./molecules/PricingMolecule.js";
 import { ErrandMolecule } from "./molecules/ErrandMolecule.js";
 import { NotificationMolecule } from "./molecules/NotificationMolecule.js";
 import { MetricsMolecule } from "./molecules/MetricsMolecule.js";
+import { MapboxRoutingProvider } from "./infrastructure/routing/MapboxRoutingProvider.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,7 +61,27 @@ async function main(): Promise<void> {
     db,
     createLogger("PricingMolecule"),
   );
-  const errandMolecule = new ErrandMolecule(db, createLogger("ErrandMolecule"));
+  if (!process.env.MAPBOX_SECRET_TOKEN?.trim()) {
+    throw new Error(
+      "MAPBOX_SECRET_TOKEN must be configured for Mapbox routing",
+    );
+  }
+
+  const routingProvider = new MapboxRoutingProvider();
+  const allowHaversineFallback =
+    process.env.ROUTING_ALLOW_HAVERSINE_FALLBACK === "true";
+
+  logger.info("Routing provider configured", {
+    provider: "mapbox",
+    allowHaversineFallback,
+  });
+
+  const errandMolecule = new ErrandMolecule(
+    db,
+    createLogger("ErrandMolecule"),
+    routingProvider,
+    allowHaversineFallback,
+  );
   const notificationMolecule = new NotificationMolecule(
     db,
     createLogger("NotificationMolecule"),

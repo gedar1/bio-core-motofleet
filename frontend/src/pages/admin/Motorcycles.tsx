@@ -1,14 +1,60 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useMotorcycles } from "../../hooks";
-import { Card, Button } from "../../components/ui";
+import type { Motorcycle } from "../../hooks/useMotorcycles";
+import { Table, type TableColumn } from "../../components/shared";
+import { Button } from "../../components/ui";
 import { t, translateStatus } from "../../i18n";
 
-export const Motorcycles: React.FC = () => {
-  const { motorcycles, loading } = useMotorcycles();
+const statusBadgeClass: Record<string, string> = {
+  available: "badge-orange",
+  rented: "badge-dark",
+  maintenance: "badge-cream",
+  retired: "badge-cream",
+};
 
-  if (loading)
-    return <p className="caption text-center py-2xl">{t.common.loading}</p>;
+const columns: readonly TableColumn<Motorcycle>[] = [
+  {
+    id: "plate",
+    header: "Placa",
+    render: (motorcycle) => (
+      <span className="font-body text-body-md font-medium text-ink">
+        {motorcycle.plate}
+      </span>
+    ),
+  },
+  {
+    id: "motorcycle",
+    header: "Motocicleta",
+    render: (motorcycle) => (
+      <div>
+        <p className="font-body text-body-md font-medium text-ink">
+          {motorcycle.brand} {motorcycle.model}
+        </p>
+        <p className="font-body text-body-sm text-slate">
+          {motorcycle.year} · {motorcycle.color}
+        </p>
+      </div>
+    ),
+  },
+  {
+    id: "engine-cc",
+    header: "Cilindraje",
+    render: (motorcycle) => `${motorcycle.engine_cc} CC`,
+  },
+  {
+    id: "status",
+    header: "Estado",
+    render: (motorcycle) => (
+      <span className={statusBadgeClass[motorcycle.status] ?? "badge-cream"}>
+        {translateStatus(motorcycle.status)}
+      </span>
+    ),
+  },
+];
+
+export const Motorcycles: React.FC = () => {
+  const { motorcycles, loading, error, refresh } = useMotorcycles();
 
   return (
     <div className="section px-2xl">
@@ -16,27 +62,25 @@ export const Motorcycles: React.FC = () => {
         <div className="flex justify-between items-center mb-2xl">
           <h2>{t.admin.motorcyclesTitle}</h2>
           <Link to="/admin/motorcycles/create">
-            <Button>{t.adminForms.crear}</Button>
+            <Button type="button">{t.adminForms.crear}</Button>
           </Link>
         </div>
-        {motorcycles.length === 0 ? (
-          <p className="text-muted font-body text-body-md">
-            {t.admin.noMotorcycles}
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
-            {motorcycles.map((m) => (
-              <Card key={m.id} className="p-xl">
-                <h4 className="mb-sm">{m.plate}</h4>
-                <p className="font-body text-body-sm text-slate">
-                  {m.brand} {m.model} ({m.year}) — {m.color}
-                </p>
-                <p className="caption mt-sm">
-                  {translateStatus(m.status)} · {m.engine_cc}CC
-                </p>
-              </Card>
-            ))}
+        {error ? (
+          <div className="flex flex-wrap items-center gap-md font-body text-body-md text-muted">
+            <p>Error al cargar las motocicletas.</p>
+            <Button type="button" variant="secondary" onClick={refresh}>
+              Reintentar
+            </Button>
           </div>
+        ) : (
+          <Table
+            rows={motorcycles}
+            columns={columns}
+            rowKey="id"
+            loading={loading}
+            loadingContent={t.common.loading}
+            emptyContent={t.admin.noMotorcycles}
+          />
         )}
       </div>
     </div>

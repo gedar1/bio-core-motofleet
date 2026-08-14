@@ -1,7 +1,55 @@
 import React from "react";
 import { useAdminErrands } from "../../hooks";
-import { Card } from "../../components/ui";
+import type { Errand } from "../../hooks/useErrands";
+import { Table, type TableColumn } from "../../components/shared";
 import { t, translateStatus } from "../../i18n";
+
+const errandColumns: readonly TableColumn<Errand>[] = [
+  {
+    id: "type",
+    header: "Tipo",
+    render: (errand) => (
+      <span className="caption">{translateStatus(errand.type)}</span>
+    ),
+  },
+  {
+    id: "status",
+    header: "Estado",
+    render: (errand) => (
+      <span className="caption">{translateStatus(errand.status)}</span>
+    ),
+  },
+  {
+    id: "description",
+    header: "Descripción",
+    render: (errand) => errand.description,
+  },
+  {
+    id: "route",
+    header: "Ruta",
+    render: (errand) =>
+      `${errand.origin_address} → ${errand.destination_address}`,
+  },
+  {
+    id: "rider",
+    header: "Rider",
+    render: (errand) => errand.rider_name ?? "—",
+  },
+  {
+    id: "motorcycle",
+    header: "Motocicleta",
+    render: (errand) => errand.motorcycle_plate ?? "—",
+  },
+  {
+    id: "fare",
+    header: "Tarifa",
+    render: (errand) => (
+      <span className="font-display text-heading-5 text-ink">
+        ${errand.fare.toLocaleString()}
+      </span>
+    ),
+  },
+];
 
 export const AdminErrands: React.FC = () => {
   const { errands, loading } = useAdminErrands();
@@ -18,36 +66,7 @@ export const AdminErrands: React.FC = () => {
             {t.admin.noErrands}
           </p>
         ) : (
-          <div className="flex flex-col gap-lg">
-            {errands.map((e) => (
-              <Card key={e.id} className="p-xl">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="caption">
-                      {translateStatus(e.type)} · {translateStatus(e.status)}
-                    </p>
-                    <p className="font-body text-body-md text-ink mt-xs">
-                      {e.description}
-                    </p>
-                    <p className="font-body text-body-sm text-slate mt-xs">
-                      {e.origin_address} → {e.destination_address}
-                    </p>
-                    {(e as any).rider_name && (
-                      <p className="font-body text-body-sm text-steel mt-xs">
-                        🏍️ {(e as any).rider_name}{" "}
-                        {(e as any).motorcycle_plate
-                          ? `· ${(e as any).motorcycle_plate}`
-                          : ""}
-                      </p>
-                    )}
-                  </div>
-                  <p className="font-display text-heading-5 text-ink">
-                    ${e.fare}
-                  </p>
-                </div>
-              </Card>
-            ))}
-          </div>
+          <Table rows={errands} columns={errandColumns} rowKey="id" />
         )}
       </div>
     </div>

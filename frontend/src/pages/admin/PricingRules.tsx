@@ -4,6 +4,13 @@ import { usePricingRules } from "../../hooks";
 import { Card, Button } from "../../components/ui";
 import { t, translateStatus } from "../../i18n";
 
+const formatCop = (amount: number) =>
+  new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(amount);
+
 export const PricingRules: React.FC = () => {
   const { rules, loading } = usePricingRules();
 
@@ -31,7 +38,8 @@ export const PricingRules: React.FC = () => {
                   <div>
                     <p className="caption">{translateStatus(r.errand_type)}</p>
                     <p className="font-body text-body-md text-ink mt-xs">
-                      Base: ${r.base_rate} · /km: ${r.rate_per_km} · Comisión:{" "}
+                      Base: {formatCop(r.base_rate)} · /km:{" "}
+                      {formatCop(r.rate_per_km)} · Comisión:{" "}
                       {r.commission_percentage}%
                     </p>
                   </div>

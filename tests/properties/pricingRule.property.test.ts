@@ -40,9 +40,9 @@ describe("Property 9: At most one active pricing rule per tipo_mandado", () => {
   // Arbitrary for valid pricing rule data
   const pricingInputArb = fc.record({
     errand_type: fc.constantFrom(...errandTypes),
-    base_rate: fc.double({ min: 0.01, max: 999999.99, noNaN: true }),
-    rate_per_km: fc.double({ min: 0.0, max: 9999.99, noNaN: true }),
-    commission_percentage: fc.double({ min: 1.0, max: 50.0, noNaN: true }),
+    base_rate: fc.integer({ min: 1, max: 999_999 }),
+    rate_per_km: fc.integer({ min: 0, max: 9_999 }),
+    commission_percentage: fc.integer({ min: 1, max: 50 }),
   });
 
   // Arbitrary for a sequence of operations (create or deactivate)

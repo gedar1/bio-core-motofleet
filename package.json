@@ -6,12 +6,14 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js",
+    "dev": "node --env-file=.env --import tsx --watch src/index.ts",
+    "start": "node --env-file=.env dist/index.js",
     "test": "vitest --run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "verify:migration:14.7": "node scripts/verify-route-migration.mjs"
   },
   "dependencies": {
+    "@mapbox/mapbox-sdk": "0.16.2",
     "bcrypt": "5.1.1",
     "better-sqlite3": "11.7.0",
     "express": "4.21.2",

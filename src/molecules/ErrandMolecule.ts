@@ -7,6 +7,7 @@ import type { ErrandState } from "../atoms/stateMachines.js";
 import { haversineDistance } from "../atoms/haversine.js";
 import { calculateFare } from "../atoms/tarifa.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
+import type { RoutingProvider } from "../domains/errands/RoutingProvider.js";
 
 export type ErrandType = "object_transport" | "purchase" | "errand";
 
@@ -38,6 +39,10 @@ export interface Errand {
   fare: number;
   platform_commission: number;
   rider_earnings: number;
+  /** Null only for historical rows that predate migration 003. */
+  fare_cop: number | null;
+  platform_commission_cop: number | null;
+  rider_earnings_cop: number | null;
   status: ErrandState;
   payment_method: string;
   cancellation_reason: string | null;
@@ -65,13 +70,15 @@ export class ErrandMolecule implements IMolecule {
   constructor(
     private readonly db: Database.Database,
     private readonly logger: ILogger,
+    private readonly routingProvider?: RoutingProvider,
+    private readonly allowHaversineFallback = false,
   ) {}
 
   /**
    * Creates a new errand.
    * Validates user active, gets pricing rule, calculates fare via atoms.
    */
-  create(userId: string, data: CreateErrandInput): Errand {
+  async create(userId: string, data: CreateErrandInput): Promise<Errand> {
     // Validate user exists and is active
     const user = this.db
       .prepare("SELECT id, status FROM users WHERE id = ?")
@@ -132,29 +139,15 @@ export class ErrandMolecule implements IMolecule {
       );
     }
 
-    // Calculate distance if coordinates provided
-    let estimatedDistance: number | null = null;
+    // The provider's road distance is authoritative for productive pricing.
+    const estimatedDistance = await this.calculateEstimatedDistance(data);
 
-    if (
-      data.origin_lat != null &&
-      data.origin_lng != null &&
-      data.destination_lat != null &&
-      data.destination_lng != null
-    ) {
-      estimatedDistance = haversineDistance(
-        { lat: data.origin_lat, lng: data.origin_lng },
-        { lat: data.destination_lat, lng: data.destination_lng },
-      );
-    } else {
-      // Default minimum distance when coordinates not provided
-      estimatedDistance = 0.5;
-    }
-
-    // Calculate fare using atom
+    // The active rule stores integer COP values. Its commission percentage is
+    // converted to basis points before entering the canonical fare atom.
     const pricing = calculateFare({
-      baseRate: pricingRule.base_rate,
-      ratePerKm: pricingRule.rate_per_km,
-      commissionPercentage: pricingRule.commission_percentage,
+      baseRateCop: pricingRule.base_rate,
+      ratePerKmCop: pricingRule.rate_per_km,
+      commissionBasisPoints: pricingRule.commission_percentage * 100,
       distanceKm: estimatedDistance,
     });
 
@@ -164,8 +157,8 @@ export class ErrandMolecule implements IMolecule {
     this.db
       .prepare(
         `
-      INSERT INTO errands (id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, fare, platform_commission, rider_earnings, status, payment_method, requested_at, created_at, updated_at)
-      VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested', ?, ?, ?, ?)
+      INSERT INTO errands (id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, requested_at, created_at, updated_at)
+      VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested', ?, ?, ?, ?)
     `,
       )
       .run(
@@ -180,9 +173,12 @@ export class ErrandMolecule implements IMolecule {
         data.destination_lat ?? null,
         data.destination_lng ?? null,
         estimatedDistance,
-        pricing.fare,
-        pricing.platformCommission,
-        pricing.riderEarnings,
+        pricing.fareCop,
+        pricing.platformCommissionCop,
+        pricing.riderEarningsCop,
+        pricing.fareCop,
+        pricing.platformCommissionCop,
+        pricing.riderEarningsCop,
         data.payment_method,
         now,
         now,
@@ -196,6 +192,92 @@ export class ErrandMolecule implements IMolecule {
     });
 
     return this.getById(id) as Errand;
+  }
+
+  /**
+   * Retrieves a route preview through the configured provider. This operation
+   * deliberately has no pricing, persistence, or errand-creation side effects.
+   */
+  async estimateRoute(
+    origin: Parameters<RoutingProvider["getRoute"]>[0],
+    destination: Parameters<RoutingProvider["getRoute"]>[1],
+  ): ReturnType<RoutingProvider["getRoute"]> {
+    if (!this.routingProvider) {
+      throw new AppError(
+        503,
+        "ROUTING_UNAVAILABLE",
+        "Routing service is temporarily unavailable",
+      );
+    }
+
+    try {
+      return await this.routingProvider.getRoute(origin, destination);
+    } catch {
+      this.logger.warn("Route estimate unavailable");
+      throw new AppError(
+        503,
+        "ROUTING_UNAVAILABLE",
+        "Routing service is temporarily unavailable",
+      );
+    }
+  }
+
+  private async calculateEstimatedDistance(
+    data: CreateErrandInput,
+  ): Promise<number> {
+    const originLatitude = data.origin_lat;
+    const originLongitude = data.origin_lng;
+    const destinationLatitude = data.destination_lat;
+    const destinationLongitude = data.destination_lng;
+
+    if (
+      originLatitude == null ||
+      originLongitude == null ||
+      destinationLatitude == null ||
+      destinationLongitude == null
+    ) {
+      throw new AppError(
+        400,
+        "VALIDATION_ERROR",
+        "Origin and destination coordinates are required for route pricing",
+      );
+    }
+
+    const fallbackDistance = haversineDistance(
+      { lat: originLatitude, lng: originLongitude },
+      { lat: destinationLatitude, lng: destinationLongitude },
+    );
+
+    if (!this.routingProvider) {
+      if (this.allowHaversineFallback) return fallbackDistance;
+      throw new AppError(
+        503,
+        "ROUTING_UNAVAILABLE",
+        "Routing service is temporarily unavailable",
+      );
+    }
+
+    try {
+      const route = await this.routingProvider.getRoute(
+        { latitude: originLatitude, longitude: originLongitude },
+        { latitude: destinationLatitude, longitude: destinationLongitude },
+      );
+      return Math.max(0.5, route.distanceKm);
+    } catch {
+      if (this.allowHaversineFallback) {
+        this.logger.warn(
+          "Route provider failed; using configured Haversine fallback",
+        );
+        return fallbackDistance;
+      }
+
+      this.logger.warn("Route provider unavailable for errand pricing");
+      throw new AppError(
+        503,
+        "ROUTING_UNAVAILABLE",
+        "Routing service is temporarily unavailable",
+      );
+    }
   }
 
   /**
@@ -430,6 +512,44 @@ export class ErrandMolecule implements IMolecule {
     this.logger.info("Errand cancelled", { errandId, actorId, role });
 
     return this.getById(errandId) as Errand;
+  }
+
+  async getRoutePreviewForRider(
+    errandId: string,
+    riderId: string,
+  ): ReturnType<RoutingProvider["getRoute"]> {
+    const errand = this.getById(errandId);
+
+    if (!errand) {
+      throw new AppError(404, "NOT_FOUND", "Errand not found");
+    }
+
+    const isAvailable = errand.status === "requested";
+    const isAssignedToRider = errand.rider_id === riderId;
+    if (!isAvailable && !isAssignedToRider) {
+      throw new AppError(403, "FORBIDDEN", "Errand route is not available");
+    }
+
+    if (
+      errand.origin_lat == null ||
+      errand.origin_lng == null ||
+      errand.destination_lat == null ||
+      errand.destination_lng == null
+    ) {
+      throw new AppError(
+        409,
+        "ROUTE_UNAVAILABLE",
+        "Errand route is not available",
+      );
+    }
+
+    return this.estimateRoute(
+      { latitude: errand.origin_lat, longitude: errand.origin_lng },
+      {
+        latitude: errand.destination_lat,
+        longitude: errand.destination_lng,
+      },
+    );
   }
 
   /**

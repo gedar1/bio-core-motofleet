@@ -1,6 +1,6 @@
 import React from "react";
 import { useAvailableErrands, useErrandActions } from "../../hooks";
-import { Card, Button } from "../../components/ui";
+import { Card, Button, RiderRouteActions } from "../../components/ui";
 import { t, translateStatus } from "../../i18n";
 
 export const AvailableErrands: React.FC = () => {
@@ -30,8 +30,12 @@ export const AvailableErrands: React.FC = () => {
         ) : (
           <div className="flex flex-col gap-lg">
             {errands.map((e) => (
-              <Card key={e.id} className="p-xl">
-                <div className="flex justify-between items-start">
+              <Card
+                key={e.id}
+                className="flex flex-col overflow-hidden p-0 lg:p-xl"
+              >
+                <RiderRouteActions errand={e} mobileMapFirst />
+                <div className="order-2 z-10 -mt-md flex flex-col gap-md rounded-t-xl bg-canvas px-xl py-2xl shadow-card lg:order-1 lg:mt-0 lg:flex-row lg:items-start lg:justify-between lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
                   <div>
                     <p className="caption">{translateStatus(e.type)}</p>
                     <p className="font-body text-body-md text-ink mt-xs">
@@ -45,7 +49,10 @@ export const AvailableErrands: React.FC = () => {
                       {e.fare}
                     </p>
                   </div>
-                  <Button onClick={() => handleAccept(e.id)}>
+                  <Button
+                    className="w-full lg:w-auto"
+                    onClick={() => handleAccept(e.id)}
+                  >
                     {t.rider.accept}
                   </Button>
                 </div>

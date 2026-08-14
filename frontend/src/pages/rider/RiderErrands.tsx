@@ -1,6 +1,6 @@
 import React from "react";
 import { useMyErrands, useErrandActions } from "../../hooks";
-import { Card, Button } from "../../components/ui";
+import { Card, Button, RiderRouteActions } from "../../components/ui";
 import { t, translateStatus } from "../../i18n";
 
 export const RiderErrands: React.FC = () => {
@@ -28,10 +28,16 @@ export const RiderErrands: React.FC = () => {
   if (loading)
     return <p className="caption text-center py-2xl">{t.common.loading}</p>;
 
+  const activeErrandId = errands.find(
+    (errand) => errand.status === "accepted" || errand.status === "picked_up",
+  )?.id;
+
   return (
-    <div className="section px-2xl">
-      <div className="max-w-[1280px] mx-auto">
-        <h2 className="mb-2xl">{t.rider.myErrandsTitle}</h2>
+    <div className="section px-0 lg:px-2xl">
+      <div className="mx-auto max-w-[1280px]">
+        <h2 className="px-xl mb-lg lg:mb-2xl lg:px-0">
+          {t.rider.myErrandsTitle}
+        </h2>
         {errands.length === 0 ? (
           <p className="text-muted font-body text-body-md">
             {t.rider.noAssigned}
@@ -39,8 +45,23 @@ export const RiderErrands: React.FC = () => {
         ) : (
           <div className="flex flex-col gap-lg">
             {errands.map((e) => (
-              <Card key={e.id} className="p-xl">
-                <div className="flex justify-between items-start">
+              <Card
+                key={e.id}
+                className="flex flex-col overflow-hidden p-0 lg:p-xl"
+              >
+                <RiderRouteActions
+                  errand={e}
+                  mobileMapFirst
+                  autoLoadOnMobile={e.id === activeErrandId}
+                  navigationTarget={
+                    e.status === "accepted"
+                      ? "origin"
+                      : e.status === "picked_up"
+                        ? "destination"
+                        : undefined
+                  }
+                />
+                <div className="order-2 z-10 -mt-md flex flex-col gap-md rounded-t-xl bg-canvas px-xl py-2xl shadow-card lg:order-1 lg:mt-0 lg:flex-row lg:items-start lg:justify-between lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
                   <div>
                     <p className="caption">
                       {translateStatus(e.type)} · {translateStatus(e.status)}

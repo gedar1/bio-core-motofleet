@@ -200,30 +200,72 @@ export const createPaymentSchema = z.object({
   notes: z.string().optional(),
 });
 
-// --- Errand schema ---
+// --- Errand and routing schemas ---
 
-export const createErrandSchema = z.object({
-  type: z.enum(["object_transport", "purchase", "errand"], {
-    errorMap: () => ({
-      message: "Type must be object_transport, purchase or errand",
-    }),
-  }),
-  description: z
-    .string()
-    .min(10, "Description must be at least 10 characters")
-    .max(500, "Description must be at most 500 characters"),
-  origin_address: z.string().min(1, "Origin address is required"),
-  origin_lat: z.number().optional(),
-  origin_lng: z.number().optional(),
-  destination_address: z.string().min(1, "Destination address is required"),
-  destination_lat: z.number().optional(),
-  destination_lng: z.number().optional(),
-  payment_method: z.enum(["cash", "transfer"], {
-    errorMap: () => ({
-      message: "Payment method must be cash or transfer",
-    }),
-  }),
+export const latitudeSchema = z
+  .number()
+  .finite("Latitude must be a finite number")
+  .min(-90, "Latitude must be between -90 and 90")
+  .max(90, "Latitude must be between -90 and 90");
+
+export const longitudeSchema = z
+  .number()
+  .finite("Longitude must be a finite number")
+  .min(-180, "Longitude must be between -180 and 180")
+  .max(180, "Longitude must be between -180 and 180");
+
+export const routeCoordinatesSchema = z.object({
+  latitude: latitudeSchema,
+  longitude: longitudeSchema,
 });
+
+export const routeEstimateRequestSchema = z.object({
+  origin: routeCoordinatesSchema,
+  destination: routeCoordinatesSchema,
+});
+
+export const createErrandSchema = z
+  .object({
+    type: z.enum(["object_transport", "purchase", "errand"], {
+      errorMap: () => ({
+        message: "Type must be object_transport, purchase or errand",
+      }),
+    }),
+    description: z
+      .string()
+      .min(10, "Description must be at least 10 characters")
+      .max(500, "Description must be at most 500 characters"),
+    origin_address: z.string().min(1, "Origin address is required"),
+    origin_lat: latitudeSchema.optional(),
+    origin_lng: longitudeSchema.optional(),
+    destination_address: z.string().min(1, "Destination address is required"),
+    destination_lat: latitudeSchema.optional(),
+    destination_lng: longitudeSchema.optional(),
+    payment_method: z.enum(["cash", "transfer"], {
+      errorMap: () => ({
+        message: "Payment method must be cash or transfer",
+      }),
+    }),
+  })
+  .superRefine((data, context) => {
+    const fields = [
+      data.origin_lat,
+      data.origin_lng,
+      data.destination_lat,
+      data.destination_lng,
+    ];
+    const hasAnyCoordinate = fields.some((value) => value !== undefined);
+    const hasAllCoordinates = fields.every((value) => value !== undefined);
+
+    if (hasAnyCoordinate && !hasAllCoordinates) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Origin and destination require complete latitude and longitude pairs",
+        path: ["origin_lat"],
+      });
+    }
+  });
 
 // --- Pricing rule schema ---
 
@@ -235,16 +277,22 @@ export const createPricingRuleSchema = z.object({
   }),
   base_rate: z
     .number()
-    .min(0.01, "Base rate must be at least 0.01")
-    .max(999999.99, "Base rate must be at most 999,999.99"),
+    .finite("Base rate must be a finite COP amount")
+    .int("Base rate must be an integer COP amount")
+    .min(1, "Base rate must be at least 1 COP")
+    .max(999999, "Base rate must be at most 999,999 COP"),
   rate_per_km: z
     .number()
-    .min(0.0, "Rate per km must be at least 0.00")
-    .max(9999.99, "Rate per km must be at most 9,999.99"),
+    .finite("Rate per km must be a finite COP amount")
+    .int("Rate per km must be an integer COP amount")
+    .min(0, "Rate per km must be at least 0 COP")
+    .max(9999, "Rate per km must be at most 9,999 COP"),
   commission_percentage: z
     .number()
-    .min(1.0, "Commission must be at least 1.00%")
-    .max(50.0, "Commission must be at most 50.00%"),
+    .finite("Commission must be a finite percentage")
+    .int("Commission must be a whole percentage")
+    .min(1, "Commission must be at least 1%")
+    .max(50, "Commission must be at most 50%"),
 });
 
 // --- Cosigner schema ---
@@ -287,6 +335,7 @@ export type CreateMotorcycleInput = z.infer<typeof createMotorcycleSchema>;
 export type CreateContractInput = z.infer<typeof createContractSchema>;
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>;
 export type CreateErrandInput = z.infer<typeof createErrandSchema>;
+export type RouteEstimateRequest = z.infer<typeof routeEstimateRequestSchema>;
 export type CreatePricingRuleInput = z.infer<typeof createPricingRuleSchema>;
 export type CreateCosignerInput = z.infer<typeof createCosignerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
