@@ -1,9 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useRiders } from "../../hooks/useRiders";
+import { useRiders, type Rider } from "../../hooks/useRiders";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
-import { Card, Button } from "../../components/ui";
+import { Table, type TableColumn } from "../../components/shared";
+import { Button } from "../../components/ui";
 import { t, translateStatus } from "../../i18n";
 
 export const Riders: React.FC = () => {
@@ -25,6 +26,72 @@ export const Riders: React.FC = () => {
     }
   };
 
+  const columns: readonly TableColumn<Rider>[] = [
+    {
+      id: "rider",
+      header: "Motociclista",
+      render: (rider) => (
+        <span className="font-body text-body-md text-ink">{rider.name}</span>
+      ),
+    },
+    {
+      id: "contact",
+      header: "Contacto",
+      render: (rider) => (
+        <div className="font-body text-body-sm text-slate">
+          <p>{rider.email}</p>
+          <p>{rider.phone}</p>
+        </div>
+      ),
+    },
+    {
+      id: "document",
+      header: "Documento",
+      render: (rider) => rider.document_type ?? "Pendiente de registro",
+    },
+    {
+      id: "license",
+      header: "Licencia",
+      render: (rider) =>
+        `${rider.license_number} · Exp: ${rider.license_expiry}`,
+    },
+    {
+      id: "status",
+      header: "Estado",
+      render: (rider) => (
+        <span
+          className={`badge-${rider.status === "active" ? "orange" : "cream"}`}
+        >
+          {translateStatus(rider.status)}
+        </span>
+      ),
+    },
+    {
+      id: "availability",
+      header: "Disponibilidad",
+      render: (rider) => (
+        <span className="caption">
+          {rider.available ? "✅ Disponible" : "⏸️ No disponible"}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Acciones",
+      render: (rider) => (
+        <Button
+          type="button"
+          variant={rider.available ? "secondary" : "primary"}
+          onClick={() => handleToggle(rider.id, rider.available)}
+        >
+          {rider.available
+            ? "Desactivar disponibilidad"
+            : "Activar disponibilidad"}
+        </Button>
+      ),
+    },
+  ];
+
   if (loading)
     return <p className="caption text-center py-2xl">{t.common.loading}</p>;
 
@@ -42,49 +109,7 @@ export const Riders: React.FC = () => {
             No hay motociclistas registrados.
           </p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
-            {riders.map((r) => (
-              <Card key={r.id} className="p-xl">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="mb-xs">{r.name}</h4>
-                    <p className="font-body text-body-sm text-slate">
-                      {r.email} · {r.phone}
-                    </p>
-                    <p className="font-body text-body-sm text-slate mt-xxs">
-                      {r.address}
-                    </p>
-                    <p className="caption mt-sm">
-                      Documento: {r.document_type ?? "Pendiente de registro"}
-                    </p>
-                    <p className="caption mt-xxs">
-                      Licencia: {r.license_number} · Exp: {r.license_expiry}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-xs">
-                    <span
-                      className={`badge-${r.status === "active" ? "orange" : "cream"}`}
-                    >
-                      {translateStatus(r.status)}
-                    </span>
-                    <span className="caption">
-                      {r.available ? "✅ Disponible" : "⏸️ No disponible"}
-                    </span>
-                  </div>
-                </div>
-                <p className="caption mt-sm text-muted">ID: {r.id}</p>
-                <Button
-                  variant={r.available ? "secondary" : "primary"}
-                  className="mt-sm w-full"
-                  onClick={() => handleToggle(r.id, r.available)}
-                >
-                  {r.available
-                    ? "Desactivar disponibilidad"
-                    : "Activar disponibilidad"}
-                </Button>
-              </Card>
-            ))}
-          </div>
+          <Table rows={riders} columns={columns} rowKey="id" />
         )}
       </div>
     </div>

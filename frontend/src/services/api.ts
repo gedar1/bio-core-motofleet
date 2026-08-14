@@ -1,3 +1,5 @@
+import type { RouteEstimateRequest, RouteEstimateResponse } from "../types/api";
+
 const BASE_URL = "/api";
 
 interface RequestOptions {
@@ -63,6 +65,14 @@ export const api = {
   // --- Errands ---
   createErrand(token: string, data: Record<string, unknown>) {
     return this.request("/errands", { method: "POST", body: data, token });
+  },
+
+  estimateErrandRoute(token: string, data: RouteEstimateRequest) {
+    return this.request<RouteEstimateResponse>("/errands/route-estimate", {
+      method: "POST",
+      body: data,
+      token,
+    });
   },
 
   getAvailableErrands(token: string) {

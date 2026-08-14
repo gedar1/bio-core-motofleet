@@ -43,28 +43,41 @@ export class PricingMolecule implements IMolecule {
    * Inserts the new rule as active.
    */
   create(data: CreatePricingRuleInput): PricingRule {
-    // Validate ranges
-    if (data.base_rate < 0.01 || data.base_rate > 999999.99) {
+    // Legacy REAL columns remain for compatibility, but all new values are
+    // logical integer COP amounts and whole commission percentages.
+    if (
+      !Number.isSafeInteger(data.base_rate) ||
+      data.base_rate < 1 ||
+      data.base_rate > 999_999
+    ) {
       throw new AppError(
         400,
         "VALIDATION_ERROR",
-        "Base rate must be between 0.01 and 999,999.99",
+        "Base rate must be an integer COP amount between 1 and 999,999",
       );
     }
 
-    if (data.rate_per_km < 0.0 || data.rate_per_km > 9999.99) {
+    if (
+      !Number.isSafeInteger(data.rate_per_km) ||
+      data.rate_per_km < 0 ||
+      data.rate_per_km > 9_999
+    ) {
       throw new AppError(
         400,
         "VALIDATION_ERROR",
-        "Rate per km must be between 0.00 and 9,999.99",
+        "Rate per km must be an integer COP amount between 0 and 9,999",
       );
     }
 
-    if (data.commission_percentage < 1.0 || data.commission_percentage > 50.0) {
+    if (
+      !Number.isSafeInteger(data.commission_percentage) ||
+      data.commission_percentage < 1 ||
+      data.commission_percentage > 50
+    ) {
       throw new AppError(
         400,
         "VALIDATION_ERROR",
-        "Commission must be between 1.00% and 50.00%",
+        "Commission must be a whole percentage between 1% and 50%",
       );
     }
 

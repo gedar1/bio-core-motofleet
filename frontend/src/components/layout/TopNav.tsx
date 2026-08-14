@@ -4,6 +4,10 @@ import { useAuth } from "../../context/AuthContext";
 import { useDarkMode } from "../../hooks/useDarkMode";
 import { t } from "../../i18n";
 
+// Import SVG icons as Vite asset URLs.
+import sunIcon from "../../assets/icons/sun.svg";
+import moonIcon from "../../assets/icons/moon.svg";
+
 export const TopNav: React.FC = () => {
   const { isAuthenticated, role, logout } = useAuth();
   const { isDark, toggle } = useDarkMode();
@@ -19,9 +23,13 @@ export const TopNav: React.FC = () => {
           type="button"
           onClick={toggle}
           className="w-[36px] h-[36px] flex items-center justify-center rounded-md border border-hairline text-ink transition-colors"
-          aria-label="Toggle dark mode"
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
-          {isDark ? "☀️" : "🌙"}
+          {isDark ? (
+            <img src={sunIcon} alt="" aria-hidden="true" className="w-5 h-5" />
+          ) : (
+            <img src={moonIcon} alt="" aria-hidden="true" className="w-5 h-5" />
+          )}
         </button>
 
         {isAuthenticated ? (

@@ -205,3 +205,18 @@ html.dark {
     @apply py-section;
   }
 }
+
+/* Mapbox route picker */
+.route-picker-mapbox {
+  height: 340px;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(var(--color-hairline-strong));
+  border-radius: 0.375rem;
+  background: rgb(var(--color-surface));
+}
+
+.route-picker-mapbox .mapboxgl-ctrl-logo,
+.route-picker-mapbox .mapboxgl-ctrl-attrib {
+  display: block;
+}

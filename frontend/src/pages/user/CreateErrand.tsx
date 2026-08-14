@@ -1,47 +1,98 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useErrandActions } from "../../hooks";
-import { Button, Input } from "../../components/ui";
+import {
+  Button,
+  Input,
+  RoutePickerMapbox,
+  type RoutePreview,
+  type RouteValue,
+} from "../../components/ui";
 import { t } from "../../i18n";
 
 export const CreateErrand: React.FC = () => {
   const navigate = useNavigate();
-  const { create } = useErrandActions();
+  const { create, estimateRoute } = useErrandActions();
   const [error, setError] = useState<string | null>(null);
+  const [routePreview, setRoutePreview] = useState<RoutePreview | null>(null);
+  const [routeEstimateError, setRouteEstimateError] = useState<string | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
+  const [route, setRoute] = useState<RouteValue>({
+    origin: null,
+    destination: null,
+  });
   const [form, setForm] = useState({
     type: "object_transport",
     description: "",
-    origin_address: "",
-    origin_lat: "",
-    origin_lng: "",
-    destination_address: "",
-    destination_lat: "",
-    destination_lng: "",
     payment_method: "cash",
   });
 
   const handleChange =
-    (field: string) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    (field: keyof typeof form) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setForm((previous) => ({ ...previous, [field]: event.target.value }));
     };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  useEffect(() => {
+    let current = true;
+    const { origin, destination } = route;
+
+    if (!origin || !destination) {
+      setRoutePreview(null);
+      setRouteEstimateError(null);
+      return () => {
+        current = false;
+      };
+    }
+
+    setRoutePreview(null);
+    setRouteEstimateError(null);
+    estimateRoute(origin, destination)
+      .then((estimate) => {
+        if (current) setRoutePreview(estimate);
+      })
+      .catch(() => {
+        if (current) {
+          setRouteEstimateError(
+            "No fue posible previsualizar la ruta. Ajusta los puntos o inténtalo de nuevo.",
+          );
+        }
+      });
+
+    return () => {
+      current = false;
+    };
+  }, [
+    estimateRoute,
+    route.destination?.latitude,
+    route.destination?.longitude,
+    route.origin?.latitude,
+    route.origin?.longitude,
+  ]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError(null);
+
+    if (!route.origin || !route.destination) {
+      setError(
+        "Selecciona el origen y el destino en el mapa antes de continuar.",
+      );
+      return;
+    }
+
+    setLoading(true);
     try {
       await create({
         ...form,
-        origin_lat: form.origin_lat ? parseFloat(form.origin_lat) : undefined,
-        origin_lng: form.origin_lng ? parseFloat(form.origin_lng) : undefined,
-        destination_lat: form.destination_lat
-          ? parseFloat(form.destination_lat)
-          : undefined,
-        destination_lng: form.destination_lng
-          ? parseFloat(form.destination_lng)
-          : undefined,
+        origin_address: route.origin.address,
+        origin_lat: route.origin.latitude,
+        origin_lng: route.origin.longitude,
+        destination_address: route.destination.address,
+        destination_lat: route.destination.latitude,
+        destination_lng: route.destination.longitude,
       });
       navigate("/user/errands");
     } catch (err: unknown) {
@@ -78,49 +129,16 @@ export const CreateErrand: React.FC = () => {
             placeholder={t.user.descPlaceholder}
             required
           />
-          <Input
-            label={t.user.originAddress}
-            value={form.origin_address}
-            onChange={handleChange("origin_address")}
-            required
+          <RoutePickerMapbox
+            value={route}
+            onChange={setRoute}
+            routePreview={routePreview}
           />
-
-          <div className="grid grid-cols-2 gap-lg">
-            <Input
-              label={t.user.originLat}
-              value={form.origin_lat}
-              onChange={handleChange("origin_lat")}
-              placeholder="6.2518"
-            />
-            <Input
-              label={t.user.originLng}
-              value={form.origin_lng}
-              onChange={handleChange("origin_lng")}
-              placeholder="-75.5636"
-            />
-          </div>
-
-          <Input
-            label={t.user.destAddress}
-            value={form.destination_address}
-            onChange={handleChange("destination_address")}
-            required
-          />
-
-          <div className="grid grid-cols-2 gap-lg">
-            <Input
-              label={t.user.destLat}
-              value={form.destination_lat}
-              onChange={handleChange("destination_lat")}
-              placeholder="6.2088"
-            />
-            <Input
-              label={t.user.destLng}
-              value={form.destination_lng}
-              onChange={handleChange("destination_lng")}
-              placeholder="-75.5672"
-            />
-          </div>
+          {routeEstimateError && (
+            <p className="font-body text-caption text-error">
+              {routeEstimateError}
+            </p>
+          )}
 
           <div className="w-full">
             <label className="block mb-xs font-body text-body-sm-medium text-ink">

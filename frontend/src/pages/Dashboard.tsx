@@ -29,22 +29,16 @@ export const Dashboard: React.FC = () => {
 };
 
 const AdminDashboard: React.FC = () => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-xl">
-    <DashCard
-      title={t.dashboard.motorcycles.toUpperCase()}
-      href="/admin/motorcycles"
-    />
-    <DashCard title="MOTOCICLISTAS" href="/admin/riders" />
-    <DashCard
-      title={t.dashboard.contracts.toUpperCase()}
-      href="/admin/contracts"
-    />
-    <DashCard
-      title={t.dashboard.pricingRules.toUpperCase()}
-      href="/admin/pricing"
-    />
-    <DashCard title={t.dashboard.errands.toUpperCase()} href="/admin/errands" />
-    <DashCard title={t.dashboard.metrics.toUpperCase()} href="/admin/metrics" />
+  <div className="flex flex-col items-start gap-xl">
+    <p className="text-body-md text-ink-soft mb-md">
+      Gestiona la flota, riders, contratos y tarifas desde un solo lugar.
+    </p>
+    <a
+      href="/admin?tab=overview"
+      className="btn-primary no-underline text-body-md-medium"
+    >
+      Ir al centro de administración
+    </a>
   </div>
 );
 
@@ -69,7 +63,7 @@ const RiderDashboard: React.FC = () => {
   const loadStatus = useCallback(async () => {
     if (!token) return;
     try {
-      const errands: any = await api.getMyErrands(token);
+      await api.getMyErrands(token);
       // If no in-progress errand, availability can be toggled
     } catch {
       /* ignore */

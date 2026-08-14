@@ -5,7 +5,9 @@ import { api } from "../services/api";
 export interface Contract {
   id: string;
   rider_id: string;
+  rider_name: string | null;
   motorcycle_id: string;
+  motorcycle_plate: string | null;
   start_date: string;
   end_date: string;
   monthly_amount: number;

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
 import { Button, Input } from "../../components/ui";
-import { t } from "../../i18n";
 
 export const CreateMotorcycle: React.FC = () => {
   const { token } = useAuth();

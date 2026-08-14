@@ -56,6 +56,28 @@ export interface ApiError {
   details?: Record<string, string>;
 }
 
+export interface RouteEstimateRequest {
+  origin: RouteCoordinates;
+  destination: RouteCoordinates;
+}
+
+/** Safe route preview returned by the backend; it never includes a fare. */
+export interface RouteEstimateResponse {
+  distanceKm: number;
+  durationMinutes: number;
+  geometry: {
+    type: "LineString";
+    coordinates: Array<[longitude: number, latitude: number]>;
+  };
+  provider: "mapbox";
+  profile: "driving-traffic";
+}
+
+export interface RouteCoordinates {
+  latitude: number;
+  longitude: number;
+}
+
 /** Usuario */
 export interface User {
   id: string;

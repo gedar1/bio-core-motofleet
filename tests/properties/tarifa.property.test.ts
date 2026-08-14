@@ -1,5 +1,5 @@
-// Feature: motofleet-mvp, Property 1: Cálculo de tarifa — correctitud y descomposición
-// Feature: motofleet-mvp, Property 3: Redondeo half-up
+// Feature: motofleet-mvp, Property 1: Cálculo de tarifa COP — correctitud y conservación
+// Feature: motofleet-mvp, Property 3: Redondeo half-up determinista
 
 import { describe, it, expect } from "vitest";
 import * as fc from "fast-check";
@@ -9,165 +9,99 @@ import {
   type PricingInput,
 } from "../../src/atoms/tarifa.js";
 
-/**
- * Validates: Requirements 9.2, 9.3, 9.4, 17.2, 17.6
- *
- * Property 1: For valid PricingInput, calculateFare produces:
- * - fare = roundHalfUp(baseRate + ratePerKm × distanceKm, 2)
- * - platformCommission = roundHalfUp(fare × commissionPercentage / 100, 2)
- * - riderEarnings = roundHalfUp(fare - platformCommission, 2)
- * - Same inputs always produce same outputs (determinism)
- */
-describe("Property 1: Cálculo de tarifa — correctitud y descomposición", () => {
-  const pricingInputArb: fc.Arbitrary<PricingInput> = fc.record({
-    baseRate: fc.double({ min: 0.01, max: 999999.99, noNaN: true }),
-    ratePerKm: fc.double({ min: 0.0, max: 9999.99, noNaN: true }),
-    commissionPercentage: fc.double({ min: 1.0, max: 50.0, noNaN: true }),
-    distanceKm: fc.double({ min: 0.5, max: 1000, noNaN: true }),
-  });
-
-  it("fare equals roundHalfUp(baseRate + ratePerKm × distanceKm, 2)", () => {
-    fc.assert(
-      fc.property(pricingInputArb, (input) => {
-        const result = calculateFare(input);
-        const expectedFare = roundHalfUp(
-          input.baseRate + input.ratePerKm * input.distanceKm,
-          2,
-        );
-        expect(result.fare).toBe(expectedFare);
-      }),
-      { numRuns: 100 },
-    );
-  });
-
-  it("platformCommission equals roundHalfUp(fare × commissionPercentage / 100, 2)", () => {
-    fc.assert(
-      fc.property(pricingInputArb, (input) => {
-        const result = calculateFare(input);
-        const expectedCommission = roundHalfUp(
-          (result.fare * input.commissionPercentage) / 100,
-          2,
-        );
-        expect(result.platformCommission).toBe(expectedCommission);
-      }),
-      { numRuns: 100 },
-    );
-  });
-
-  it("riderEarnings equals roundHalfUp(fare - platformCommission, 2)", () => {
-    fc.assert(
-      fc.property(pricingInputArb, (input) => {
-        const result = calculateFare(input);
-        const expectedEarnings = roundHalfUp(
-          result.fare - result.platformCommission,
-          2,
-        );
-        expect(result.riderEarnings).toBe(expectedEarnings);
-      }),
-      { numRuns: 100 },
-    );
-  });
-
-  it("is deterministic: same inputs always produce same outputs", () => {
-    fc.assert(
-      fc.property(pricingInputArb, (input) => {
-        const result1 = calculateFare(input);
-        const result2 = calculateFare(input);
-        expect(result1).toStrictEqual(result2);
-      }),
-      { numRuns: 100 },
-    );
-  });
+const pricingInputArb: fc.Arbitrary<PricingInput> = fc.record({
+  baseRateCop: fc.integer({ min: 1, max: 999_999 }),
+  ratePerKmCop: fc.integer({ min: 0, max: 9_999 }),
+  commissionBasisPoints: fc.integer({ min: 100, max: 5_000 }),
+  distanceKm: fc.double({ min: 0, max: 1_000, noNaN: true }),
 });
 
-/**
- * Validates: Requirements 17.3
- *
- * Property 3: roundHalfUp(value, 2) is idempotent,
- * rounds up when 3rd decimal >= 5, rounds down when < 5.
- */
-describe("Property 3: Redondeo half-up", () => {
-  it("is idempotent: roundHalfUp(roundHalfUp(x, 2), 2) === roundHalfUp(x, 2)", () => {
+describe("Property 1: Cálculo de tarifa COP — correctitud y conservación", () => {
+  it("rounds the variable component once and then the commission once", () => {
+    fc.assert(
+      fc.property(pricingInputArb, (input) => {
+        const result = calculateFare(input);
+        const effectiveDistance = Math.max(0.5, input.distanceKm);
+        const expectedFare =
+          input.baseRateCop +
+          roundHalfUp(input.ratePerKmCop * effectiveDistance);
+        const expectedCommission = roundHalfUp(
+          (expectedFare * input.commissionBasisPoints) / 10_000,
+        );
+
+        expect(result.fareCop).toBe(expectedFare);
+        expect(result.platformCommissionCop).toBe(expectedCommission);
+        expect(result.riderEarningsCop).toBe(
+          result.fareCop - result.platformCommissionCop,
+        );
+      }),
+      { numRuns: 100 },
+    );
+  });
+
+  it("preserves COP as safe integers with exact conservation", () => {
+    fc.assert(
+      fc.property(pricingInputArb, (input) => {
+        const result = calculateFare(input);
+
+        expect(Number.isSafeInteger(result.fareCop)).toBe(true);
+        expect(Number.isSafeInteger(result.platformCommissionCop)).toBe(true);
+        expect(Number.isSafeInteger(result.riderEarningsCop)).toBe(true);
+        expect(result.fareCop).toBe(
+          result.platformCommissionCop + result.riderEarningsCop,
+        );
+      }),
+      { numRuns: 100 },
+    );
+  });
+
+  it("is deterministic for identical inputs", () => {
+    fc.assert(
+      fc.property(pricingInputArb, (input) => {
+        expect(calculateFare(input)).toStrictEqual(calculateFare(input));
+      }),
+      { numRuns: 100 },
+    );
+  });
+
+  it("applies the 0.5 km minimum before calculating the variable component", () => {
     fc.assert(
       fc.property(
-        fc.double({ min: -999999.999, max: 999999.999, noNaN: true }),
-        (value) => {
-          const once = roundHalfUp(value, 2);
-          const twice = roundHalfUp(once, 2);
-          expect(twice).toBe(once);
+        fc.record({
+          baseRateCop: fc.integer({ min: 1, max: 999_999 }),
+          ratePerKmCop: fc.integer({ min: 0, max: 9_999 }),
+          commissionBasisPoints: fc.integer({ min: 100, max: 5_000 }),
+          distanceKm: fc.double({ min: 0, max: 0.499_999, noNaN: true }),
+        }),
+        (input) => {
+          const belowMinimum = calculateFare(input);
+          const atMinimum = calculateFare({ ...input, distanceKm: 0.5 });
+          expect(belowMinimum).toStrictEqual(atMinimum);
         },
       ),
       { numRuns: 100 },
     );
   });
+});
 
-  it("rounds up when the 3rd decimal digit is >= 5", () => {
-    // Generate numbers where we know the 3rd decimal is >= 5
-    const arbWithThirdDecGe5 = fc
-      .tuple(
-        fc.integer({ min: -999999, max: 999999 }),
-        fc.integer({ min: 0, max: 99 }),
-        fc.integer({ min: 5, max: 9 }),
-      )
-      .map(([intPart, twoDecimals, thirdDecimal]) => {
-        // Construct: intPart.XX(thirdDecimal)
-        const sign = intPart < 0 ? -1 : 1;
-        const absInt = Math.abs(intPart);
-        return sign * (absInt + twoDecimals / 100 + thirdDecimal / 1000);
-      });
-
+describe("Property 3: Redondeo half-up determinista", () => {
+  it("rounds exact half values up to the next COP", () => {
     fc.assert(
-      fc.property(arbWithThirdDecGe5, (value) => {
-        const rounded = roundHalfUp(value, 2);
-        // The rounded value should be >= value for positive, <= value for negative
-        // More precisely: rounded should equal Math.floor(value * 100 + 0.5 + epsilon) / 100
-        // But let's check that the 2nd decimal is one more than floor(value*100) % 10
-        // when the third decimal is >= 5
-        if (value >= 0) {
-          const truncated = Math.floor(value * 100) / 100;
-          expect(rounded).toBeGreaterThanOrEqual(truncated);
-        }
-        // Verify it has at most 2 decimal places (use tolerance for floating-point)
-        const scaled = rounded * 100;
-        expect(Math.abs(Math.round(scaled) - scaled)).toBeLessThan(1e-6);
+      fc.property(fc.integer({ min: 0, max: 9_999_999 }), (integerPart) => {
+        expect(roundHalfUp(integerPart + 0.5)).toBe(integerPart + 1);
       }),
       { numRuns: 100 },
     );
   });
 
-  it("rounds down when the 3rd decimal digit is < 5", () => {
-    // Generate numbers where we know the 3rd decimal is < 5 (1-4, not 0 which is already at 2 decimals)
-    const arbWithThirdDecLt5 = fc
-      .tuple(
-        fc.integer({ min: 0, max: 999999 }),
-        fc.integer({ min: 0, max: 99 }),
-        fc.integer({ min: 1, max: 4 }),
-      )
-      .map(([intPart, twoDecimals, thirdDecimal]) => {
-        return intPart + twoDecimals / 100 + thirdDecimal / 1000;
-      });
-
-    fc.assert(
-      fc.property(arbWithThirdDecLt5, (value) => {
-        const rounded = roundHalfUp(value, 2);
-        const truncated = Math.floor(value * 100) / 100;
-        // When third decimal < 5, rounded should equal truncated (rounds down)
-        expect(rounded).toBe(truncated);
-      }),
-      { numRuns: 100 },
-    );
-  });
-
-  it("result always has exactly 2 decimal places of precision", () => {
+  it("is idempotent and always returns a safe integer", () => {
     fc.assert(
       fc.property(
-        fc.double({ min: -999999.999, max: 999999.999, noNaN: true }),
+        fc.double({ min: 0, max: 9_999_999, noNaN: true }),
         (value) => {
-          const rounded = roundHalfUp(value, 2);
-          // Multiplying by 100 should give an integer (within floating point tolerance)
-          expect(
-            Math.abs(rounded * 100 - Math.round(rounded * 100)),
-          ).toBeLessThan(1e-8);
+          const once = roundHalfUp(value);
+          expect(roundHalfUp(once)).toBe(once);
+          expect(Number.isSafeInteger(once)).toBe(true);
         },
       ),
       { numRuns: 100 },

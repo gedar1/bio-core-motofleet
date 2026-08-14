@@ -1,8 +1,46 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useContracts } from "../../hooks";
-import { Card, Button } from "../../components/ui";
+import type { Contract } from "../../hooks/useContracts";
+import { Table, type TableColumn } from "../../components/shared";
+import { Button } from "../../components/ui";
 import { t, translateStatus } from "../../i18n";
+
+const contractColumns: readonly TableColumn<Contract>[] = [
+  {
+    id: "status",
+    header: "Estado",
+    render: (contract) => (
+      <span className="caption">{translateStatus(contract.status)}</span>
+    ),
+  },
+  {
+    id: "rider",
+    header: "Rider",
+    render: (contract) => contract.rider_name ?? "—",
+  },
+  {
+    id: "motorcycle",
+    header: "Motocicleta",
+    render: (contract) => contract.motorcycle_plate ?? "—",
+  },
+  {
+    id: "monthlyAmount",
+    header: "Mensualidad",
+    render: (contract) =>
+      `$${contract.monthly_amount.toLocaleString()}${t.admin.perMonth}`,
+  },
+  {
+    id: "paymentDay",
+    header: "Día de pago",
+    render: (contract) => `${t.admin.day} ${contract.payment_day}`,
+  },
+  {
+    id: "term",
+    header: "Vigencia",
+    render: (contract) => `${contract.start_date} → ${contract.end_date}`,
+  },
+];
 
 export const Contracts: React.FC = () => {
   const { contracts, loading } = useContracts();
@@ -24,28 +62,7 @@ export const Contracts: React.FC = () => {
             {t.admin.noContracts}
           </p>
         ) : (
-          <div className="flex flex-col gap-lg">
-            {contracts.map((c) => (
-              <Card key={c.id} className="p-xl">
-                <p className="caption">{translateStatus(c.status)}</p>
-                <p className="font-body text-body-md text-ink mt-xs">
-                  ${c.monthly_amount?.toLocaleString()}
-                  {t.admin.perMonth} — {t.admin.day} {c.payment_day}
-                </p>
-                {(c as any).rider_name && (
-                  <p className="font-body text-body-sm text-ink mt-xs">
-                    👤 {(c as any).rider_name}{" "}
-                    {(c as any).motorcycle_plate
-                      ? `· 🏍️ ${(c as any).motorcycle_plate}`
-                      : ""}
-                  </p>
-                )}
-                <p className="font-body text-body-sm text-slate mt-xs">
-                  {c.start_date} → {c.end_date}
-                </p>
-              </Card>
-            ))}
-          </div>
+          <Table rows={contracts} columns={contractColumns} rowKey="id" />
         )}
       </div>
     </div>

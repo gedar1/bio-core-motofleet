@@ -25,6 +25,26 @@ export const CreatePricingRule: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+
+    const baseRateCop = Number(form.base_rate);
+    const ratePerKmCop = Number(form.rate_per_km);
+    const commissionPercentage = Number(form.commission_percentage);
+
+    if (
+      !Number.isSafeInteger(baseRateCop) ||
+      baseRateCop < 1 ||
+      !Number.isSafeInteger(ratePerKmCop) ||
+      ratePerKmCop < 0 ||
+      !Number.isSafeInteger(commissionPercentage) ||
+      commissionPercentage < 1 ||
+      commissionPercentage > 50
+    ) {
+      setError(
+        "Ingresa valores enteros en COP y una comisión entera entre 1% y 50%.",
+      );
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -33,9 +53,9 @@ export const CreatePricingRule: React.FC = () => {
         token,
         body: {
           errand_type: form.errand_type,
-          base_rate: parseFloat(form.base_rate),
-          rate_per_km: parseFloat(form.rate_per_km),
-          commission_percentage: parseFloat(form.commission_percentage),
+          base_rate: baseRateCop,
+          rate_per_km: ratePerKmCop,
+          commission_percentage: commissionPercentage,
         },
       });
       navigate("/admin/pricing");
@@ -68,24 +88,31 @@ export const CreatePricingRule: React.FC = () => {
             </select>
           </div>
           <Input
-            label="Tarifa Base ($)"
+            label="Tarifa Base (COP)"
             type="number"
+            min="1"
+            step="1"
             value={form.base_rate}
             onChange={handleChange("base_rate")}
             placeholder="5000"
             required
           />
           <Input
-            label="Tarifa por Km ($)"
+            label="Tarifa por Km (COP)"
             type="number"
+            min="0"
+            step="1"
             value={form.rate_per_km}
             onChange={handleChange("rate_per_km")}
             placeholder="1500"
             required
           />
           <Input
-            label="Comisión (%)"
+            label="Comisión entera (%)"
             type="number"
+            min="1"
+            max="50"
+            step="1"
             value={form.commission_percentage}
             onChange={handleChange("commission_percentage")}
             placeholder="15"

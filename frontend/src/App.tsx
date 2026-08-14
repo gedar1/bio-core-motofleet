@@ -6,17 +6,9 @@ import { Home } from "./pages/Home";
 import { Login } from "./pages/auth/Login";
 import { Register } from "./pages/auth/Register";
 import { Dashboard } from "./pages/Dashboard";
-import { Motorcycles } from "./pages/admin/Motorcycles";
-import { Contracts } from "./pages/admin/Contracts";
-import { PricingRules } from "./pages/admin/PricingRules";
-import { AdminErrands } from "./pages/admin/AdminErrands";
-import { Metrics } from "./pages/admin/Metrics";
-import { Riders } from "./pages/admin/Riders";
-import { CreateRider } from "./pages/admin/CreateRider";
-import { CreateMotorcycle } from "./pages/admin/CreateMotorcycle";
-import { CreateContract } from "./pages/admin/CreateContract";
+import { AdminWorkspace } from "./pages/admin/AdminWorkspace";
+// Keep imports for backward compatibility routes
 import { CreateCosigner } from "./pages/admin/CreateCosigner";
-import { CreatePricingRule } from "./pages/admin/CreatePricingRule";
 import { CreatePayment } from "./pages/admin/CreatePayment";
 import { CreateErrand } from "./pages/user/CreateErrand";
 import { UserMyErrands } from "./pages/user/MyErrands";
@@ -66,134 +58,64 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* Admin routes */}
+      {/* Admin workspace with tabs */}
       <Route
-        path="/admin/motorcycles"
+        path="/admin"
         element={
           <ProtectedRoute>
-            <Motorcycles />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/riders"
-        element={
-          <ProtectedRoute>
-            <Riders />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/riders/create"
-        element={
-          <ProtectedRoute>
-            <CreateRider />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/motorcycles/create"
-        element={
-          <ProtectedRoute>
-            <CreateMotorcycle />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/contracts"
-        element={
-          <ProtectedRoute>
-            <Contracts />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/contracts/create"
-        element={
-          <ProtectedRoute>
-            <CreateContract />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/pricing"
-        element={
-          <ProtectedRoute>
-            <PricingRules />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/pricing/create"
-        element={
-          <ProtectedRoute>
-            <CreatePricingRule />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/cosigners/create"
-        element={
-          <ProtectedRoute>
-            <CreateCosigner />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/payments/create"
-        element={
-          <ProtectedRoute>
-            <CreatePayment />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/errands"
-        element={
-          <ProtectedRoute>
-            <AdminErrands />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/metrics"
-        element={
-          <ProtectedRoute>
-            <Metrics />
+            <AdminWorkspace />
           </ProtectedRoute>
         }
       />
 
-      {/* Admin create forms */}
+      {/* Backward compatibility redirects */}
+      <Route
+        path="/admin/motorcycles"
+        element={<Navigate to="/admin?tab=motorcycles" replace />}
+      />
       <Route
         path="/admin/motorcycles/create"
-        element={
-          <ProtectedRoute>
-            <CreateMotorcycle />
-          </ProtectedRoute>
-        }
+        element={<Navigate to="/admin?tab=motorcycles&mode=create" replace />}
+      />
+      <Route
+        path="/admin/riders"
+        element={<Navigate to="/admin?tab=riders" replace />}
+      />
+      <Route
+        path="/admin/riders/create"
+        element={<Navigate to="/admin?tab=riders&mode=create" replace />}
+      />
+      <Route
+        path="/admin/contracts"
+        element={<Navigate to="/admin?tab=contracts" replace />}
       />
       <Route
         path="/admin/contracts/create"
-        element={
-          <ProtectedRoute>
-            <CreateContract />
-          </ProtectedRoute>
-        }
+        element={<Navigate to="/admin?tab=contracts&mode=create" replace />}
       />
+      <Route
+        path="/admin/pricing"
+        element={<Navigate to="/admin?tab=pricing" replace />}
+      />
+      <Route
+        path="/admin/pricing/create"
+        element={<Navigate to="/admin?tab=pricing&mode=create" replace />}
+      />
+      <Route
+        path="/admin/errands"
+        element={<Navigate to="/admin?tab=errands" replace />}
+      />
+      <Route
+        path="/admin/metrics"
+        element={<Navigate to="/admin?tab=overview" replace />}
+      />
+
+      {/* Admin create forms - specific paths */}
       <Route
         path="/admin/cosigners/create"
         element={
           <ProtectedRoute>
             <CreateCosigner />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/pricing/create"
-        element={
-          <ProtectedRoute>
-            <CreatePricingRule />
           </ProtectedRoute>
         }
       />
