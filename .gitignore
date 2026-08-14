@@ -1,8 +1,7 @@
 node_modules/
-data/*.db
+data/*.db*
 dist/
 .env
-null
 
 # Frontend environment files may contain public Mapbox tokens; keep local values out of git.
 frontend/.env
