@@ -208,6 +208,7 @@ html.dark {
 
 /* Mobile-first Mapbox workspaces for user and rider operational flows. */
 .route-picker-mapbox {
+  position: relative;
   order: -1;
   height: min(52svh, 440px);
   min-height: 320px;
@@ -216,6 +217,21 @@ html.dark {
   border: 1px solid rgb(var(--color-hairline-strong));
   border-radius: 0;
   background: rgb(var(--color-surface));
+}
+
+.route-picker-mapbox-search {
+  position: absolute;
+  z-index: 2;
+  top: 0.75rem;
+  right: 4rem;
+  left: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.route-picker-mapbox-search-field,
+.route-picker-mapbox-search .button {
+  pointer-events: auto;
 }
 
 .route-picker-mapbox .mapboxgl-ctrl-logo,

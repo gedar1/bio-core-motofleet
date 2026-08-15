@@ -4,7 +4,6 @@ import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule, PaginatedResult, Role } from "./IMolecule.js";
 import { isValidErrandTransition } from "../atoms/stateMachines.js";
 import type { ErrandState } from "../atoms/stateMachines.js";
-import { haversineDistance } from "../atoms/haversine.js";
 import { calculateFare } from "../atoms/tarifa.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
 import type { RoutingProvider } from "../domains/errands/RoutingProvider.js";
@@ -15,13 +14,29 @@ export interface CreateErrandInput {
   type: ErrandType;
   description: string;
   origin_address: string;
-  origin_lat?: number;
-  origin_lng?: number;
+  origin_lat: number;
+  origin_lng: number;
   destination_address: string;
-  destination_lat?: number;
-  destination_lng?: number;
+  destination_lat: number;
+  destination_lng: number;
+  quote_id: string;
   payment_method: "cash" | "transfer";
 }
+
+export interface QuoteErrandInput {
+  type: ErrandType;
+  origin: { latitude: number; longitude: number };
+  destination: { latitude: number; longitude: number };
+}
+
+export type ErrandQuote = Awaited<ReturnType<RoutingProvider["getRoute"]>> & {
+  quoteId: string;
+  currency: "COP";
+  fareCop: number;
+  platformCommissionCop: number;
+  riderEarningsCop: number;
+  expiresAt: string;
+};
 
 export interface Errand {
   id: string;
@@ -75,19 +90,161 @@ export class ErrandMolecule implements IMolecule {
   ) {}
 
   /**
-   * Creates a new errand.
-   * Validates user active, gets pricing rule, calculates fare via atoms.
+   * Creates a pending errand from a quote that belongs to the requesting user.
+   * The server persists the exact route and COP snapshot shown to the user.
    */
   async create(userId: string, data: CreateErrandInput): Promise<Errand> {
-    // Validate user exists and is active
     const user = this.db
       .prepare("SELECT id, status FROM users WHERE id = ?")
       .get(userId) as { id: string; status: string } | undefined;
 
-    if (!user) {
-      throw new AppError(404, "NOT_FOUND", "User not found");
+    if (!user) throw new AppError(404, "NOT_FOUND", "User not found");
+    if (user.status !== "active") {
+      throw new AppError(
+        400,
+        "BUSINESS_RULE_VIOLATION",
+        "User account is not active",
+      );
+    }
+    if (data.description.length < 10 || data.description.length > 500) {
+      throw new AppError(
+        400,
+        "VALIDATION_ERROR",
+        "Description must be between 10 and 500 characters",
+      );
+    }
+    if (!data.origin_address.trim() || !data.destination_address.trim()) {
+      throw new AppError(
+        400,
+        "VALIDATION_ERROR",
+        "Origin and destination addresses are required",
+      );
     }
 
+    const id = uuidv4();
+    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+
+    const createFromQuote = this.db.transaction(() => {
+      const quote = this.db
+        .prepare(
+          `SELECT * FROM errand_quotes
+           WHERE id = ? AND user_id = ?`,
+        )
+        .get(data.quote_id, userId) as
+        | {
+            errand_type: ErrandType;
+            origin_lat: number;
+            origin_lng: number;
+            destination_lat: number;
+            destination_lng: number;
+            estimated_distance_km: number;
+            estimated_duration_minutes: number;
+            routing_provider: string;
+            routing_profile: string;
+            fare_cop: number;
+            platform_commission_cop: number;
+            rider_earnings_cop: number;
+            expires_at: string;
+            consumed_at: string | null;
+          }
+        | undefined;
+
+      if (!quote) {
+        throw new AppError(409, "QUOTE_INVALID", "Quote is not available");
+      }
+      if (quote.consumed_at) {
+        throw new AppError(
+          409,
+          "QUOTE_CONSUMED",
+          "Quote has already been used",
+        );
+      }
+      if (new Date(quote.expires_at).getTime() <= Date.now()) {
+        throw new AppError(409, "QUOTE_EXPIRED", "Quote has expired");
+      }
+      if (
+        quote.errand_type !== data.type ||
+        quote.origin_lat !== data.origin_lat ||
+        quote.origin_lng !== data.origin_lng ||
+        quote.destination_lat !== data.destination_lat ||
+        quote.destination_lng !== data.destination_lng
+      ) {
+        throw new AppError(
+          409,
+          "QUOTE_MISMATCH",
+          "Quote does not match the selected route or errand type",
+        );
+      }
+
+      const consumed = this.db
+        .prepare(
+          "UPDATE errand_quotes SET consumed_at = ? WHERE id = ? AND consumed_at IS NULL",
+        )
+        .run(now, data.quote_id);
+      if (consumed.changes !== 1) {
+        throw new AppError(
+          409,
+          "QUOTE_CONSUMED",
+          "Quote has already been used",
+        );
+      }
+
+      this.db
+        .prepare(
+          `
+          INSERT INTO errands (id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, estimated_distance_km, estimated_duration_minutes, routing_provider, routing_profile, route_calculated_at, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, requested_at, created_at, updated_at)
+          VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested', ?, ?, ?, ?)
+        `,
+        )
+        .run(
+          id,
+          userId,
+          data.type,
+          data.description,
+          data.origin_address,
+          data.origin_lat,
+          data.origin_lng,
+          data.destination_address,
+          data.destination_lat,
+          data.destination_lng,
+          quote.estimated_distance_km,
+          quote.estimated_distance_km,
+          quote.estimated_duration_minutes,
+          quote.routing_provider,
+          quote.routing_profile,
+          now,
+          quote.fare_cop,
+          quote.platform_commission_cop,
+          quote.rider_earnings_cop,
+          quote.fare_cop,
+          quote.platform_commission_cop,
+          quote.rider_earnings_cop,
+          data.payment_method,
+          now,
+          now,
+          now,
+        );
+    });
+
+    createFromQuote();
+    this.logger.info("Errand created from approved quote", {
+      errandId: id,
+      userId,
+      quoteId: data.quote_id,
+      type: data.type,
+    });
+    return this.getById(id) as Errand;
+  }
+
+  /**
+   * Gets a short-lived route and fare quote. Only this server-side snapshot is
+   * accepted when the user subsequently creates the errand.
+   */
+  async quote(userId: string, data: QuoteErrandInput): Promise<ErrandQuote> {
+    const user = this.db
+      .prepare("SELECT id, status FROM users WHERE id = ?")
+      .get(userId) as { id: string; status: string } | undefined;
+    if (!user) throw new AppError(404, "NOT_FOUND", "User not found");
     if (user.status !== "active") {
       throw new AppError(
         400,
@@ -96,32 +253,9 @@ export class ErrandMolecule implements IMolecule {
       );
     }
 
-    // Validate description length
-    if (data.description.length < 10 || data.description.length > 500) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
-        "Description must be between 10 and 500 characters",
-      );
-    }
-
-    // Validate addresses not empty
-    if (!data.origin_address || data.origin_address.trim() === "") {
-      throw new AppError(400, "VALIDATION_ERROR", "Origin address is required");
-    }
-
-    if (!data.destination_address || data.destination_address.trim() === "") {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
-        "Destination address is required",
-      );
-    }
-
-    // Get active pricing rule for the errand type
     const pricingRule = this.db
       .prepare(
-        "SELECT * FROM pricing_rules WHERE errand_type = ? AND active = 1",
+        "SELECT base_rate, rate_per_km, commission_percentage FROM pricing_rules WHERE errand_type = ? AND active = 1",
       )
       .get(data.type) as
       | {
@@ -130,7 +264,6 @@ export class ErrandMolecule implements IMolecule {
           commission_percentage: number;
         }
       | undefined;
-
     if (!pricingRule) {
       throw new AppError(
         400,
@@ -139,59 +272,52 @@ export class ErrandMolecule implements IMolecule {
       );
     }
 
-    // The provider's road distance is authoritative for productive pricing.
-    const estimatedDistance = await this.calculateEstimatedDistance(data);
-
-    // The active rule stores integer COP values. Its commission percentage is
-    // converted to basis points before entering the canonical fare atom.
+    const route = await this.estimateRoute(data.origin, data.destination);
+    const distanceKm = Math.max(0.5, route.distanceKm);
     const pricing = calculateFare({
       baseRateCop: pricingRule.base_rate,
       ratePerKmCop: pricingRule.rate_per_km,
       commissionBasisPoints: pricingRule.commission_percentage * 100,
-      distanceKm: estimatedDistance,
+      distanceKm,
     });
-
-    const id = uuidv4();
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const quoteId = uuidv4();
+    const createdAt = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + 5 * 60_000).toISOString();
 
     this.db
       .prepare(
-        `
-      INSERT INTO errands (id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, requested_at, created_at, updated_at)
-      VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested', ?, ?, ?, ?)
-    `,
+        `INSERT INTO errand_quotes (id, user_id, errand_type, origin_lat, origin_lng, destination_lat, destination_lng, estimated_distance_km, estimated_duration_minutes, routing_provider, routing_profile, fare_cop, platform_commission_cop, rider_earnings_cop, expires_at, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
-        id,
+        quoteId,
         userId,
         data.type,
-        data.description,
-        data.origin_address,
-        data.origin_lat ?? null,
-        data.origin_lng ?? null,
-        data.destination_address,
-        data.destination_lat ?? null,
-        data.destination_lng ?? null,
-        estimatedDistance,
+        data.origin.latitude,
+        data.origin.longitude,
+        data.destination.latitude,
+        data.destination.longitude,
+        distanceKm,
+        route.durationMinutes,
+        route.provider,
+        route.profile,
         pricing.fareCop,
         pricing.platformCommissionCop,
         pricing.riderEarningsCop,
-        pricing.fareCop,
-        pricing.platformCommissionCop,
-        pricing.riderEarningsCop,
-        data.payment_method,
-        now,
-        now,
-        now,
+        expiresAt,
+        createdAt,
       );
 
-    this.logger.info("Errand created", {
-      errandId: id,
-      userId,
-      type: data.type,
-    });
-
-    return this.getById(id) as Errand;
+    return {
+      ...route,
+      distanceKm,
+      quoteId,
+      currency: "COP",
+      fareCop: pricing.fareCop,
+      platformCommissionCop: pricing.platformCommissionCop,
+      riderEarningsCop: pricing.riderEarningsCop,
+      expiresAt,
+    };
   }
 
   /**
@@ -214,64 +340,6 @@ export class ErrandMolecule implements IMolecule {
       return await this.routingProvider.getRoute(origin, destination);
     } catch {
       this.logger.warn("Route estimate unavailable");
-      throw new AppError(
-        503,
-        "ROUTING_UNAVAILABLE",
-        "Routing service is temporarily unavailable",
-      );
-    }
-  }
-
-  private async calculateEstimatedDistance(
-    data: CreateErrandInput,
-  ): Promise<number> {
-    const originLatitude = data.origin_lat;
-    const originLongitude = data.origin_lng;
-    const destinationLatitude = data.destination_lat;
-    const destinationLongitude = data.destination_lng;
-
-    if (
-      originLatitude == null ||
-      originLongitude == null ||
-      destinationLatitude == null ||
-      destinationLongitude == null
-    ) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
-        "Origin and destination coordinates are required for route pricing",
-      );
-    }
-
-    const fallbackDistance = haversineDistance(
-      { lat: originLatitude, lng: originLongitude },
-      { lat: destinationLatitude, lng: destinationLongitude },
-    );
-
-    if (!this.routingProvider) {
-      if (this.allowHaversineFallback) return fallbackDistance;
-      throw new AppError(
-        503,
-        "ROUTING_UNAVAILABLE",
-        "Routing service is temporarily unavailable",
-      );
-    }
-
-    try {
-      const route = await this.routingProvider.getRoute(
-        { latitude: originLatitude, longitude: originLongitude },
-        { latitude: destinationLatitude, longitude: destinationLongitude },
-      );
-      return Math.max(0.5, route.distanceKm);
-    } catch {
-      if (this.allowHaversineFallback) {
-        this.logger.warn(
-          "Route provider failed; using configured Haversine fallback",
-        );
-        return fallbackDistance;
-      }
-
-      this.logger.warn("Route provider unavailable for errand pricing");
       throw new AppError(
         503,
         "ROUTING_UNAVAILABLE",

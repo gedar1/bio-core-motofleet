@@ -1,3 +1,4 @@
+import type { QuoteErrandRequest } from "../types/api";
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../services/api";
@@ -158,6 +159,14 @@ export const useErrandActions = () => {
     [token],
   );
 
+  const quote = useCallback(
+    async (data: QuoteErrandRequest) => {
+      if (!token) throw new Error("Not authenticated");
+      return api.quoteErrand(token, data);
+    },
+    [token],
+  );
+
   const getRoutePreview = useCallback(
     async (errandId: string) => {
       if (!token) throw new Error("Not authenticated");
@@ -173,6 +182,7 @@ export const useErrandActions = () => {
     cancel,
     create,
     estimateRoute,
+    quote,
     getRoutePreview,
   };
 };

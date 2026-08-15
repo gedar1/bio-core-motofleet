@@ -6,6 +6,7 @@ import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
 import {
   createErrandSchema,
+  quoteErrandRequestSchema,
   routeEstimateRequestSchema,
 } from "../atoms/schemas.js";
 import type { ErrandState } from "../atoms/stateMachines.js";
@@ -14,6 +15,7 @@ import type { Role } from "../molecules/IMolecule.js";
 /**
  * Creates errand routes with mixed role access.
  * - POST /api/errands/route-estimate — user
+ * - POST /api/errands/quote — user
  * - POST /api/errands — user
  * - GET /api/errands/available — rider
  * - GET /api/errands/my — user | rider
@@ -44,6 +46,21 @@ export function createErrandRoutes(
           req.body.destination,
         );
         res.status(200).json(estimate);
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
+
+  // POST /api/errands/quote — user gets a short-lived authoritative COP quote
+  router.post(
+    "/quote",
+    roleGuard("user"),
+    validate(quoteErrandRequestSchema),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const quote = await errandMolecule.quote(req.user!.id, req.body);
+        res.status(201).json(quote);
       } catch (error) {
         next(error);
       }
