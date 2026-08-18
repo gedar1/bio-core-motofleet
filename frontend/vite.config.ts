@@ -12,4 +12,7 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    allowedHosts: ["caring-flexibility-production-a9af.up.railway.app"],
+  },
 });
