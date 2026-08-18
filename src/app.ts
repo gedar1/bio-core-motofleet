@@ -52,9 +52,22 @@ export function createApp(
   // --- Body parsing ---
   app.use(express.json());
 
-  // --- CORS (simple setup, no external dependency) ---
-  app.use((_req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
+  // --- CORS ---
+  // Browser clients must explicitly originate from an approved frontend URL.
+  // Non-browser clients do not send Origin and are unaffected by this policy.
+  const allowedOrigins = new Set(
+    (process.env.CORS_ALLOWED_ORIGINS ?? "http://localhost:5173")
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  );
+
+  app.use((req, res, next) => {
+    const origin = req.get("Origin");
+    if (origin && allowedOrigins.has(origin)) {
+      res.header("Access-Control-Allow-Origin", origin);
+      res.header("Vary", "Origin");
+    }
     res.header(
       "Access-Control-Allow-Headers",
       "Origin, X-Requested-With, Content-Type, Accept, Authorization",
@@ -64,8 +77,8 @@ export function createApp(
       "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     );
 
-    if (_req.method === "OPTIONS") {
-      res.sendStatus(204);
+    if (req.method === "OPTIONS") {
+      res.status(204).end();
       return;
     }
 
