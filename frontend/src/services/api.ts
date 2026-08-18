@@ -5,7 +5,8 @@ import type {
   RouteEstimateResponse,
 } from "../types/api";
 
-const BASE_URL = "/api";
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || "/api";
 
 interface RequestOptions {
   method?: string;
