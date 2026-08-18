@@ -320,3 +320,60 @@ Este MVP valida la hipótesis central: que los usuarios solicitan mandados y los
 3. THE Plataforma SHALL recortar espacios y convertir a mayúsculas `document_type` y `document_number`, y SHALL rechazar un número que no tenga entre 5 y 30 caracteres alfanuméricos o que use guiones fuera de posiciones interiores.
 4. IF un nuevo registro repite el mismo par canónico (`document_type`, `document_number`) de otro Motociclista, THEN THE Plataforma SHALL rechazarlo antes de persistirlo y la base de datos SHALL impedir duplicados concurrentes.
 5. WHEN la migración se aplica a una base de datos existente, THE Plataforma SHALL mantener utilizables a los Motociclistas históricos sin datos de documento; las vistas administrativas que muestren su identidad SHALL marcarlos como pendientes y ninguna vista pública, de Usuario o de Motociclista SHALL exponer números de documento.
+
+---
+
+## Addendum de Requisitos — Ruteo Mapbox y cotización COP
+
+Este addendum reemplaza los criterios de los Requirements 9 y 17 que indiquen coordenadas manuales, distancia Haversine como método productivo de cobro o valores monetarios sin moneda explícita.
+
+### Requirement 19: Selección de ruta y direcciones colombianas
+
+**User Story:** Como Usuario, quiero seleccionar en un mapa mi punto de recogida y de entrega mediante búsqueda o pines, para solicitar un mandado sin ingresar coordenadas técnicas.
+
+#### Acceptance Criteria
+
+1. THE Plataforma SHALL mostrar un único mapa con un marcador de origen y un marcador de destino al crear un Mandado.
+2. WHEN el Usuario selecciona el origen o el destino mediante búsqueda, clic o arrastre, THE Plataforma SHALL capturar internamente la dirección normalizada y sus coordenadas de latitud y longitud sin mostrar campos de coordenadas editables.
+3. THE Plataforma SHALL limitar el autocompletado de direcciones a Colombia.
+4. WHEN el Usuario solicita su ubicación actual, THE Plataforma SHALL solicitar el permiso del navegador y SHALL presentar un mensaje accionable si el permiso es denegado, la ubicación no está disponible o expira el tiempo de espera.
+5. WHEN origen y destino son válidos, THE Plataforma SHALL solicitar una estimación vial al backend y mostrar distancia, duración aproximada y geometría de la ruta.
+6. THE Plataforma SHALL requerir origen y destino antes de permitir crear un Mandado.
+7. THE frontend SHALL use only a restricted public Mapbox token and SHALL NOT expose a server token, a pricing formula, or payment credentials.
+
+### Requirement 20: Distancia vial autoritativa y tarifa COP
+
+**User Story:** Como operador de la Plataforma, quiero que el backend calcule y congele una tarifa basada en distancia vial real, para cobrar valores consistentes en pesos colombianos.
+
+#### Acceptance Criteria
+
+1. WHEN un Usuario crea un Mandado con origen y destino válidos, THE Backend SHALL validar las coordenadas, obtener la distancia vial mediante el proveedor de rutas configurado y calcular la tarifa sin confiar en distancia, duración o tarifa enviados por el cliente.
+2. THE Backend SHALL usar el perfil `driving-traffic` cuando el proveedor Mapbox esté configurado para calcular la estimación vial y de duración.
+3. THE Plataforma SHALL expresar las nuevas tarifas, comisiones y ganancias en enteros COP.
+4. THE Plataforma SHALL persistir la distancia estimada en km, duración estimada, proveedor, perfil de ruteo, fecha de cálculo y los valores congelados de tarifa, comisión y ganancia.
+5. WHEN el proveedor de ruteo no esté disponible, THE Backend SHALL rechazar la creación productiva con un error recuperable de proveedor y SHALL NOT cobrar silenciosamente una estimación Haversine.
+6. THE Plataforma SHALL mantener una distancia mínima de 0.5 km al aplicar la tarifa si la distancia vial calculada es inferior a ese valor.
+7. WHEN una Regla_de_Tarifa cambia después de crear un Mandado, THE tarifa, comisión y ganancia persistidas de ese Mandado SHALL permanecer inalteradas.
+
+### Requirement 21: Estimación de ruta segura
+
+**User Story:** Como Usuario autenticado, quiero visualizar una estimación de ruta antes de crear el Mandado, para confirmar recogida y entrega sin que se cree un cobro.
+
+#### Acceptance Criteria
+
+1. THE Plataforma SHALL proveer un endpoint autenticado para estimar ruta a partir de origen y destino.
+2. THE endpoint SHALL devolver únicamente distancia en km, duración aproximada, geometría de ruta, proveedor y perfil utilizados.
+3. THE endpoint SHALL NOT crear un Mandado, calcular una tarifa final, iniciar un pago ni devolver credenciales de proveedores.
+4. IF las coordenadas no son números finitos o están fuera de los rangos geográficos válidos, THEN THE endpoint SHALL rechazarlas con un error de validación.
+5. IF el proveedor no responde dentro del timeout configurado, THEN THE endpoint SHALL retornar un error recuperable y no SHALL revelar detalles internos del proveedor.
+
+### Requirement 22: Preparación de pagos locales
+
+**User Story:** Como Plataforma, quiero mantener una frontera para pagos locales, para integrar posteriormente PSE, Nequi y tarjetas sin acoplar la lógica de mandados a una pasarela.
+
+#### Acceptance Criteria
+
+1. THE Plataforma SHALL definir una interfaz de pasarela de pagos que acepte montos enteros COP y una referencia idempotente de Mandado.
+2. THE Plataforma SHALL mantener las implementaciones Wompi y Mercado Pago fuera de la lógica de tarifa y del frontend.
+3. WHEN se integre una pasarela, THE Backend SHALL validar los webhooks y SHALL actualizar el estado de pago de forma idempotente.
+4. THE Plataforma SHALL NOT marcar un Mandado como pagado basándose solo en información enviada por el navegador.

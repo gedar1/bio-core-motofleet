@@ -224,6 +224,14 @@ export const routeEstimateRequestSchema = z.object({
   destination: routeCoordinatesSchema,
 });
 
+export const quoteErrandRequestSchema = routeEstimateRequestSchema.extend({
+  type: z.enum(["object_transport", "purchase", "errand"], {
+    errorMap: () => ({
+      message: "Type must be object_transport, purchase or errand",
+    }),
+  }),
+});
+
 export const createErrandSchema = z
   .object({
     type: z.enum(["object_transport", "purchase", "errand"], {
@@ -236,11 +244,12 @@ export const createErrandSchema = z
       .min(10, "Description must be at least 10 characters")
       .max(500, "Description must be at most 500 characters"),
     origin_address: z.string().min(1, "Origin address is required"),
-    origin_lat: latitudeSchema.optional(),
-    origin_lng: longitudeSchema.optional(),
+    origin_lat: latitudeSchema,
+    origin_lng: longitudeSchema,
     destination_address: z.string().min(1, "Destination address is required"),
-    destination_lat: latitudeSchema.optional(),
-    destination_lng: longitudeSchema.optional(),
+    destination_lat: latitudeSchema,
+    destination_lng: longitudeSchema,
+    quote_id: z.string().uuid("Quote id must be a valid UUID"),
     payment_method: z.enum(["cash", "transfer"], {
       errorMap: () => ({
         message: "Payment method must be cash or transfer",

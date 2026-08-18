@@ -407,3 +407,17 @@ Standalone Express + SQLite REST API for motorcycle fleet rental and errand mark
   - [x] 13.3 Add required type/number controls to the Admin rider registration form and show document type or pending status only in admin list/selection views.
   - [x] 13.4 Add focused document schema tests and validate backend plus frontend builds.
   - _Requirements: 3.1, 3.2, 3.5, 3.6; Rider identity document enhancement_
+
+- [ ] 14. Migración Mapbox y cotización vial COP
+  - [x] 14.1 Añadir dependencias frontend fijadas para `react-map-gl`, `mapbox-gl` y `@mapbox/search-js-react`; documentar el token público restringido requerido.
+  - [x] 14.2 Implementar `RoutePickerMapbox` con mapa único, pines de origen/destino, geocodificación restringida a Colombia, geolocalización explícita y polilínea GeoJSON del backend.
+  - [x] 14.3 Definir/ajustar los DTOs de coordenadas y estimación, incluyendo validación de latitud, longitud, distancia, duración, proveedor y perfil.
+  - [x] 14.4 Implementar `MapboxRoutingProvider` en `src/infrastructure/routing/` con `@mapbox/mapbox-sdk`, `driving-traffic`, timeout y errores normalizados; mantener el contrato `RoutingProvider`.
+  - [x] 14.5 Crear `POST /api/errands/route-estimate`, protegido para usuarios, sin creación de mandado ni lógica de cobro.
+  - [x] 14.6 Actualizar `ErrandMolecule.create` para que la cotización productiva use la distancia del proveedor y rechace fallos del proveedor en producción.
+  - [x] 14.7 Crear migración SQLite forward-only para el snapshot de ruta y valores COP; definir y ejecutar estrategia de backfill segura para datos monetarios existentes.
+  - [x] 14.8 Actualizar el átomo de tarifa para operar con enteros COP, incluyendo mínimo de distancia y redondeos deterministas.
+  - [x] 14.9 Retirar Leaflet, OSRM y Nominatim únicamente después de validar el flujo Mapbox end-to-end en ambiente de prueba.
+  - [ ] 14.10 Agregar pruebas unitarias con proveedor de rutas falso, pruebas de endpoint de estimación, pruebas de error/timeout y pruebas de que el backend no confía en tarifas del cliente.
+  - [ ] 14.11 Definir el puerto `PaymentGateway` y DTOs de intención de pago COP, sin integrar todavía Wompi o Mercado Pago.
+  - _Requirements: 19.1–19.7, 20.1–20.7, 21.1–21.5, 22.1–22.4_

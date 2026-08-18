@@ -127,11 +127,11 @@ export const RoutePickerMapbox = ({
     }
   };
 
-  const handleRetrieve = (feature: GeocoderFeature) => {
+  const handleRetrieve = (kind: PointKind) => (feature: GeocoderFeature) => {
     const coordinates =
       feature.properties.coordinates.routable_points?.[0] ??
       feature.properties.coordinates;
-    selectLocation(activePoint, {
+    selectLocation(kind, {
       address: feature.properties.full_address,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
@@ -203,46 +203,49 @@ export const RoutePickerMapbox = ({
       <legend className="block font-body text-body-sm-medium text-ink">
         Ruta del favor
       </legend>
-      <div className="grid grid-cols-2 gap-sm">
-        <Button
-          type="button"
-          variant={activePoint === "origin" ? "dark" : "secondary"}
-          onClick={() => setActivePoint("origin")}
-        >
-          Seleccionar origen
-        </Button>
-        <Button
-          type="button"
-          variant={activePoint === "destination" ? "dark" : "secondary"}
-          onClick={() => setActivePoint("destination")}
-        >
-          Seleccionar destino
-        </Button>
-      </div>
-      <Geocoder
-        accessToken={MAPBOX_PUBLIC_TOKEN}
-        options={{
-          country: "CO",
-          language: "es",
-          proximity: { lng: -75.5812, lat: 6.2442 },
-        }}
-        placeholder={
-          activePoint === "origin"
-            ? "Busca el punto de recogida"
-            : "Busca el destino"
-        }
-        marker={false}
-        onRetrieve={handleRetrieve}
-      />
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={useCurrentLocation}
-        disabled={locating}
-      >
-        {locating ? "Ubicando..." : "Usar mi ubicación actual como origen"}
-      </Button>
       <div className="route-picker-mapbox">
+        <div className="route-picker-mapbox-search">
+          <div
+            className="route-picker-mapbox-search-field"
+            onFocusCapture={() => setActivePoint("origin")}
+          >
+            <Geocoder
+              accessToken={MAPBOX_PUBLIC_TOKEN}
+              options={{
+                country: "CO",
+                language: "es",
+                proximity: { lng: -75.5812, lat: 6.2442 },
+              }}
+              placeholder="Busca el punto de recogida"
+              marker={false}
+              onRetrieve={handleRetrieve("origin")}
+            />
+          </div>
+          <div
+            className="route-picker-mapbox-search-field"
+            onFocusCapture={() => setActivePoint("destination")}
+          >
+            <Geocoder
+              accessToken={MAPBOX_PUBLIC_TOKEN}
+              options={{
+                country: "CO",
+                language: "es",
+                proximity: { lng: -75.5812, lat: 6.2442 },
+              }}
+              placeholder="Busca el destino"
+              marker={false}
+              onRetrieve={handleRetrieve("destination")}
+            />
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={useCurrentLocation}
+            disabled={locating}
+          >
+            {locating ? "Ubicando..." : "Usar mi ubicación actual como origen"}
+          </Button>
+        </div>
         <Map
           ref={mapRef}
           initialViewState={INITIAL_VIEW}
@@ -288,8 +291,8 @@ export const RoutePickerMapbox = ({
         </Map>
       </div>
       <p className="caption">
-        Selecciona origen o destino y luego toca el mapa. Puedes arrastrar los
-        pines para ajustarlos.
+        Busca el origen y el destino arriba. Toca el mapa o arrastra los pines
+        para ajustar cada punto.
       </p>
       {value.origin && (
         <p className="font-body text-body-sm text-ink">

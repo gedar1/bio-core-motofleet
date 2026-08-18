@@ -1149,3 +1149,200 @@ npx vitest --run --coverage
 New rider registrations persist canonical English-named `document_type` and `document_number` fields. `document_type` is one of `CC` (Cédula de ciudadanía), `CE` (Cédula de extranjería), `PPT` (Permiso por Protección Temporal), or `PASAPORTE`; `document_number` is trimmed, uppercased, and limited to 5–30 alphanumeric characters with interior hyphens only. Zod validates and normalizes the request at the API boundary, while `RiderMolecule` checks the canonical `(document_type, document_number)` pair before inserting it.
 
 Migration `002_add_rider_identity_documents.sql` adds nullable fields and a partial unique index for the pair. The columns intentionally remain nullable so records created before the enhancement remain readable and usable. Admin-only rider lists and selectors receive `document_type` to identify legacy records as pending; document numbers are not included in general rider, user, or public views.
+
+---
+
+# Addendum de Diseño — Migración Mapbox para logística en Colombia
+
+> Estado: diseño aprobado para planificación; no habilita cambios de implementación por sí solo.
+
+## 1. Objetivo y alcance
+
+MotoFleet reemplazará Leaflet, OpenStreetMap, Nominatim y OSRM por Mapbox para la selección visual de ubicaciones y el cálculo vial de mandados en Colombia.
+
+El alcance incluye:
+
+- Un mapa React basado en `react-map-gl` para mostrar origen, destino y geometría de ruta.
+- Búsqueda y selección de direcciones colombianas con el componente React de [Mapbox Search JS Geocoding](https://docs.mapbox.com/mapbox-search-js/api/react/geocoding/), limitado a `CO`.
+- Cálculo backend de distancia vial y duración mediante Mapbox Directions con perfil `driving-traffic`. Ese perfil usa información histórica y actual de tráfico donde está disponible, según la [documentación oficial de Directions](https://docs.mapbox.com/api/navigation/directions/).
+- Tarifas inmutables expresadas en pesos colombianos enteros (COP).
+- Una frontera de pagos preparada para Wompi o Mercado Pago; la integración de cobro real queda fuera de este cambio.
+
+No incluye tracking GPS de riders, asignación automática, navegación giro a giro ni procesamiento de pagos.
+
+## 2. Principios de seguridad y responsabilidad
+
+| Capa            | Responsabilidad permitida                                                                                                      | Prohibiciones                                                                              |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| Frontend React  | Renderizar mapa, geocodificar/buscar direcciones de Colombia, mostrar la ruta recibida, administrar pines y enviar coordenadas | Calcular o decidir tarifa, usar token secreto, invocar SDK backend de Mapbox, crear cargos |
+| Backend Node.js | Validar coordenadas, solicitar ruta vial, calcular y congelar tarifa COP, persistir el mandado y gestionar fallos de proveedor | Exponer token secreto o confiar en distancia/tarifa enviada por el navegador               |
+| Infraestructura | Implementar adaptadores Mapbox y futuras pasarelas de pago                                                                     | Contener reglas de negocio de tarifa                                                       |
+
+El frontend usará únicamente `VITE_MAPBOX_PUBLIC_TOKEN`, un token público `pk.*` restringido por URL/origen y por scopes mínimos. El backend usará `MAPBOX_SECRET_TOKEN` o un token de servidor restringido; no se registra en logs, no se devuelve por HTTP y no se carga en el bundle Vite.
+
+## 3. Arquitectura objetivo
+
+```mermaid
+graph LR
+  Browser[React + react-map-gl] -->|coordenadas JWT| Estimate[POST /api/errands/route-estimate]
+  Browser -->|crea mandado JWT| Create[POST /api/errands]
+  Estimate --> Errand[ErrandMolecule]
+  Create --> Errand
+  Errand --> Port[RoutingProvider]
+  Port --> Mapbox[MapboxRoutingProvider]
+  Mapbox --> Directions[Mapbox Directions driving-traffic]
+  Errand --> Pricing[calculateFare COP]
+  Errand --> DB[(SQLite)]
+  Errand --> PaymentPort[PaymentGateway futuro]
+```
+
+La interfaz `RoutingProvider` existente se conserva como puerto de dominio. `MapboxRoutingProvider` sustituye a `OsrmRoutingProvider` en el composition root (`src/index.ts`). El proveedor no conoce SQLite, tarifas ni Express; `ErrandMolecule` no conoce URLs, SDKs ni tokens de Mapbox.
+
+### Interfaces de dominio
+
+```typescript
+export interface Coordinates {
+  readonly latitude: number;
+  readonly longitude: number;
+}
+
+export interface RouteEstimate {
+  readonly distanceKm: number;
+  readonly durationMinutes: number;
+  readonly geometry?: ReadonlyArray<
+    readonly [latitude: number, longitude: number]
+  >;
+  readonly provider: "mapbox";
+  readonly profile: "driving-traffic";
+}
+
+export interface RoutingProvider {
+  getRoute(
+    origin: Coordinates,
+    destination: Coordinates,
+  ): Promise<RouteEstimate>;
+}
+```
+
+La geometría es opcional en el contrato de creación de mandados porque la tarifa solo requiere distancia. La ruta de estimación puede solicitarla mediante una variante o DTO de lectura para renderizar la polilínea sin filtrar detalles del SDK al frontend.
+
+## 4. Frontend Mapbox
+
+### Dependencias previstas
+
+- `react-map-gl` y `mapbox-gl` para el canvas del mapa y fuentes/capas.
+- `@mapbox/search-js-react` para geocodificación/autocompletado React.
+
+Las versiones se instalarán fijadas, no con rangos abiertos, al ejecutar la tarea de implementación.
+
+### Componente `RoutePickerMapbox`
+
+Sustituye `RoutePicker` y conserva su contrato controlado de origen/destino. Sus responsabilidades son:
+
+1. Mostrar un marcador de recogida y otro de entrega.
+2. Solicitar geolocalización del navegador solo bajo acción explícita del usuario.
+3. Permitir seleccionar el punto activo mediante búsqueda, clic o arrastre.
+4. Configurar la búsqueda con país `CO` y un centro/bias inicial en el Valle de Aburrá, sin impedir otras direcciones colombianas.
+5. Solicitar al backend la estimación de ruta cuando existan ambos puntos.
+6. Renderizar `geometry` como `Source`/`Layer` GeoJSON y mostrar distancia/duración devueltas por el backend.
+
+El componente no contiene URL de Directions, token secreto, fórmula de tarifa ni lógica de pago.
+
+## 5. API de estimación y creación
+
+### `POST /api/errands/route-estimate`
+
+- Requiere JWT de rol `user`.
+- Valida cuatro números finitos: latitud `[-90, 90]` y longitud `[-180, 180]`.
+- Obtiene una ruta `driving-traffic` a través de `RoutingProvider`.
+- Responde únicamente información de visualización:
+
+```json
+{
+  "distanceKm": 12.4,
+  "durationMinutes": 35,
+  "geometry": [
+    [6.25, -75.57],
+    [6.26, -75.56]
+  ],
+  "provider": "mapbox",
+  "profile": "driving-traffic"
+}
+```
+
+No retorna tarifa ni crea estado persistente. Debe responder `503 ROUTING_UNAVAILABLE` ante un fallo recuperable del proveedor.
+
+### `POST /api/errands`
+
+El endpoint actual sigue siendo la fuente de verdad. Ignora cualquier distancia, duración o tarifa enviada por el cliente; vuelve a solicitar la ruta mediante `RoutingProvider`, calcula la tarifa y persiste la instantánea.
+
+Para producción, un fallo de Mapbox debe rechazar la creación con error recuperable `503`, en lugar de cobrar usando silenciosamente Haversine. El fallback Haversine solo puede mantenerse detrás de una configuración explícita de contingencia para desarrollo o pruebas.
+
+## 6. Cálculo COP e instantánea de cotización
+
+Todos los valores monetarios nuevos se manejan como enteros COP: `baseFareCop`, `ratePerKmCop`, `fareCop`, `platformCommissionCop` y `riderEarningsCop`. COP no requiere fracciones para este caso de negocio.
+
+La fórmula es:
+
+```text
+fareCop = baseFareCop + round(distanceKm × ratePerKmCop)
+commissionCop = round(fareCop × commissionPercentage / 100)
+riderEarningsCop = fareCop - commissionCop
+```
+
+Una migración de datos posterior debe convertir los campos `REAL` de precios y tarifas a valores enteros COP o añadir columnas enteras paralelas, validar su equivalencia y retirar los campos anteriores solo después de un backfill verificado.
+
+Para auditoría y consistencia se deben persistir, como mínimo:
+
+- `estimated_distance_km`
+- `estimated_duration_minutes`
+- `routing_provider` (`mapbox`)
+- `routing_profile` (`driving-traffic`)
+- `route_calculated_at`
+- tarifa, comisión y ganancia congeladas en COP
+
+## 7. Frontera futura de pagos locales
+
+La creación de mandados no invoca una pasarela todavía. Se reserva el puerto siguiente para una fase posterior:
+
+```typescript
+export interface PaymentGateway {
+  createPaymentIntent(input: {
+    amountCop: number;
+    reference: string;
+    customerEmail: string;
+    methods: Array<"PSE" | "NEQUI" | "CARD">;
+  }): Promise<{
+    providerReference: string;
+    status: "pending" | "approved" | "rejected";
+  }>;
+}
+```
+
+`WompiPaymentGateway` y `MercadoPagoGateway` serán adaptadores de infraestructura. Los webhooks deben validarse en backend, ser idempotentes y actualizar una entidad de pago; nunca se considerará pagado un mandado por un estado reportado directamente por el navegador.
+
+## 8. Manejo de errores, observabilidad y límites
+
+- Aplicar timeout al proveedor, capturar errores y registrar solo metadatos seguros: proveedor, perfil, código HTTP, duración y correlation id.
+- Nunca registrar tokens, direcciones completas junto con PII innecesaria, ni payloads de pasarela.
+- Limitar el endpoint de estimación por usuario/IP y cancelar solicitudes obsoletas en frontend.
+- Diferenciar errores de validación (`400`), no autorizado (`401/403`) y proveedor no disponible (`503`).
+- La disponibilidad de tráfico puede variar por zona; la respuesta debe presentar duración como estimación, no como garantía de entrega.
+
+## 9. Plan de migración sin interrupción
+
+1. Añadir contratos Mapbox y pruebas con un proveedor falso, sin retirar OSRM.
+2. Implementar `MapboxRoutingProvider` backend y el endpoint de estimación; activar mediante configuración `ROUTING_PROVIDER=mapbox`.
+3. Migrar el frontend a `RoutePickerMapbox`, conservando el mismo DTO de coordenadas.
+4. Validar en ambiente de prueba direcciones colombianas, rutas, errores, cuotas y coherencia de distancia entre preview y creación.
+5. Cambiar el composition root a Mapbox y retirar llamadas directas de OSRM/Nominatim/Leaflet solo tras la validación.
+6. Ejecutar la migración COP y actualizar los contratos API/documentación antes de habilitar pagos.
+
+## 10. Cambios requeridos en el spec MVP
+
+Este addendum sustituye estas decisiones obsoletas del documento base:
+
+- "Haversine para distancia" pasa a ser fallback técnico controlado, no método de cobro productivo.
+- "Coordenadas manuales por dirección" pasa a selección mediante mapa/geocodificador y captura interna de coordenadas.
+- Requirement 9 y Requirement 17 deben cambiar de distancia en línea recta a distancia vial autoritativa calculada por backend.
+- Las tareas deben incluir pruebas del adaptador Mapbox, pruebas de contrato de `RoutingProvider`, validación de endpoint y pruebas de seguridad de tokens.

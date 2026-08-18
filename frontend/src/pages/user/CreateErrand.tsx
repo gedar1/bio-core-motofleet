@@ -9,21 +9,38 @@ import {
   type RouteValue,
 } from "../../components/ui";
 import { t } from "../../i18n";
+import type { ErrandQuoteResponse, QuoteErrandRequest } from "../../types/api";
+
+type CreateErrandForm = {
+  type: QuoteErrandRequest["type"];
+  description: string;
+  payment_method: "cash" | "transfer";
+};
+
+const formatCop = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  maximumFractionDigits: 0,
+});
 
 export const CreateErrand: React.FC = () => {
   const navigate = useNavigate();
-  const { create, estimateRoute } = useErrandActions();
+  const { create, quote } = useErrandActions();
   const [error, setError] = useState<string | null>(null);
   const [routePreview, setRoutePreview] = useState<RoutePreview | null>(null);
+  const [quotePreview, setQuotePreview] = useState<ErrandQuoteResponse | null>(
+    null,
+  );
   const [routeEstimateError, setRouteEstimateError] = useState<string | null>(
     null,
   );
   const [loading, setLoading] = useState(false);
+  const [quoteRefreshKey, setQuoteRefreshKey] = useState(0);
   const [route, setRoute] = useState<RouteValue>({
     origin: null,
     destination: null,
   });
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<CreateErrandForm>({
     type: "object_transport",
     description: "",
     payment_method: "cash",
@@ -32,7 +49,10 @@ export const CreateErrand: React.FC = () => {
   const handleChange =
     (field: keyof typeof form) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      setForm((previous) => ({ ...previous, [field]: event.target.value }));
+      setForm((previous) => ({
+        ...previous,
+        [field]: event.target.value as CreateErrandForm[typeof field],
+      }));
     };
 
   useEffect(() => {
@@ -41,6 +61,7 @@ export const CreateErrand: React.FC = () => {
 
     if (!origin || !destination) {
       setRoutePreview(null);
+      setQuotePreview(null);
       setRouteEstimateError(null);
       return () => {
         current = false;
@@ -48,15 +69,19 @@ export const CreateErrand: React.FC = () => {
     }
 
     setRoutePreview(null);
+    setQuotePreview(null);
     setRouteEstimateError(null);
-    estimateRoute(origin, destination)
-      .then((estimate) => {
-        if (current) setRoutePreview(estimate);
+    quote({ type: form.type, origin, destination })
+      .then((nextQuote) => {
+        if (current) {
+          setRoutePreview(nextQuote);
+          setQuotePreview(nextQuote);
+        }
       })
       .catch(() => {
         if (current) {
           setRouteEstimateError(
-            "No fue posible previsualizar la ruta. Ajusta los puntos o inténtalo de nuevo.",
+            "No fue posible cotizar la ruta. Ajusta los puntos o inténtalo de nuevo.",
           );
         }
       });
@@ -65,7 +90,9 @@ export const CreateErrand: React.FC = () => {
       current = false;
     };
   }, [
-    estimateRoute,
+    quote,
+    form.type,
+    quoteRefreshKey,
     route.destination?.latitude,
     route.destination?.longitude,
     route.origin?.latitude,
@@ -83,6 +110,20 @@ export const CreateErrand: React.FC = () => {
       return;
     }
 
+    if (!quotePreview) {
+      setError("Espera la cotización antes de aprobar y crear el favor.");
+      return;
+    }
+
+    if (new Date(quotePreview.expiresAt).getTime() <= Date.now()) {
+      setQuotePreview(null);
+      setQuoteRefreshKey((previous) => previous + 1);
+      setError(
+        "La cotización venció. Revisa el nuevo valor antes de continuar.",
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       await create({
@@ -93,6 +134,7 @@ export const CreateErrand: React.FC = () => {
         destination_address: route.destination.address,
         destination_lat: route.destination.latitude,
         destination_lng: route.destination.longitude,
+        quote_id: quotePreview.quoteId,
       });
       navigate("/user/errands");
     } catch (err: unknown) {
@@ -101,6 +143,13 @@ export const CreateErrand: React.FC = () => {
       setLoading(false);
     }
   };
+
+  let submitLabel = "Cotizando favor...";
+  if (loading) {
+    submitLabel = t.user.creatingBtn;
+  } else if (quotePreview) {
+    submitLabel = "Aprobar costo y crear favor";
+  }
 
   return (
     <div className="section px-0 lg:px-2xl">
@@ -166,11 +215,42 @@ export const CreateErrand: React.FC = () => {
               </select>
             </div>
 
+            {quotePreview ? (
+              <div className="rounded-md border border-primary bg-cream px-md py-md">
+                <p className="font-body text-body-sm-medium text-ink">
+                  Valor total del favor
+                </p>
+                <p className="font-body text-heading-3 text-primary">
+                  {formatCop.format(quotePreview.fareCop)}
+                </p>
+                <p className="caption">
+                  Esta cotización se aplicará al crear el favor y vence a las{" "}
+                  {new Date(quotePreview.expiresAt).toLocaleTimeString(
+                    "es-CO",
+                    {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    },
+                  )}
+                  .
+                </p>
+              </div>
+            ) : (
+              route.origin &&
+              route.destination && (
+                <p className="caption">Calculando el valor de tu favor...</p>
+              )
+            )}
+
             {error && (
               <p className="font-body text-caption text-error">{error}</p>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t.user.creatingBtn : t.user.createBtn}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading || !quotePreview}
+            >
+              {submitLabel}
             </Button>
           </section>
         </form>

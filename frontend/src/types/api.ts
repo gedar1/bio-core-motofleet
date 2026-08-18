@@ -78,6 +78,20 @@ export interface RouteCoordinates {
   longitude: number;
 }
 
+export interface QuoteErrandRequest extends RouteEstimateRequest {
+  type: "object_transport" | "purchase" | "errand";
+}
+
+/** A short-lived, server-authoritative amount the user approves before creation. */
+export interface ErrandQuoteResponse extends RouteEstimateResponse {
+  quoteId: string;
+  currency: "COP";
+  fareCop: number;
+  platformCommissionCop: number;
+  riderEarningsCop: number;
+  expiresAt: string;
+}
+
 /** Usuario */
 export interface User {
   id: string;

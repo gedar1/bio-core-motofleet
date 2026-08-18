@@ -1,4 +1,9 @@
-import type { RouteEstimateRequest, RouteEstimateResponse } from "../types/api";
+import type {
+  ErrandQuoteResponse,
+  QuoteErrandRequest,
+  RouteEstimateRequest,
+  RouteEstimateResponse,
+} from "../types/api";
 
 const BASE_URL = "/api";
 
@@ -69,6 +74,14 @@ export const api = {
 
   estimateErrandRoute(token: string, data: RouteEstimateRequest) {
     return this.request<RouteEstimateResponse>("/errands/route-estimate", {
+      method: "POST",
+      body: data,
+      token,
+    });
+  },
+
+  quoteErrand(token: string, data: QuoteErrandRequest) {
+    return this.request<ErrandQuoteResponse>("/errands/quote", {
       method: "POST",
       body: data,
       token,
