@@ -27,7 +27,9 @@ export class NotificationMolecule implements IMolecule {
   readonly name = "notifications";
   readonly version = "1.0.0";
 
-  private transporter: nodemailer.Transporter;
+  private readonly transporter: nodemailer.Transporter;
+  private readonly emailNotificationsEnabled =
+    process.env.EMAIL_NOTIFICATIONS_ENABLED === "true";
 
   constructor(
     private readonly db: Database.Database,
@@ -59,6 +61,10 @@ export class NotificationMolecule implements IMolecule {
     newStatus: ErrandState,
     reason?: string,
   ): Promise<void> {
+    if (!this.emailNotificationsEnabled) {
+      return;
+    }
+
     // Get errand details
     const errand = this.db
       .prepare("SELECT * FROM errands WHERE id = ?")
@@ -122,6 +128,10 @@ export class NotificationMolecule implements IMolecule {
    * Returns the number of successfully sent notifications.
    */
   async processQueue(): Promise<number> {
+    if (!this.emailNotificationsEnabled) {
+      return 0;
+    }
+
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
 
     // Get pending notifications that are ready for send/retry

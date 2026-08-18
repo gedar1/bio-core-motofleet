@@ -125,19 +125,28 @@ async function main(): Promise<void> {
     true,
   );
 
-  // Process notification queue every 30 seconds
-  scheduler.register(
-    "process-notifications",
-    "Process email notification queue",
-    30 * 1000,
-    async () => {
-      const sent = await notificationMolecule.processQueue();
-      if (sent > 0) {
-        logger.info("Processed notifications", { sent });
-      }
-    },
-    true,
-  );
+  const emailNotificationsEnabled =
+    process.env.EMAIL_NOTIFICATIONS_ENABLED === "true";
+
+  if (emailNotificationsEnabled) {
+    // Process notification queue every 30 seconds.
+    scheduler.register(
+      "process-notifications",
+      "Process email notification queue",
+      30 * 1000,
+      async () => {
+        const sent = await notificationMolecule.processQueue();
+        if (sent > 0) {
+          logger.info("Processed notifications", { sent });
+        }
+      },
+      true,
+    );
+  } else {
+    logger.info(
+      "Email notifications disabled; notification queue processor not registered",
+    );
+  }
 
   // --- Start Express server ---
   const server = app.listen(port, () => {
