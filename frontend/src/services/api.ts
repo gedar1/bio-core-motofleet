@@ -134,6 +134,41 @@ export const api = {
     });
   },
 
+  // --- In-app notifications ---
+  getNotifications(token: string) {
+    return this.request<import("../types/api").InAppNotification[]>(
+      "/notifications",
+      { token },
+    );
+  },
+
+  getUnreadNotificationCount(token: string) {
+    return this.request<{ count: number }>("/notifications/unread-count", {
+      token,
+    });
+  },
+
+  markNotificationRead(token: string, notificationId: string) {
+    return this.request<import("../types/api").InAppNotification>(
+      `/notifications/${notificationId}/read`,
+      { method: "PATCH", token },
+    );
+  },
+
+  markAllNotificationsRead(token: string) {
+    return this.request<{ updated: number }>("/notifications/read-all", {
+      method: "PATCH",
+      token,
+    });
+  },
+
+  deleteNotification(token: string, notificationId: string) {
+    return this.request<{ deleted: true }>(`/notifications/${notificationId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
+
   // --- Admin ---
   getMotorcycles(token: string) {
     return this.request("/motorcycles", { token });

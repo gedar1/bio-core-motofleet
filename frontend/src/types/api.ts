@@ -218,6 +218,22 @@ export interface Cosigner {
   created_at: string;
 }
 
+/** Notificación persistida en la bandeja del usuario autenticado. */
+export interface InAppNotification {
+  id: string;
+  recipient_id: string;
+  recipient_role: Role;
+  type: string;
+  title: string;
+  message: string;
+  resource_type: string | null;
+  resource_id: string | null;
+  data: Record<string, unknown>;
+  priority: "low" | "normal" | "high" | "critical";
+  read_at: string | null;
+  created_at: string;
+}
+
 /** Métricas del admin */
 export interface AdminMetrics {
   errands_by_status: Record<ErrandState, number>;
