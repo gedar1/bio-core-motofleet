@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import type { ErrandMolecule } from "../molecules/ErrandMolecule.js";
 import type { NotificationMolecule } from "../molecules/NotificationMolecule.js";
+import type { InAppNotificationMolecule } from "../molecules/InAppNotificationMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
@@ -28,6 +29,7 @@ import type { Role } from "../molecules/IMolecule.js";
 export function createErrandRoutes(
   errandMolecule: ErrandMolecule,
   notificationMolecule: NotificationMolecule,
+  inAppNotificationMolecule: InAppNotificationMolecule,
 ): Router {
   const router = Router();
 
@@ -75,6 +77,7 @@ export function createErrandRoutes(
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const errand = await errandMolecule.create(req.user!.id, req.body);
+        inAppNotificationMolecule.notifyErrandCreated(errand);
         res.status(201).json(errand);
       } catch (error) {
         next(error);
@@ -153,10 +156,11 @@ export function createErrandRoutes(
           req.user!.id,
         );
 
-        // Queue notification asynchronously (don't block response)
+        // Queue email asynchronously when that secondary channel is enabled.
         notificationMolecule
           .sendErrandStatusChange(errand.id, "accepted")
           .catch(() => {});
+        inAppNotificationMolecule.notifyErrandStatusChange(errand);
 
         res.status(200).json(errand);
       } catch (error) {
@@ -176,10 +180,11 @@ export function createErrandRoutes(
           req.user!.id,
         );
 
-        // Queue notification asynchronously
+        // Queue email asynchronously when that secondary channel is enabled.
         notificationMolecule
           .sendErrandStatusChange(errand.id, "picked_up")
           .catch(() => {});
+        inAppNotificationMolecule.notifyErrandStatusChange(errand);
 
         res.status(200).json(errand);
       } catch (error) {
@@ -199,10 +204,11 @@ export function createErrandRoutes(
           req.user!.id,
         );
 
-        // Queue notification asynchronously
+        // Queue email asynchronously when that secondary channel is enabled.
         notificationMolecule
           .sendErrandStatusChange(errand.id, "delivered")
           .catch(() => {});
+        inAppNotificationMolecule.notifyErrandStatusChange(errand);
 
         res.status(200).json(errand);
       } catch (error) {
@@ -227,10 +233,11 @@ export function createErrandRoutes(
           reason,
         );
 
-        // Queue notification asynchronously
+        // Queue email asynchronously when that secondary channel is enabled.
         notificationMolecule
           .sendErrandStatusChange(errand.id, "cancelled", reason)
           .catch(() => {});
+        inAppNotificationMolecule.notifyErrandStatusChange(errand);
 
         res.status(200).json(errand);
       } catch (error) {
