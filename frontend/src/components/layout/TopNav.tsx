@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useDarkMode } from "../../hooks/useDarkMode";
 import { t } from "../../i18n";
+import { NotificationBell } from "../notifications/NotificationBell";
 
 // Import SVG icons as Vite asset URLs.
 import sunIcon from "../../assets/icons/sun.svg";
@@ -31,6 +32,8 @@ export const TopNav: React.FC = () => {
             <img src={moonIcon} alt="" aria-hidden="true" className="w-5 h-5" />
           )}
         </button>
+
+        {isAuthenticated && <NotificationBell />}
 
         {isAuthenticated ? (
           <>
