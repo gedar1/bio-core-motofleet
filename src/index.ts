@@ -18,6 +18,7 @@ import { PaymentMolecule } from "./molecules/PaymentMolecule.js";
 import { PricingMolecule } from "./molecules/PricingMolecule.js";
 import { ErrandMolecule } from "./molecules/ErrandMolecule.js";
 import { NotificationMolecule } from "./molecules/NotificationMolecule.js";
+import { InAppNotificationMolecule } from "./molecules/InAppNotificationMolecule.js";
 import { MetricsMolecule } from "./molecules/MetricsMolecule.js";
 import { MapboxRoutingProvider } from "./infrastructure/routing/MapboxRoutingProvider.js";
 
@@ -86,6 +87,10 @@ async function main(): Promise<void> {
     db,
     createLogger("NotificationMolecule"),
   );
+  const inAppNotificationMolecule = new InAppNotificationMolecule(
+    db,
+    createLogger("InAppNotificationMolecule"),
+  );
   const metricsMolecule = new MetricsMolecule(
     db,
     createLogger("MetricsMolecule"),
@@ -102,6 +107,7 @@ async function main(): Promise<void> {
     pricing: pricingMolecule,
     errands: errandMolecule,
     notifications: notificationMolecule,
+    inAppNotifications: inAppNotificationMolecule,
     metrics: metricsMolecule,
   };
 

@@ -9,6 +9,7 @@ import type { PaymentMolecule } from "./molecules/PaymentMolecule.js";
 import type { PricingMolecule } from "./molecules/PricingMolecule.js";
 import type { ErrandMolecule } from "./molecules/ErrandMolecule.js";
 import type { NotificationMolecule } from "./molecules/NotificationMolecule.js";
+import type { InAppNotificationMolecule } from "./molecules/InAppNotificationMolecule.js";
 import type { MetricsMolecule } from "./molecules/MetricsMolecule.js";
 import { createAuthRoutes } from "./routes/auth.routes.js";
 import { createUserRoutes } from "./routes/user.routes.js";
@@ -19,6 +20,7 @@ import { createCosignerRoutes } from "./routes/cosigner.routes.js";
 import { createPaymentRoutes } from "./routes/payment.routes.js";
 import { createPricingRoutes } from "./routes/pricing.routes.js";
 import { createErrandRoutes } from "./routes/errand.routes.js";
+import { createNotificationRoutes } from "./routes/notification.routes.js";
 import { createMetricsRoutes } from "./routes/metrics.routes.js";
 import { errorHandler } from "./middleware/errorHandler.middleware.js";
 
@@ -36,6 +38,7 @@ export interface MoleculeContainer {
   pricing: PricingMolecule;
   errands: ErrandMolecule;
   notifications: NotificationMolecule;
+  inAppNotifications: InAppNotificationMolecule;
   metrics: MetricsMolecule;
 }
 
@@ -105,7 +108,15 @@ export function createApp(
   // --- Mixed-role routes ---
   app.use(
     "/api/errands",
-    createErrandRoutes(molecules.errands, molecules.notifications),
+    createErrandRoutes(
+      molecules.errands,
+      molecules.notifications,
+      molecules.inAppNotifications,
+    ),
+  );
+  app.use(
+    "/api/notifications",
+    createNotificationRoutes(molecules.inAppNotifications),
   );
 
   // --- Global error handler (must be last) ---
