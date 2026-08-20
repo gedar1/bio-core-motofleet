@@ -187,7 +187,7 @@ html.dark {
     @apply inline-flex items-center font-body text-body-sm-medium text-steel bg-canvas border border-hairline rounded-full px-md py-xs;
   }
   .pill-tab-active {
-    @apply inline-flex items-center font-body text-body-sm-medium text-on-dark bg-ink border border-ink rounded-full px-md py-xs;
+    @apply inline-flex items-center font-body text-body-sm-medium text-on-dark bg-primary border border-primary rounded-full px-md py-xs;
   }
 
   /* Code block */

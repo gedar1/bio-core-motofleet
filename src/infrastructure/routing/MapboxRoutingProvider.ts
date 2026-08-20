@@ -17,7 +17,10 @@ type RoutingFailureReason =
 export class MapboxRoutingError extends Error {
   readonly code = "ROUTING_UNAVAILABLE";
 
-  constructor(readonly reason: RoutingFailureReason) {
+  constructor(
+    readonly reason: RoutingFailureReason,
+    readonly upstreamStatus?: number,
+  ) {
     super("Routing service is temporarily unavailable.");
     this.name = "MapboxRoutingError";
   }
@@ -146,13 +149,36 @@ export class MapboxRoutingProvider implements RoutingProvider {
             settled = true;
             resolve(response);
           },
-          () => {
+          (error) => {
             if (settled) return;
             settled = true;
-            reject(new MapboxRoutingError("UPSTREAM"));
+            reject(
+              new MapboxRoutingError("UPSTREAM", this.getUpstreamStatus(error)),
+            );
           },
         )
         .finally(() => clearTimeout(timeout));
     });
+  }
+
+  private getUpstreamStatus(error: unknown): number | undefined {
+    if (!error || typeof error !== "object") return undefined;
+
+    const details = error as {
+      status?: unknown;
+      statusCode?: unknown;
+      response?: { status?: unknown; statusCode?: unknown };
+    };
+    const candidates = [
+      details.status,
+      details.statusCode,
+      details.response?.status,
+      details.response?.statusCode,
+    ];
+
+    return candidates.find(
+      (status): status is number =>
+        typeof status === "number" && Number.isInteger(status),
+    );
   }
 }

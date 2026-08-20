@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Button, Input } from "../../components/ui";
 import { t } from "../../i18n";
+import { getRoleHomePath } from "../../navigation";
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -13,8 +14,8 @@ export const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      navigate("/dashboard");
+      const role = await login(email, password);
+      navigate(getRoleHomePath(role));
     } catch {
       // error is handled by context
     }

@@ -9,7 +9,7 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<string>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   error: string | null;
@@ -26,7 +26,9 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider: React.FC<{ readonly children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ readonly children: React.ReactNode }> = ({
+  children,
+}) => {
   const [state, setState] = useState<AuthState>({
     token: localStorage.getItem("token"),
     role: localStorage.getItem("role"),
@@ -44,7 +46,13 @@ export const AuthProvider: React.FC<{ readonly children: React.ReactNode }> = ({
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
       localStorage.setItem("email", email);
-      setState({ token: data.token, role: data.role, email, isAuthenticated: true });
+      setState({
+        token: data.token,
+        role: data.role,
+        email,
+        isAuthenticated: true,
+      });
+      return data.role;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
@@ -60,7 +68,8 @@ export const AuthProvider: React.FC<{ readonly children: React.ReactNode }> = ({
     try {
       await api.registerUser({ ...data });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Registration failed";
+      const message =
+        err instanceof Error ? err.message : "Registration failed";
       setError(message);
       throw err;
     } finally {
@@ -76,7 +85,9 @@ export const AuthProvider: React.FC<{ readonly children: React.ReactNode }> = ({
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, error, loading }}>
+    <AuthContext.Provider
+      value={{ ...state, login, register, logout, error, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

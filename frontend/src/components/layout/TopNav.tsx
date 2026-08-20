@@ -3,33 +3,35 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useDarkMode } from "../../hooks/useDarkMode";
 import { t } from "../../i18n";
+import { getRoleHomePath } from "../../navigation";
 import { NotificationBell } from "../notifications/NotificationBell";
-
-// Import SVG icons as Vite asset URLs.
 import sunIcon from "../../assets/icons/sun.svg";
 import moonIcon from "../../assets/icons/moon.svg";
 
 export const TopNav: React.FC = () => {
   const { isAuthenticated, role, logout } = useAuth();
   const { isDark, toggle } = useDarkMode();
+  const homePath = getRoleHomePath(role);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 h-[64px] flex items-center justify-between px-2xl bg-canvas border-b border-hairline-soft transition-colors duration-200">
-      <Link to="/" className="wordmark no-underline">
+    <nav className="fixed left-0 right-0 top-0 z-50 flex h-[64px] items-center justify-between border-b border-hairline-soft bg-canvas px-2xl transition-colors duration-200">
+      <Link
+        to={isAuthenticated ? homePath : "/"}
+        className="wordmark no-underline"
+      >
         MOTOFLEET
       </Link>
-      <div className="flex items-center gap-xl">
-        {/* Dark mode toggle */}
+      <div className="flex items-center gap-md lg:gap-xl">
         <button
           type="button"
           onClick={toggle}
-          className="w-[36px] h-[36px] flex items-center justify-center rounded-md border border-hairline text-ink transition-colors"
+          className="flex h-[36px] w-[36px] items-center justify-center rounded-md border border-hairline text-ink transition-colors"
           aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
           {isDark ? (
-            <img src={sunIcon} alt="" aria-hidden="true" className="w-5 h-5" />
+            <img src={sunIcon} alt="" aria-hidden="true" className="h-5 w-5" />
           ) : (
-            <img src={moonIcon} alt="" aria-hidden="true" className="w-5 h-5" />
+            <img src={moonIcon} alt="" aria-hidden="true" className="h-5 w-5" />
           )}
         </button>
 
@@ -37,10 +39,15 @@ export const TopNav: React.FC = () => {
 
         {isAuthenticated ? (
           <>
-            <Link to="/dashboard" className="nav-link no-underline">
-              {t.nav.dashboard.toUpperCase()}
+            <Link
+              to={homePath}
+              className="nav-link hidden no-underline lg:inline-flex"
+            >
+              {t.nav.home.toUpperCase()}
             </Link>
-            <span className="badge-cream">{role?.toUpperCase()}</span>
+            <span className="badge-cream hidden sm:inline-flex">
+              {role?.toUpperCase()}
+            </span>
             <button
               type="button"
               onClick={logout}
