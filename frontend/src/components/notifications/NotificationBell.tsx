@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import alarmIcon from "../../assets/icons/alarm.svg";
+import bell from "../../assets/icons/bell.svg";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
 import type { InAppNotification } from "../../types/api";
 
 const POLL_INTERVAL_MS = 30_000;
+const TOAST_DURATION_MS = 7_000;
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("es-CO", {
@@ -20,7 +21,11 @@ export const NotificationBell: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [toastNotification, setToastNotification] =
+    useState<InAppNotification | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasLoadedInitialNotificationsRef = useRef(false);
+  const seenNotificationIdsRef = useRef(new Set<string>());
 
   const loadNotifications = useCallback(async () => {
     if (!token) return;
@@ -30,6 +35,30 @@ export const NotificationBell: React.FC = () => {
         api.getNotifications(token),
         api.getUnreadNotificationCount(token),
       ]);
+
+      if (hasLoadedInitialNotificationsRef.current) {
+        const newNotifications = items.filter(
+          (notification) =>
+            !seenNotificationIdsRef.current.has(notification.id),
+        );
+        const newestUnreadNotification = newNotifications.find(
+          (notification) => notification.read_at === null,
+        );
+
+        if (newestUnreadNotification) {
+          setToastNotification(newestUnreadNotification);
+        }
+
+        newNotifications.forEach((notification) => {
+          seenNotificationIdsRef.current.add(notification.id);
+        });
+      } else {
+        items.forEach((notification) => {
+          seenNotificationIdsRef.current.add(notification.id);
+        });
+        hasLoadedInitialNotificationsRef.current = true;
+      }
+
       setNotifications(items);
       setUnreadCount(unread.count);
       setHasError(false);
@@ -50,12 +79,26 @@ export const NotificationBell: React.FC = () => {
   }, [loadNotifications]);
 
   useEffect(() => {
+    if (!toastNotification) return;
+
+    const timeout = window.setTimeout(
+      () => setToastNotification(null),
+      TOAST_DURATION_MS,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [toastNotification]);
+
+  useEffect(() => {
     const closeOnOutsideClick = (event: MouseEvent) => {
-      if (!containerRef.current?.contains(event.target as Node))
+      if (!containerRef.current?.contains(event.target as Node)) {
         setIsOpen(false);
+      }
     };
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsOpen(false);
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        setToastNotification(null);
+      }
     };
     document.addEventListener("mousedown", closeOnOutsideClick);
     document.addEventListener("keydown", closeOnEscape);
@@ -101,11 +144,20 @@ export const NotificationBell: React.FC = () => {
       setNotifications((current) =>
         current.filter((item) => item.id !== notification.id),
       );
-      if (!notification.read_at)
+      if (!notification.read_at) {
         setUnreadCount((current) => Math.max(0, current - 1));
+      }
+      if (toastNotification?.id === notification.id) {
+        setToastNotification(null);
+      }
     } catch {
       setHasError(true);
     }
+  };
+
+  const openInboxFromToast = () => {
+    setIsOpen(true);
+    setToastNotification(null);
   };
 
   return (
@@ -117,13 +169,48 @@ export const NotificationBell: React.FC = () => {
         aria-label="Abrir notificaciones"
         aria-expanded={isOpen}
       >
-        <img src={alarmIcon} alt="" aria-hidden="true" className="w-5 h-5" />
+        <img src={bell} alt="" aria-hidden="true" className="w-5 h-5" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-600 text-white text-[11px] leading-5 font-bold">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
       </button>
+
+      {toastNotification && (
+        <section
+          className="fixed inset-x-4 bottom-4 z-[60] rounded-md border border-hairline bg-canvas p-md shadow-lg sm:left-auto sm:right-4 sm:w-[24rem]"
+          role="status"
+          aria-live="polite"
+          aria-label="Nueva notificación"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-body font-semibold text-ink">
+                {toastNotification.title}
+              </p>
+              <p className="mt-1 text-body-sm text-ink-muted">
+                {toastNotification.message}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setToastNotification(null)}
+              className="text-body-sm text-ink-muted underline"
+              aria-label="Cerrar notificación"
+            >
+              Cerrar
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={openInboxFromToast}
+            className="mt-3 text-body-sm font-semibold text-ink underline"
+          >
+            Ver notificaciones
+          </button>
+        </section>
+      )}
 
       {isOpen && (
         <section

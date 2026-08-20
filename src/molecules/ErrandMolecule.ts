@@ -338,8 +338,24 @@ export class ErrandMolecule implements IMolecule {
 
     try {
       return await this.routingProvider.getRoute(origin, destination);
-    } catch {
-      this.logger.warn("Route estimate unavailable");
+    } catch (error) {
+      const routingError =
+        error && typeof error === "object"
+          ? (error as { reason?: unknown; upstreamStatus?: unknown })
+          : undefined;
+      const reason =
+        typeof routingError?.reason === "string"
+          ? routingError.reason
+          : "UNKNOWN";
+      const upstreamStatus =
+        typeof routingError?.upstreamStatus === "number"
+          ? routingError.upstreamStatus
+          : undefined;
+
+      this.logger.warn("Route estimate unavailable", {
+        reason,
+        ...(upstreamStatus ? { upstreamStatus } : {}),
+      });
       throw new AppError(
         503,
         "ROUTING_UNAVAILABLE",

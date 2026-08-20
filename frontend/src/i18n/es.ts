@@ -2,6 +2,12 @@ export const es = {
   // Nav
   nav: {
     dashboard: "Dashboard",
+    home: "Inicio",
+    requestErrand: "Solicitar",
+    myErrands: "Mis favores",
+    activeRoute: "En ruta",
+    availableErrands: "Disponibles",
+    riderHistory: "Historial",
     login: "Login",
     logout: "Logout",
     signup: "Registrarse",
@@ -107,14 +113,14 @@ export const es = {
     createBtn: "Crear Favor",
     creatingBtn: "Creando...",
     myErrandsTitle: "Mis Favores",
-    noErrands: "Aún no tienes favoress. ¡Crea uno!",
+    noErrands: "Aún no tienes favores. ¡Crea uno!",
     cancel: "Cancelar",
   },
 
   // Rider pages
   rider: {
-    availableTitle: "Favoress Disponibles",
-    myErrandsTitle: "Mis Favoress",
+    availableTitle: "Favores Disponibles",
+    myErrandsTitle: "Mis Favores",
     noAvailable: "No hay favores disponibles en este momento.",
     noAssigned: "Aún no tienes favores asignados.",
     accept: "Aceptar",

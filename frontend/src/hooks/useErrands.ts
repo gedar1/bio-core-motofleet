@@ -57,22 +57,43 @@ export const useMyErrands = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const data: any = await api.getMyErrands(token);
-      setErrands(data.data || data);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error loading errands");
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+  const load = useCallback(
+    async (showLoading = true) => {
+      if (!token) return;
+      if (showLoading) setLoading(true);
+      setError(null);
+      try {
+        const data: any = await api.getMyErrands(token);
+        setErrands(data.data || data);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Error loading errands");
+      } finally {
+        if (showLoading) setLoading(false);
+      }
+    },
+    [token],
+  );
 
   useEffect(() => {
-    load();
+    void load();
+
+    const refreshInBackground = () => {
+      void load(false);
+    };
+    const interval = window.setInterval(refreshInBackground, 15_000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") refreshInBackground();
+    };
+
+    window.addEventListener("focus", refreshInBackground);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshInBackground);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [load]);
 
   return { errands, loading, error, refresh: load };
