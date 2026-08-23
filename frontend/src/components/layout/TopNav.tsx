@@ -7,7 +7,7 @@ import { getRoleHomePath } from "../../navigation";
 import { NotificationBell } from "../notifications/NotificationBell";
 import sunIcon from "../../assets/icons/sun.svg";
 import signIn from "../../assets/icons/signIn.svg";
-import logInBlack from "../../assets/icons/loginBlack.svg";
+import logInBlack from "../../assets/icons/logInBlack.svg";
 import moonBlack from "../../assets/icons/moonBlack.svg";
 
 export const TopNav: React.FC = () => {
