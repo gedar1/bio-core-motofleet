@@ -214,7 +214,7 @@ export const NotificationBell: React.FC = () => {
 
       {isOpen && (
         <section
-          className="absolute right-0 mt-2 w-[min(24rem,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto rounded-md border border-hairline bg-canvas shadow-lg"
+          className="absolute lg_right-0 right-[-125px] mt-2 w-[min(24rem,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto rounded-md border border-primary-deep bg-canvas shadow-lg"
           aria-label="Bandeja de notificaciones"
         >
           <header className="sticky top-0 flex items-center justify-between gap-3 border-b border-hairline-soft bg-canvas p-md">

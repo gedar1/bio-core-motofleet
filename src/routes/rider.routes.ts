@@ -3,7 +3,7 @@ import type { RiderMolecule } from "../molecules/RiderMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createRiderSchema } from "../atoms/schemas.js";
+import { createRiderSchema } from "../atoms/schemas/rider.schemas.js";
 
 /**
  * Creates rider routes.

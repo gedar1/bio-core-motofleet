@@ -3,7 +3,7 @@ import type { PaymentMolecule } from "../molecules/PaymentMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createPaymentSchema } from "../atoms/schemas.js";
+import { createPaymentSchema } from "../atoms/schemas/payment.schemas.js";
 
 /**
  * Creates payment routes. All endpoints require admin role.

@@ -3,7 +3,7 @@ import type { ContractMolecule } from "../molecules/ContractMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createContractSchema } from "../atoms/schemas.js";
+import { createContractSchema } from "../atoms/schemas/contract.schemas.js";
 import type { ContractState } from "../atoms/stateMachines.js";
 
 /**

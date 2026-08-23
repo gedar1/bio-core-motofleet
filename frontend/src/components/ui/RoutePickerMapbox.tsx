@@ -200,8 +200,16 @@ export const RoutePickerMapbox = ({
 
   return (
     <fieldset className="w-full flex flex-col gap-sm">
-      <legend className="block font-body text-body-sm-medium text-ink">
-        Ruta del favor
+      <legend className="flex justify-around w-full items-center p-xs font-body text-body-md-medium text-ink">
+        Ruta
+        <Button
+          type="button"
+          variant="dark"
+          onClick={useCurrentLocation}
+          disabled={locating}
+        >
+          {locating ? "Ubicando..." : "Usar mi ubicación actual como origen"}
+        </Button>
       </legend>
       <div className="route-picker-mapbox">
         <div className="route-picker-mapbox-search">
@@ -237,14 +245,6 @@ export const RoutePickerMapbox = ({
               onRetrieve={handleRetrieve("destination")}
             />
           </div>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={useCurrentLocation}
-            disabled={locating}
-          >
-            {locating ? "Ubicando..." : "Usar mi ubicación actual como origen"}
-          </Button>
         </div>
         <Map
           ref={mapRef}
@@ -290,17 +290,17 @@ export const RoutePickerMapbox = ({
           )}
         </Map>
       </div>
-      <p className="caption">
+      <p className="caption p-xs border-sunshine-800 border-solid border m-xs rounded-md">
         Busca el origen y el destino arriba. Toca el mapa o arrastra los pines
         para ajustar cada punto.
       </p>
       {value.origin && (
-        <p className="font-body text-body-sm text-ink">
+        <p className="font-body text-body-sm text-ink p-xs">
           <strong>Origen:</strong> {value.origin.address}
         </p>
       )}
       {value.destination && (
-        <p className="font-body text-body-sm text-ink">
+        <p className="font-body text-body-sm text-ink p-xs">
           <strong>Destino:</strong> {value.destination.address}
         </p>
       )}
@@ -310,7 +310,7 @@ export const RoutePickerMapbox = ({
           {Math.ceil(routePreview.durationMinutes)} min aprox.
         </p>
       )}
-      <p className="caption">{message}</p>
+      <p className="caption p-xs m-xs rounded-md">{message}</p>
     </fieldset>
   );
 };

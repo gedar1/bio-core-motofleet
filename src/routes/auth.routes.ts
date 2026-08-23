@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import type { AuthMolecule } from "../molecules/AuthMolecule.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { loginSchema } from "../atoms/schemas.js";
+import { loginSchema } from "../atoms/schemas/auth.schemas.js";
 
 /**
  * Creates auth routes. POST /api/auth/login is public (no auth middleware).

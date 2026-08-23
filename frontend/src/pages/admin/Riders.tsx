@@ -96,12 +96,12 @@ export const Riders: React.FC = () => {
     return <p className="caption text-center py-2xl">{t.common.loading}</p>;
 
   return (
-    <div className="section px-2xl">
+    <div className="section lg:px-2xl px-md">
       <div className="max-w-[1280px] mx-auto">
         <div className="flex justify-between items-center mb-2xl">
-          <h2>Motociclistas</h2>
+          <h3>Motociclistas</h3>
           <Link to="/admin/riders/create">
-            <Button>+ Nuevo Rider</Button>
+            <Button>+ Nuevo</Button>
           </Link>
         </div>
         {riders.length === 0 ? (

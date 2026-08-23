@@ -9,7 +9,7 @@ import {
   createErrandSchema,
   quoteErrandRequestSchema,
   routeEstimateRequestSchema,
-} from "../atoms/schemas.js";
+} from "../atoms/schemas/errand.schemas.js";
 import type { ErrandState } from "../atoms/stateMachines.js";
 import type { Role } from "../molecules/IMolecule.js";
 

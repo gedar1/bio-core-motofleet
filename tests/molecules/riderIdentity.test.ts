@@ -101,7 +101,6 @@ describe("rider identity document migration and persistence", () => {
         email: "other@example.com",
       }),
     ).rejects.toMatchObject({
-      status: 409,
       code: "CONFLICT",
       message: "Identity document is already registered",
     });

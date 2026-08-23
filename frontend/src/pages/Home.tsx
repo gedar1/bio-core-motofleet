@@ -21,8 +21,8 @@ export const Home: React.FC = () => {
   return (
     <>
       {/* Hero Section — warm sunset gradient */}
-      <section className="relative flex flex-col items-center justify-center min-h-screen px-2xl py-hero text-center ">
-        <h1 className="text-hero font-display text-ink max-w-[800px]">
+      <section className="relative flex flex-col items-center justify-center min-h-screen:[80vh] px-2xl lg:py-hero py-section-sm text-center ">
+        <h1 className="text-display-lg md:text-hero font-display text-ink max-w-[800px]">
           {t.home.hero}
         </h1>
         <p className="mt-xl font-body text-subtitle text-ink-tint max-w-[600px]">
@@ -39,7 +39,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="section px-2xl">
+      <section className="section lg:px-2xl px-xl">
         <div className="max-w-[1280px] mx-auto">
           <p className="micro-label text-center mb-lg">{t.home.howItWorks}</p>
           <h2 className="text-center mb-section-sm">{t.home.threeSteps}</h2>
@@ -61,8 +61,8 @@ export const Home: React.FC = () => {
       </section>
 
       {/* CTA Band — cream */}
-      <section className="py-section-lg px-2xl">
-        <div className="card-cream max-w-[900px] mx-auto text-center p-section">
+      <section className="lg:py-section-lg py-section-sm px-2xl">
+        <div className="card-cream max-w-[900px] mx-auto text-center lg:p-section p-section-sm">
           <h2>{t.home.fleetManagement}</h2>
           <p className="mt-lg font-body text-subtitle text-slate max-w-[500px] mx-auto">
             {t.home.fleetDesc}

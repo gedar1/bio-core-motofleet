@@ -58,9 +58,9 @@ export const AdminErrands: React.FC = () => {
     return <p className="caption text-center py-2xl">{t.common.loading}</p>;
 
   return (
-    <div className="section px-2xl">
+    <div className="section lg:px-2xl px-md">
       <div className="max-w-[1280px] mx-auto">
-        <h2 className="mb-2xl">{t.admin.errandsTitle}</h2>
+        <h3 className="mb-2xl">{t.admin.errandsTitle}</h3>
         {errands.length === 0 ? (
           <p className="text-muted font-body text-body-md">
             {t.admin.noErrands}

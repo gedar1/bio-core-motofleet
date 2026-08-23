@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import type { UserMolecule } from "../molecules/UserMolecule.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createUserSchema } from "../atoms/schemas.js";
+import { createUserSchema } from "../atoms/schemas/user.schemas.js";
 
 /**
  * Creates user routes. POST /api/users/register is public (no auth middleware).

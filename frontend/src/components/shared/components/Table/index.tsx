@@ -61,7 +61,7 @@ export const Table = <T,>({
         {columns.map((column) => (
           <td
             key={column.id}
-            className={`px-xl py-md font-body text-body-md text-ink ${column.className ?? ""}`}
+            className={`px-xl py-md font-body text-body-md text-ink text-nowrap ${column.className ?? ""}`}
           >
             {column.render(row)}
           </td>
@@ -72,7 +72,10 @@ export const Table = <T,>({
 
   return (
     <div
-      className={`w-full max-w-full overflow-x-auto touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch] rounded-lg border border-hairline-soft ${className}`}
+      className={`w-full max-w-full overflow-x-auto border-primary-deep touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:h-[8px]
+    [&::-webkit-scrollbar-track]:bg-surface-alt
+    [&::-webkit-scrollbar-thumb]:bg-slate
+    [&::-webkit-scrollbar-thumb]:rounded-full rounded-lg border  ${className}`}
     >
       <table className="min-w-[720px] w-full border-collapse text-left">
         <thead className="bg-surface">
@@ -81,7 +84,7 @@ export const Table = <T,>({
               <th
                 key={column.id}
                 scope="col"
-                className={`px-xl py-md font-body text-body-sm-medium text-ink ${column.className ?? ""}`}
+                className={`px-xl py-md font-body text-body-sm-medium text-nowrap text-ink ${column.className ?? ""}`}
               >
                 {column.header}
               </th>

@@ -3,7 +3,7 @@ import type { MotorcycleMolecule } from "../molecules/MotorcycleMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createMotorcycleSchema } from "../atoms/schemas.js";
+import { createMotorcycleSchema } from "../atoms/schemas/motorcycle.schemas.js";
 import type { MotorcycleState } from "../atoms/stateMachines.js";
 
 /**

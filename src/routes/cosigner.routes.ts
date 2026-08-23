@@ -3,7 +3,7 @@ import type { CosignerMolecule } from "../molecules/CosignerMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createCosignerSchema } from "../atoms/schemas.js";
+import { createCosignerSchema } from "../atoms/schemas/cosigner.schemas.js";
 
 /**
  * Creates cosigner routes.

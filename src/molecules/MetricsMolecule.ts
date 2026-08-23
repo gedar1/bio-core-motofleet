@@ -1,7 +1,6 @@
 import type Database from "better-sqlite3";
 import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule, PaginatedResult } from "./IMolecule.js";
-import { AppError } from "../middleware/errorHandler.middleware.js";
 
 export interface ErrandsByStatus {
   status: string;
@@ -55,6 +54,8 @@ export interface AdminErrand {
 export class MetricsMolecule implements IMolecule {
   readonly name = "metrics";
   readonly version = "1.0.0";
+  readonly description =
+    "Admin metrics: aggregated counts, totals, and filtered errand lists.";
 
   constructor(
     private readonly db: Database.Database,

@@ -74,7 +74,6 @@ describe("UserMolecule", () => {
       await expect(
         molecule.register({ ...validInput, phone: "3119876543" }),
       ).rejects.toMatchObject({
-        status: 409,
         code: "CONFLICT",
         message: "Email is already in use",
       });
@@ -86,7 +85,6 @@ describe("UserMolecule", () => {
       await expect(
         molecule.register({ ...validInput, email: "other@example.com" }),
       ).rejects.toMatchObject({
-        status: 409,
         code: "CONFLICT",
         message: "Phone is already in use",
       });

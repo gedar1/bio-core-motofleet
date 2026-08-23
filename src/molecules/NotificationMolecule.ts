@@ -26,6 +26,7 @@ export interface Notification {
 export class NotificationMolecule implements IMolecule {
   readonly name = "notifications";
   readonly version = "1.0.0";
+  readonly description = "Email notification queue with retry logic.";
 
   private readonly transporter: nodemailer.Transporter;
   private readonly emailNotificationsEnabled =

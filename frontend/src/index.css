@@ -79,7 +79,7 @@ html.dark {
   .btn-primary {
     @apply inline-flex items-center justify-center
            font-body text-button text-on-primary bg-primary
-           rounded-md px-lg py-sm min-h-touch
+           rounded-md px-md py-xs min-h-touch
            transition-colors duration-150;
   }
   .btn-primary:active {
@@ -92,7 +92,7 @@ html.dark {
   .btn-dark {
     @apply inline-flex items-center justify-center
            font-body text-button
-           rounded-md px-lg py-sm min-h-touch
+           rounded-md px-md py-xs min-h-touch
            transition-colors duration-150;
     background-color: #fa520f;
     color: #ffffff;
@@ -148,7 +148,7 @@ html.dark {
   .input-field {
     @apply w-full bg-canvas border border-hairline-strong
            text-ink font-body text-body-md rounded-md
-           py-sm px-md h-[44px]
+            px-md h-[44px]
            placeholder:text-muted
            focus:border-primary focus:border-2 focus:outline-none
            transition-colors duration-150;

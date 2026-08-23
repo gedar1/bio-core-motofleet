@@ -2,11 +2,8 @@ import type Database from "better-sqlite3";
 import { v4 as uuidv4 } from "uuid";
 import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule } from "./IMolecule.js";
-import { AppError } from "../middleware/errorHandler.middleware.js";
+import { ConflictError, NotFoundError } from "../domains/errors.js";
 
-/**
- * Data required to create a new cosigner.
- */
 export interface CreateCosignerInput {
   name: string;
   address: string;
@@ -15,10 +12,6 @@ export interface CreateCosignerInput {
   identity_document: string;
 }
 
-/**
- * Data allowed for partial update of a cosigner.
- * All fields are optional — only provided fields will be updated.
- */
 export interface UpdateCosignerInput {
   name?: string;
   address?: string;
@@ -27,9 +20,6 @@ export interface UpdateCosignerInput {
   identity_document?: string;
 }
 
-/**
- * Cosigner record as stored in the database.
- */
 export interface Cosigner {
   id: string;
   rider_id: string;
@@ -41,38 +31,25 @@ export interface Cosigner {
   created_at: string;
 }
 
-/**
- * Molecule responsible for cosigner management.
- * Handles CRUD operations for cosigners associated with riders.
- * Enforces rider existence and document uniqueness per rider.
- */
 export class CosignerMolecule implements IMolecule {
   readonly name = "cosigners";
   readonly version = "1.0.0";
+  readonly description = "CRUD for cosigners associated with riders.";
 
   constructor(
     private readonly db: Database.Database,
     private readonly logger: ILogger,
   ) {}
 
-  /**
-   * Creates a new cosigner associated with a rider.
-   * Validates that the rider exists and that the identity_document
-   * is unique per rider (UNIQUE(rider_id, identity_document)).
-   * @throws AppError(404, 'NOT_FOUND') if rider does not exist.
-   * @throws AppError(409, 'CONFLICT') if identity_document already exists for this rider.
-   */
   create(riderId: string, data: CreateCosignerInput): Cosigner {
-    // Validate rider exists
     const rider = this.db
       .prepare("SELECT id FROM riders WHERE id = ?")
       .get(riderId) as { id: string } | undefined;
 
     if (!rider) {
-      throw new AppError(404, "NOT_FOUND", "Rider not found");
+      throw new NotFoundError("Rider", riderId);
     }
 
-    // Check document uniqueness per rider
     const existing = this.db
       .prepare(
         "SELECT id FROM cosigners WHERE rider_id = ? AND identity_document = ?",
@@ -80,9 +57,7 @@ export class CosignerMolecule implements IMolecule {
       .get(riderId, data.identity_document) as { id: string } | undefined;
 
     if (existing) {
-      throw new AppError(
-        409,
-        "CONFLICT",
+      throw new ConflictError(
         "Identity document is already registered for this rider",
       );
     }
@@ -109,31 +84,18 @@ export class CosignerMolecule implements IMolecule {
     return this.getById(id) as Cosigner;
   }
 
-  /**
-   * Lists all cosigners for a given rider.
-   * Returns an empty array if the rider has no cosigners.
-   */
   listByRider(riderId: string): Cosigner[] {
-    const rows = this.db
+    return this.db
       .prepare("SELECT * FROM cosigners WHERE rider_id = ?")
       .all(riderId) as Cosigner[];
-
-    return rows;
   }
 
-  /**
-   * Partially updates a cosigner. Only fields present in the input
-   * object (not undefined) are modified; untouched fields are preserved.
-   * @throws AppError(404, 'NOT_FOUND') if cosigner does not exist.
-   */
   update(cosignerId: string, partialData: UpdateCosignerInput): Cosigner {
-    // Verify cosigner exists
     const existing = this.getById(cosignerId);
     if (!existing) {
-      throw new AppError(404, "NOT_FOUND", "Cosigner not found");
+      throw new NotFoundError("Cosigner", cosignerId);
     }
 
-    // Build SET clause only for fields that are present (not undefined)
     const allowedFields: (keyof UpdateCosignerInput)[] = [
       "name",
       "address",
@@ -152,7 +114,6 @@ export class CosignerMolecule implements IMolecule {
       }
     }
 
-    // If no fields to update, just return existing record
     if (setClauses.length === 0) {
       return existing;
     }
@@ -171,10 +132,6 @@ export class CosignerMolecule implements IMolecule {
     return this.getById(cosignerId) as Cosigner;
   }
 
-  /**
-   * Retrieves a cosigner by its UUID.
-   * @returns The cosigner record or null if not found.
-   */
   getById(cosignerId: string): Cosigner | null {
     const row = this.db
       .prepare("SELECT * FROM cosigners WHERE id = ?")
