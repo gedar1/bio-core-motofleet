@@ -191,3 +191,4 @@ El build de frontend puede advertir que el chunk de Mapbox supera 500 kB. Es un 
 - No hay rastreo de riders en tiempo real, pagos integrados ni despliegue de producción definido.
 - El fallback Haversine no debe sustituir el ruteo vial normal; es una contingencia explícita.
 - Una siguiente mejora es persistir o cachear la geometría de ruta para disminuir solicitudes Directions al alternar entre mandados.
+- Validar flujos y concurrencia
