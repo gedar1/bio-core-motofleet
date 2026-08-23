@@ -57,10 +57,10 @@ export const Motorcycles: React.FC = () => {
   const { motorcycles, loading, error, refresh } = useMotorcycles();
 
   return (
-    <div className="section px-2xl">
+    <div className="section lg:px-2xl px-md">
       <div className="max-w-[1280px] mx-auto">
         <div className="flex justify-between items-center mb-2xl">
-          <h2>{t.admin.motorcyclesTitle}</h2>
+          <h3>{t.admin.motorcyclesTitle}</h3>
           <Link to="/admin/motorcycles/create">
             <Button type="button">{t.adminForms.crear}</Button>
           </Link>

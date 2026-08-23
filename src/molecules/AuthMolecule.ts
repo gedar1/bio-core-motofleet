@@ -16,6 +16,8 @@ const LOCKOUT_MINUTES = 15;
 export class AuthMolecule implements IMolecule {
   readonly name = "auth";
   readonly version = "1.0.0";
+  readonly description =
+    "JWT authentication, login attempt tracking, and account lockout.";
 
   constructor(
     private readonly db: Database.Database,

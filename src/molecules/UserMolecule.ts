@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule } from "./IMolecule.js";
 import { hashPassword } from "../atoms/password.js";
-import { AppError } from "../middleware/errorHandler.middleware.js";
+import { ConflictError, ValidationError } from "../domains/errors.js";
 
 /**
  * Data required to register a new user.
@@ -39,6 +39,8 @@ export interface User {
 export class UserMolecule implements IMolecule {
   readonly name = "users";
   readonly version = "1.0.0";
+  readonly description =
+    "User registration and retrieval with email/phone uniqueness.";
 
   constructor(
     private readonly db: Database.Database,
@@ -48,25 +50,22 @@ export class UserMolecule implements IMolecule {
   /**
    * Registers a new user after validating email/phone uniqueness.
    * Hashes the password with bcrypt and assigns a UUID.
-   * @throws AppError(409, 'CONFLICT') if email or phone already exists.
    */
   async register(data: CreateUserInput): Promise<User> {
-    // Check email uniqueness
     const existingEmail = this.db
       .prepare("SELECT id FROM users WHERE email = ?")
       .get(data.email) as { id: string } | undefined;
 
     if (existingEmail) {
-      throw new AppError(409, "CONFLICT", "Email is already in use");
+      throw new ConflictError("Email is already in use");
     }
 
-    // Check phone uniqueness
     const existingPhone = this.db
       .prepare("SELECT id FROM users WHERE phone = ?")
       .get(data.phone) as { id: string } | undefined;
 
     if (existingPhone) {
-      throw new AppError(409, "CONFLICT", "Phone is already in use");
+      throw new ConflictError("Phone is already in use");
     }
 
     const id = uuidv4();
@@ -86,7 +85,6 @@ export class UserMolecule implements IMolecule {
 
   /**
    * Retrieves a user by their UUID.
-   * @returns The user record or null if not found.
    */
   getById(id: string): User | null {
     const row = this.db.prepare("SELECT * FROM users WHERE id = ?").get(id) as
@@ -98,7 +96,6 @@ export class UserMolecule implements IMolecule {
 
   /**
    * Retrieves a user by their email address.
-   * @returns The user record or null if not found.
    */
   getByEmail(email: string): User | null {
     const row = this.db

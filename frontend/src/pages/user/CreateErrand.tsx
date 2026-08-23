@@ -163,7 +163,7 @@ export const CreateErrand: React.FC = () => {
               routePreview={routePreview}
             />
             {routeEstimateError && (
-              <p className="px-xl pt-sm font-body text-caption text-error lg:px-0">
+              <p className="px-l pt-sm font-body mx-md text-caption h-section text-error lg:px-0 text-wrap">
                 {routeEstimateError}
               </p>
             )}

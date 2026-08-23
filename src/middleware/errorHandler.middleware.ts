@@ -1,12 +1,25 @@
 import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import { createLogger } from "../infrastructure/logger.js";
+import {
+  BusinessRuleViolation,
+  ConflictError,
+  DomainError,
+  ForbiddenError,
+  InvalidStateTransition,
+  NotFoundError,
+  UnauthorizedError,
+  ValidationError,
+} from "../domains/errors.js";
 
 const logger = createLogger("errorHandler");
 
+// ─── Legacy AppError (routes may still throw this directly) ─────────────────
+
 /**
  * Application-specific error class with structured fields.
- * Throw this from routes/molecules to return a well-formed error response.
+ * Retained for backward compatibility in route handlers that have not yet
+ * migrated to domain errors. New code should throw domain errors instead.
  */
 export class AppError extends Error {
   public readonly status: number;
@@ -27,9 +40,21 @@ export class AppError extends Error {
   }
 }
 
-/**
- * Transforms a ZodError into a Record<string, string[]> mapping field paths to error messages.
- */
+// ─── Domain error → HTTP status mapping ─────────────────────────────────────
+
+function domainErrorToStatus(err: DomainError): number {
+  if (err instanceof NotFoundError) return 404;
+  if (err instanceof ValidationError) return 400;
+  if (err instanceof BusinessRuleViolation) return 400;
+  if (err instanceof InvalidStateTransition) return 400;
+  if (err instanceof ConflictError) return 409;
+  if (err instanceof ForbiddenError) return 403;
+  if (err instanceof UnauthorizedError) return 401;
+  return 500;
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
 function formatZodError(error: ZodError): Record<string, string[]> {
   const details: Record<string, string[]> = {};
 
@@ -44,11 +69,12 @@ function formatZodError(error: ZodError): Record<string, string[]> {
   return details;
 }
 
+// ─── Express error handler ──────────────────────────────────────────────────
+
 /**
  * Global Express error handler middleware.
- * Handles AppError, ZodError, and generic errors with structured responses.
- * Never exposes stack traces to the client.
- * Logs with error level for 5xx, warn for 4xx.
+ * Handles DomainError, legacy AppError, ZodError, and generic errors with
+ * structured responses. Never exposes stack traces to the client.
  */
 export function errorHandler(
   err: Error,
@@ -56,7 +82,41 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ): void {
-  // Handle AppError
+  // Handle domain errors (thrown by molecules)
+  if (err instanceof DomainError) {
+    const status = domainErrorToStatus(err);
+
+    if (status >= 500) {
+      logger.error(err.message, {
+        status,
+        code: err.code,
+        path: req.path,
+        method: req.method,
+      });
+    } else {
+      logger.warn(err.message, {
+        status,
+        code: err.code,
+        path: req.path,
+        method: req.method,
+      });
+    }
+
+    const response: Record<string, unknown> = {
+      status,
+      code: err.code,
+      message: err.message,
+    };
+
+    if (err instanceof ValidationError && err.details) {
+      response.details = err.details;
+    }
+
+    res.status(status).json(response);
+    return;
+  }
+
+  // Handle legacy AppError (routes that have not migrated yet)
   if (err instanceof AppError) {
     if (err.status >= 500) {
       logger.error(err.message, {

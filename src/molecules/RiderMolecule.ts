@@ -1,10 +1,10 @@
 import type Database from "better-sqlite3";
 import { v4 as uuidv4 } from "uuid";
-import type { RiderDocumentType } from "../atoms/schemas.js";
+import type { RiderDocumentType } from "../atoms/schemas/rider.schemas.js";
 import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule } from "./IMolecule.js";
 import { hashPassword } from "../atoms/password.js";
-import { AppError } from "../middleware/errorHandler.middleware.js";
+import { ConflictError, ValidationError } from "../domains/errors.js";
 
 /** Data required to register a new rider (motorcyclist). */
 export interface CreateRiderInput {
@@ -32,9 +32,7 @@ export interface Rider {
   email: string;
   address: string;
   password_hash: string;
-  /** Null only for riders created before identity documents were required. */
   document_type: RiderDocumentType | null;
-  /** Null only for riders created before identity documents were required. */
   document_number: string | null;
   license_number: string;
   license_expiry: string;
@@ -49,24 +47,17 @@ export interface Rider {
   updated_at: string;
 }
 
-/**
- * Manages rider registration, retrieval, and availability. Identity-document
- * checks remain here, rather than in routes, so every registration path shares
- * the same persistence and uniqueness rules.
- */
 export class RiderMolecule implements IMolecule {
   readonly name = "riders";
   readonly version = "1.0.0";
+  readonly description =
+    "Rider registration, retrieval, and availability management.";
 
   constructor(
     private readonly db: Database.Database,
     private readonly logger: ILogger,
   ) {}
 
-  /**
-   * Registers a rider after validating account uniqueness, valid document
-   * identity, and future license/insurance dates.
-   */
   async register(data: CreateRiderInput): Promise<Rider> {
     const documentType = data.document_type
       .trim()
@@ -77,28 +68,28 @@ export class RiderMolecule implements IMolecule {
       .prepare("SELECT id FROM users WHERE email = ?")
       .get(data.email) as { id: string } | undefined;
     if (emailInUsers) {
-      throw new AppError(409, "CONFLICT", "Email is already in use");
+      throw new ConflictError("Email is already in use");
     }
 
     const emailInRiders = this.db
       .prepare("SELECT id FROM riders WHERE email = ?")
       .get(data.email) as { id: string } | undefined;
     if (emailInRiders) {
-      throw new AppError(409, "CONFLICT", "Email is already in use");
+      throw new ConflictError("Email is already in use");
     }
 
     const phoneInUsers = this.db
       .prepare("SELECT id FROM users WHERE phone = ?")
       .get(data.phone) as { id: string } | undefined;
     if (phoneInUsers) {
-      throw new AppError(409, "CONFLICT", "Phone is already in use");
+      throw new ConflictError("Phone is already in use");
     }
 
     const phoneInRiders = this.db
       .prepare("SELECT id FROM riders WHERE phone = ?")
       .get(data.phone) as { id: string } | undefined;
     if (phoneInRiders) {
-      throw new AppError(409, "CONFLICT", "Phone is already in use");
+      throw new ConflictError("Phone is already in use");
     }
 
     const existingDocument = this.db
@@ -107,11 +98,7 @@ export class RiderMolecule implements IMolecule {
       )
       .get(documentType, documentNumber) as { id: string } | undefined;
     if (existingDocument) {
-      throw new AppError(
-        409,
-        "CONFLICT",
-        "Identity document is already registered",
-      );
+      throw new ConflictError("Identity document is already registered");
     }
 
     const today = new Date();
@@ -120,21 +107,13 @@ export class RiderMolecule implements IMolecule {
     const licenseDate = new Date(data.license_expiry);
     licenseDate.setHours(0, 0, 0, 0);
     if (licenseDate <= today) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
-        "License is expired or expires today",
-      );
+      throw new ValidationError("License is expired or expires today");
     }
 
     const insuranceDate = new Date(data.insurance_expiry);
     insuranceDate.setHours(0, 0, 0, 0);
     if (insuranceDate <= today) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
-        "Insurance is expired or expires today",
-      );
+      throw new ValidationError("Insurance is expired or expires today");
     }
 
     const id = uuidv4();
@@ -172,11 +151,7 @@ export class RiderMolecule implements IMolecule {
         error instanceof Error &&
         error.message.includes("riders.document_type, riders.document_number")
       ) {
-        throw new AppError(
-          409,
-          "CONFLICT",
-          "Identity document is already registered",
-        );
+        throw new ConflictError("Identity document is already registered");
       }
       throw error;
     }
@@ -185,7 +160,6 @@ export class RiderMolecule implements IMolecule {
     return this.getById(id) as Rider;
   }
 
-  /** Retrieves a rider by UUID, including nullable legacy identity fields. */
   getById(id: string): Rider | null {
     const row = this.db.prepare("SELECT * FROM riders WHERE id = ?").get(id) as
       | Rider
@@ -193,7 +167,6 @@ export class RiderMolecule implements IMolecule {
     return row ?? null;
   }
 
-  /** Retrieves a rider by email. */
   getByEmail(email: string): Rider | null {
     const row = this.db
       .prepare("SELECT * FROM riders WHERE email = ?")
@@ -201,7 +174,6 @@ export class RiderMolecule implements IMolecule {
     return row ?? null;
   }
 
-  /** Updates the rider availability flag. */
   setAvailability(riderId: string, available: boolean): void {
     const result = this.db
       .prepare(

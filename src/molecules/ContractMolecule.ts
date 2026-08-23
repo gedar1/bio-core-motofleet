@@ -4,7 +4,13 @@ import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule, PaginatedResult } from "./IMolecule.js";
 import { isValidContractTransition } from "../atoms/stateMachines.js";
 import type { ContractState } from "../atoms/stateMachines.js";
-import { AppError } from "../middleware/errorHandler.middleware.js";
+import {
+  BusinessRuleViolation,
+  ConflictError,
+  InvalidStateTransition,
+  NotFoundError,
+  ValidationError,
+} from "../domains/errors.js";
 
 export interface CreateContractInput {
   rider_id: string;
@@ -36,57 +42,42 @@ export interface ContractFilters {
   page?: number;
 }
 
-/**
- * Molecule responsible for rental contract lifecycle management.
- * Handles creation, cancellation, renewal, and batch expiration.
- */
 export class ContractMolecule implements IMolecule {
   readonly name = "contracts";
   readonly version = "1.0.0";
+  readonly description =
+    "Rental contract lifecycle: creation, cancellation, renewal, and expiration.";
 
   constructor(
     private readonly db: Database.Database,
     private readonly logger: ILogger,
   ) {}
 
-  /**
-   * Creates a new rental contract.
-   * Validates: motorcycle available, rider active, no active contracts for either,
-   * rider has cosigner, date and amount validations.
-   * Sets motorcycle status to "rented".
-   */
   create(data: CreateContractInput): RentalContract {
-    // Validate motorcycle exists and is available
     const motorcycle = this.db
       .prepare("SELECT id, status FROM motorcycles WHERE id = ?")
       .get(data.motorcycle_id) as { id: string; status: string } | undefined;
 
     if (!motorcycle) {
-      throw new AppError(404, "NOT_FOUND", "Motorcycle not found");
+      throw new NotFoundError("Motorcycle", data.motorcycle_id);
     }
 
     if (motorcycle.status !== "available") {
-      throw new AppError(
-        400,
-        "BUSINESS_RULE_VIOLATION",
-        "Motorcycle is not available for rental",
-      );
+      throw new BusinessRuleViolation("Motorcycle is not available for rental");
     }
 
-    // Validate rider exists and is active
     const rider = this.db
       .prepare("SELECT id, status FROM riders WHERE id = ?")
       .get(data.rider_id) as { id: string; status: string } | undefined;
 
     if (!rider) {
-      throw new AppError(404, "NOT_FOUND", "Rider not found");
+      throw new NotFoundError("Rider", data.rider_id);
     }
 
     if (rider.status !== "active") {
-      throw new AppError(400, "BUSINESS_RULE_VIOLATION", "Rider is not active");
+      throw new BusinessRuleViolation("Rider is not active");
     }
 
-    // Check no active contract for the motorcycle
     const activeContractMoto = this.db
       .prepare(
         "SELECT id FROM rental_contracts WHERE motorcycle_id = ? AND status = 'active'",
@@ -94,14 +85,11 @@ export class ContractMolecule implements IMolecule {
       .get(data.motorcycle_id) as { id: string } | undefined;
 
     if (activeContractMoto) {
-      throw new AppError(
-        409,
-        "CONFLICT",
+      throw new ConflictError(
         "Motorcycle already has an active contract assigned",
       );
     }
 
-    // Check no active contract for the rider
     const activeContractRider = this.db
       .prepare(
         "SELECT id FROM rental_contracts WHERE rider_id = ? AND status = 'active'",
@@ -109,70 +97,43 @@ export class ContractMolecule implements IMolecule {
       .get(data.rider_id) as { id: string } | undefined;
 
     if (activeContractRider) {
-      throw new AppError(
-        409,
-        "CONFLICT",
-        "Rider already has an active contract",
-      );
+      throw new ConflictError("Rider already has an active contract");
     }
 
-    // Check rider has at least one cosigner
     const cosignerCount = this.db
       .prepare("SELECT COUNT(*) as count FROM cosigners WHERE rider_id = ?")
       .get(data.rider_id) as { count: number };
 
     if (cosignerCount.count === 0) {
-      throw new AppError(
-        400,
-        "BUSINESS_RULE_VIOLATION",
-        "At least one cosigner is required",
-      );
+      throw new BusinessRuleViolation("At least one cosigner is required");
     }
 
-    // Validate dates
     const startDate = new Date(data.start_date);
     const endDate = new Date(data.end_date);
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      throw new AppError(400, "VALIDATION_ERROR", "Invalid dates");
+      throw new ValidationError("Invalid dates");
     }
 
     if (endDate <= startDate) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
-        "end_date must be after start_date",
-      );
+      throw new ValidationError("end_date must be after start_date");
     }
 
-    // Validate amount
     if (data.monthly_amount <= 0) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
-        "Monthly amount must be greater than zero",
-      );
+      throw new ValidationError("Monthly amount must be greater than zero");
     }
 
-    // Validate payment_day
     if (data.payment_day < 1 || data.payment_day > 28) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
-        "Payment day must be between 1 and 28",
-      );
+      throw new ValidationError("Payment day must be between 1 and 28");
     }
 
     const id = uuidv4();
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
 
-    // Insert contract
     this.db
       .prepare(
-        `
-      INSERT INTO rental_contracts (id, rider_id, motorcycle_id, start_date, end_date, monthly_amount, payment_day, status, notes, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
-    `,
+        `INSERT INTO rental_contracts (id, rider_id, motorcycle_id, start_date, end_date, monthly_amount, payment_day, status, notes, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)`,
       )
       .run(
         id,
@@ -187,7 +148,6 @@ export class ContractMolecule implements IMolecule {
         now,
       );
 
-    // Set motorcycle to rented
     this.db
       .prepare(
         "UPDATE motorcycles SET status = 'rented', updated_at = ? WHERE id = ?",
@@ -203,20 +163,17 @@ export class ContractMolecule implements IMolecule {
     return this.getById(id) as RentalContract;
   }
 
-  /**
-   * Cancels an active contract. Sets status=cancelled and motorcycle→available.
-   */
   cancel(contractId: string): RentalContract {
     const contract = this.getById(contractId);
     if (!contract) {
-      throw new AppError(404, "NOT_FOUND", "Contract not found");
+      throw new NotFoundError("Contract", contractId);
     }
 
     if (!isValidContractTransition(contract.status, "cancelled")) {
-      throw new AppError(
-        400,
-        "INVALID_STATE_TRANSITION",
-        `Cannot cancel a contract in status ${contract.status}`,
+      throw new InvalidStateTransition(
+        "Contract",
+        contract.status,
+        "cancelled",
       );
     }
 
@@ -228,7 +185,6 @@ export class ContractMolecule implements IMolecule {
       )
       .run(now, contractId);
 
-    // Set motorcycle back to available
     this.db
       .prepare(
         "UPDATE motorcycles SET status = 'available', updated_at = ? WHERE id = ?",
@@ -240,35 +196,25 @@ export class ContractMolecule implements IMolecule {
     return this.getById(contractId) as RentalContract;
   }
 
-  /**
-   * Renews a contract with a new end date.
-   * Validates new date > current end date, sets status=renewed.
-   */
   renew(contractId: string, newEndDate: string): RentalContract {
     const contract = this.getById(contractId);
     if (!contract) {
-      throw new AppError(404, "NOT_FOUND", "Contract not found");
+      throw new NotFoundError("Contract", contractId);
     }
 
     if (!isValidContractTransition(contract.status, "renewed")) {
-      throw new AppError(
-        400,
-        "INVALID_STATE_TRANSITION",
-        `Cannot renew a contract in status ${contract.status}`,
-      );
+      throw new InvalidStateTransition("Contract", contract.status, "renewed");
     }
 
     const newDate = new Date(newEndDate);
     const currentEnd = new Date(contract.end_date);
 
     if (isNaN(newDate.getTime())) {
-      throw new AppError(400, "VALIDATION_ERROR", "Invalid end date");
+      throw new ValidationError("Invalid end date");
     }
 
     if (newDate <= currentEnd) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
+      throw new ValidationError(
         "New end date must be after the current end date",
       );
     }
@@ -286,15 +232,10 @@ export class ContractMolecule implements IMolecule {
     return this.getById(contractId) as RentalContract;
   }
 
-  /**
-   * Batch job: marks overdue active contracts as expired and sets motorcycle→available.
-   * Returns the number of contracts expired.
-   */
   expireOverdue(): number {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
     const today = now.substring(0, 10);
 
-    // Find active contracts past their end date
     const overdueContracts = this.db
       .prepare(
         "SELECT id, motorcycle_id FROM rental_contracts WHERE status = 'active' AND end_date < ?",
@@ -326,9 +267,6 @@ export class ContractMolecule implements IMolecule {
     return overdueContracts.length;
   }
 
-  /**
-   * Lists contracts with optional filters (status, rider_id) and pagination.
-   */
   list(filters?: ContractFilters): PaginatedResult<RentalContract> {
     const pageSize = 100;
     const currentPage = Math.max(1, filters?.page ?? 1);
@@ -379,9 +317,6 @@ export class ContractMolecule implements IMolecule {
     };
   }
 
-  /**
-   * Retrieves a contract by its UUID.
-   */
   getById(contractId: string): RentalContract | null {
     const row = this.db
       .prepare("SELECT * FROM rental_contracts WHERE id = ?")

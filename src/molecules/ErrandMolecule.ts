@@ -5,7 +5,14 @@ import type { IMolecule, PaginatedResult, Role } from "./IMolecule.js";
 import { isValidErrandTransition } from "../atoms/stateMachines.js";
 import type { ErrandState } from "../atoms/stateMachines.js";
 import { calculateFare } from "../atoms/tarifa.js";
-import { AppError } from "../middleware/errorHandler.middleware.js";
+import {
+  BusinessRuleViolation,
+  ConflictError,
+  ForbiddenError,
+  InvalidStateTransition,
+  NotFoundError,
+  ValidationError,
+} from "../domains/errors.js";
 import type { RoutingProvider } from "../domains/errands/RoutingProvider.js";
 
 export type ErrandType = "object_transport" | "purchase" | "errand";
@@ -54,7 +61,6 @@ export interface Errand {
   fare: number;
   platform_commission: number;
   rider_earnings: number;
-  /** Null only for historical rows that predate migration 003. */
   fare_cop: number | null;
   platform_commission_cop: number | null;
   rider_earnings_cop: number | null;
@@ -81,6 +87,8 @@ export interface ErrandFilters {
 export class ErrandMolecule implements IMolecule {
   readonly name = "errands";
   readonly version = "1.0.0";
+  readonly description =
+    "Errand lifecycle: creation, acceptance, state transitions, and listing.";
 
   constructor(
     private readonly db: Database.Database,
@@ -89,34 +97,22 @@ export class ErrandMolecule implements IMolecule {
     private readonly allowHaversineFallback = false,
   ) {}
 
-  /**
-   * Creates a pending errand from a quote that belongs to the requesting user.
-   * The server persists the exact route and COP snapshot shown to the user.
-   */
   async create(userId: string, data: CreateErrandInput): Promise<Errand> {
     const user = this.db
       .prepare("SELECT id, status FROM users WHERE id = ?")
       .get(userId) as { id: string; status: string } | undefined;
 
-    if (!user) throw new AppError(404, "NOT_FOUND", "User not found");
+    if (!user) throw new NotFoundError("User", userId);
     if (user.status !== "active") {
-      throw new AppError(
-        400,
-        "BUSINESS_RULE_VIOLATION",
-        "User account is not active",
-      );
+      throw new BusinessRuleViolation("User account is not active");
     }
     if (data.description.length < 10 || data.description.length > 500) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
+      throw new ValidationError(
         "Description must be between 10 and 500 characters",
       );
     }
     if (!data.origin_address.trim() || !data.destination_address.trim()) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
+      throw new ValidationError(
         "Origin and destination addresses are required",
       );
     }
@@ -150,17 +146,13 @@ export class ErrandMolecule implements IMolecule {
         | undefined;
 
       if (!quote) {
-        throw new AppError(409, "QUOTE_INVALID", "Quote is not available");
+        throw new ConflictError("Quote is not available");
       }
       if (quote.consumed_at) {
-        throw new AppError(
-          409,
-          "QUOTE_CONSUMED",
-          "Quote has already been used",
-        );
+        throw new ConflictError("Quote has already been used");
       }
       if (new Date(quote.expires_at).getTime() <= Date.now()) {
-        throw new AppError(409, "QUOTE_EXPIRED", "Quote has expired");
+        throw new ConflictError("Quote has expired");
       }
       if (
         quote.errand_type !== data.type ||
@@ -169,9 +161,7 @@ export class ErrandMolecule implements IMolecule {
         quote.destination_lat !== data.destination_lat ||
         quote.destination_lng !== data.destination_lng
       ) {
-        throw new AppError(
-          409,
-          "QUOTE_MISMATCH",
+        throw new ConflictError(
           "Quote does not match the selected route or errand type",
         );
       }
@@ -182,19 +172,13 @@ export class ErrandMolecule implements IMolecule {
         )
         .run(now, data.quote_id);
       if (consumed.changes !== 1) {
-        throw new AppError(
-          409,
-          "QUOTE_CONSUMED",
-          "Quote has already been used",
-        );
+        throw new ConflictError("Quote has already been used");
       }
 
       this.db
         .prepare(
-          `
-          INSERT INTO errands (id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, estimated_distance_km, estimated_duration_minutes, routing_provider, routing_profile, route_calculated_at, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, requested_at, created_at, updated_at)
-          VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested', ?, ?, ?, ?)
-        `,
+          `INSERT INTO errands (id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, estimated_distance_km, estimated_duration_minutes, routing_provider, routing_profile, route_calculated_at, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, requested_at, created_at, updated_at)
+           VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested', ?, ?, ?, ?)`,
         )
         .run(
           id,
@@ -236,21 +220,13 @@ export class ErrandMolecule implements IMolecule {
     return this.getById(id) as Errand;
   }
 
-  /**
-   * Gets a short-lived route and fare quote. Only this server-side snapshot is
-   * accepted when the user subsequently creates the errand.
-   */
   async quote(userId: string, data: QuoteErrandInput): Promise<ErrandQuote> {
     const user = this.db
       .prepare("SELECT id, status FROM users WHERE id = ?")
       .get(userId) as { id: string; status: string } | undefined;
-    if (!user) throw new AppError(404, "NOT_FOUND", "User not found");
+    if (!user) throw new NotFoundError("User", userId);
     if (user.status !== "active") {
-      throw new AppError(
-        400,
-        "BUSINESS_RULE_VIOLATION",
-        "User account is not active",
-      );
+      throw new BusinessRuleViolation("User account is not active");
     }
 
     const pricingRule = this.db
@@ -265,9 +241,7 @@ export class ErrandMolecule implements IMolecule {
         }
       | undefined;
     if (!pricingRule) {
-      throw new AppError(
-        400,
-        "BUSINESS_RULE_VIOLATION",
+      throw new BusinessRuleViolation(
         "No pricing configured for this errand type",
       );
     }
@@ -320,18 +294,12 @@ export class ErrandMolecule implements IMolecule {
     };
   }
 
-  /**
-   * Retrieves a route preview through the configured provider. This operation
-   * deliberately has no pricing, persistence, or errand-creation side effects.
-   */
   async estimateRoute(
     origin: Parameters<RoutingProvider["getRoute"]>[0],
     destination: Parameters<RoutingProvider["getRoute"]>[1],
   ): ReturnType<RoutingProvider["getRoute"]> {
     if (!this.routingProvider) {
-      throw new AppError(
-        503,
-        "ROUTING_UNAVAILABLE",
+      throw new BusinessRuleViolation(
         "Routing service is temporarily unavailable",
       );
     }
@@ -341,7 +309,11 @@ export class ErrandMolecule implements IMolecule {
     } catch (error) {
       const routingError =
         error && typeof error === "object"
-          ? (error as { reason?: unknown; upstreamStatus?: unknown })
+          ? (error as {
+              reason?: unknown;
+              upstreamStatus?: unknown;
+              upstreamCode?: unknown;
+            })
           : undefined;
       const reason =
         typeof routingError?.reason === "string"
@@ -351,38 +323,37 @@ export class ErrandMolecule implements IMolecule {
         typeof routingError?.upstreamStatus === "number"
           ? routingError.upstreamStatus
           : undefined;
+      const upstreamCode =
+        typeof routingError?.upstreamCode === "string"
+          ? routingError.upstreamCode
+          : undefined;
 
       this.logger.warn("Route estimate unavailable", {
         reason,
         ...(upstreamStatus ? { upstreamStatus } : {}),
+        ...(upstreamCode ? { upstreamCode } : {}),
       });
-      throw new AppError(
-        503,
-        "ROUTING_UNAVAILABLE",
+      throw new BusinessRuleViolation(
         "Routing service is temporarily unavailable",
       );
     }
   }
 
-  /**
-   * Accepts an errand. Validates rider available, errand in requested state.
-   * Assigns rider, sets rider available=false.
-   */
   accept(errandId: string, riderId: string): Errand {
     const errand = this.getById(errandId);
     if (!errand) {
-      throw new AppError(404, "NOT_FOUND", "Errand not found");
+      throw new NotFoundError("Errand", errandId);
     }
 
     if (errand.status !== "requested") {
-      throw new AppError(
-        400,
-        "INVALID_STATE_TRANSITION",
+      throw new InvalidStateTransition(
+        "Errand",
+        errand.status,
+        "accepted",
         "Errand is no longer available",
       );
     }
 
-    // Validate rider exists, is active, and is available
     const rider = this.db
       .prepare("SELECT id, status, available FROM riders WHERE id = ?")
       .get(riderId) as
@@ -390,22 +361,17 @@ export class ErrandMolecule implements IMolecule {
       | undefined;
 
     if (!rider) {
-      throw new AppError(404, "NOT_FOUND", "Rider not found");
+      throw new NotFoundError("Rider", riderId);
     }
 
     if (rider.status !== "active") {
-      throw new AppError(400, "BUSINESS_RULE_VIOLATION", "Rider is not active");
+      throw new BusinessRuleViolation("Rider is not active");
     }
 
     if (!rider.available) {
-      throw new AppError(
-        400,
-        "BUSINESS_RULE_VIOLATION",
-        "Rider is not available",
-      );
+      throw new BusinessRuleViolation("Rider is not available");
     }
 
-    // Check rider doesn't have an active errand
     const activeErrand = this.db
       .prepare(
         "SELECT id FROM errands WHERE rider_id = ? AND status IN ('accepted', 'picked_up')",
@@ -413,19 +379,11 @@ export class ErrandMolecule implements IMolecule {
       .get(riderId) as { id: string } | undefined;
 
     if (activeErrand) {
-      throw new AppError(
-        400,
-        "BUSINESS_RULE_VIOLATION",
-        "Rider has an active errand",
-      );
+      throw new BusinessRuleViolation("Rider has an active errand");
     }
 
     if (!isValidErrandTransition(errand.status, "accepted")) {
-      throw new AppError(
-        400,
-        "INVALID_STATE_TRANSITION",
-        "Invalid state transition",
-      );
+      throw new InvalidStateTransition("Errand", errand.status, "accepted");
     }
 
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
@@ -436,7 +394,6 @@ export class ErrandMolecule implements IMolecule {
       )
       .run(riderId, now, now, errandId);
 
-    // Set rider available to false
     this.db
       .prepare("UPDATE riders SET available = 0, updated_at = ? WHERE id = ?")
       .run(now, riderId);
@@ -446,24 +403,22 @@ export class ErrandMolecule implements IMolecule {
     return this.getById(errandId) as Errand;
   }
 
-  /**
-   * Marks errand as picked up. Transition: accepted→picked_up.
-   */
   markPickedUp(errandId: string, riderId: string): Errand {
     const errand = this.getById(errandId);
     if (!errand) {
-      throw new AppError(404, "NOT_FOUND", "Errand not found");
+      throw new NotFoundError("Errand", errandId);
     }
 
     if (errand.rider_id !== riderId) {
-      throw new AppError(403, "FORBIDDEN", "Not authorized for this errand");
+      throw new ForbiddenError("Not authorized for this errand");
     }
 
     if (!isValidErrandTransition(errand.status, "picked_up")) {
-      throw new AppError(
-        400,
-        "INVALID_STATE_TRANSITION",
-        "Valid transitions are: requested→accepted, accepted→picked_up, picked_up→delivered",
+      throw new InvalidStateTransition(
+        "Errand",
+        errand.status,
+        "picked_up",
+        "Valid transitions are: requested\u2192accepted, accepted\u2192picked_up, picked_up\u2192delivered",
       );
     }
 
@@ -480,25 +435,22 @@ export class ErrandMolecule implements IMolecule {
     return this.getById(errandId) as Errand;
   }
 
-  /**
-   * Marks errand as delivered. Transition: picked_up→delivered.
-   * Sets rider available=true.
-   */
   markDelivered(errandId: string, riderId: string): Errand {
     const errand = this.getById(errandId);
     if (!errand) {
-      throw new AppError(404, "NOT_FOUND", "Errand not found");
+      throw new NotFoundError("Errand", errandId);
     }
 
     if (errand.rider_id !== riderId) {
-      throw new AppError(403, "FORBIDDEN", "Not authorized for this errand");
+      throw new ForbiddenError("Not authorized for this errand");
     }
 
     if (!isValidErrandTransition(errand.status, "delivered")) {
-      throw new AppError(
-        400,
-        "INVALID_STATE_TRANSITION",
-        "Valid transitions are: requested→accepted, accepted→picked_up, picked_up→delivered",
+      throw new InvalidStateTransition(
+        "Errand",
+        errand.status,
+        "delivered",
+        "Valid transitions are: requested\u2192accepted, accepted\u2192picked_up, picked_up\u2192delivered",
       );
     }
 
@@ -510,7 +462,6 @@ export class ErrandMolecule implements IMolecule {
       )
       .run(now, now, errandId);
 
-    // Set rider available to true
     this.db
       .prepare("UPDATE riders SET available = 1, updated_at = ? WHERE id = ?")
       .run(now, riderId);
@@ -520,13 +471,6 @@ export class ErrandMolecule implements IMolecule {
     return this.getById(errandId) as Errand;
   }
 
-  /**
-   * Cancels an errand. Applies cancellation rules by role and state.
-   * - User can cancel requested (no reason required) or accepted (reason required)
-   * - User cannot cancel picked_up
-   * - Rider can cancel accepted or picked_up (reason required)
-   * - Cannot cancel delivered or already cancelled
-   */
   cancel(
     errandId: string,
     actorId: string,
@@ -535,41 +479,36 @@ export class ErrandMolecule implements IMolecule {
   ): Errand {
     const errand = this.getById(errandId);
     if (!errand) {
-      throw new AppError(404, "NOT_FOUND", "Errand not found");
+      throw new NotFoundError("Errand", errandId);
     }
 
-    // Cannot cancel terminal states
     if (errand.status === "delivered" || errand.status === "cancelled") {
-      throw new AppError(
-        400,
-        "INVALID_STATE_TRANSITION",
+      throw new InvalidStateTransition(
+        "Errand",
+        errand.status,
+        "cancelled",
         "Errand cannot be cancelled in its current state",
       );
     }
 
     if (!isValidErrandTransition(errand.status, "cancelled")) {
-      throw new AppError(
-        400,
-        "INVALID_STATE_TRANSITION",
+      throw new InvalidStateTransition(
+        "Errand",
+        errand.status,
+        "cancelled",
         "Errand cannot be cancelled in its current state",
       );
     }
 
-    // User cannot cancel picked_up
     if (role === "user" && errand.status === "picked_up") {
-      throw new AppError(
-        400,
-        "BUSINESS_RULE_VIOLATION",
+      throw new BusinessRuleViolation(
         "Only the rider can cancel in picked_up state",
       );
     }
 
-    // Reason required for accepted or picked_up
     if (errand.status === "accepted" || errand.status === "picked_up") {
       if (!reason || reason.trim().length < 10 || reason.trim().length > 500) {
-        throw new AppError(
-          400,
-          "VALIDATION_ERROR",
+        throw new ValidationError(
           "Cancellation reason required (between 10 and 500 characters)",
         );
       }
@@ -583,7 +522,6 @@ export class ErrandMolecule implements IMolecule {
       )
       .run(reason ?? null, now, now, errandId);
 
-    // If errand had a rider assigned, set rider available back to true
     if (
       errand.rider_id &&
       (errand.status === "accepted" || errand.status === "picked_up")
@@ -605,13 +543,13 @@ export class ErrandMolecule implements IMolecule {
     const errand = this.getById(errandId);
 
     if (!errand) {
-      throw new AppError(404, "NOT_FOUND", "Errand not found");
+      throw new NotFoundError("Errand", errandId);
     }
 
     const isAvailable = errand.status === "requested";
     const isAssignedToRider = errand.rider_id === riderId;
     if (!isAvailable && !isAssignedToRider) {
-      throw new AppError(403, "FORBIDDEN", "Errand route is not available");
+      throw new ForbiddenError("Errand route is not available");
     }
 
     if (
@@ -620,11 +558,7 @@ export class ErrandMolecule implements IMolecule {
       errand.destination_lat == null ||
       errand.destination_lng == null
     ) {
-      throw new AppError(
-        409,
-        "ROUTE_UNAVAILABLE",
-        "Errand route is not available",
-      );
+      throw new ConflictError("Errand route is not available");
     }
 
     return this.estimateRoute(
@@ -636,9 +570,6 @@ export class ErrandMolecule implements IMolecule {
     );
   }
 
-  /**
-   * Lists available errands (status=requested), ordered by requested_at DESC.
-   */
   listAvailable(): Errand[] {
     return this.db
       .prepare(
@@ -647,9 +578,6 @@ export class ErrandMolecule implements IMolecule {
       .all() as Errand[];
   }
 
-  /**
-   * Lists errands for a user with optional filters and pagination (max 20/page).
-   */
   listByUser(
     userId: string,
     filters?: ErrandFilters,
@@ -691,9 +619,6 @@ export class ErrandMolecule implements IMolecule {
     };
   }
 
-  /**
-   * Lists errands assigned to a rider with optional filters and pagination (max 20/page).
-   */
   listByRider(
     riderId: string,
     filters?: ErrandFilters,
@@ -735,9 +660,6 @@ export class ErrandMolecule implements IMolecule {
     };
   }
 
-  /**
-   * Retrieves an errand by its UUID.
-   */
   getById(errandId: string): Errand | null {
     const row = this.db
       .prepare("SELECT * FROM errands WHERE id = ?")

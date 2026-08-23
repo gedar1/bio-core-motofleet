@@ -3,7 +3,7 @@ import type { PricingMolecule } from "../molecules/PricingMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createPricingRuleSchema } from "../atoms/schemas.js";
+import { createPricingRuleSchema } from "../atoms/schemas/pricing.schemas.js";
 
 /**
  * Creates pricing rule routes. All endpoints require admin role.

@@ -2,7 +2,7 @@ import type Database from "better-sqlite3";
 import { v4 as uuidv4 } from "uuid";
 import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule } from "./IMolecule.js";
-import { AppError } from "../middleware/errorHandler.middleware.js";
+import { NotFoundError, ValidationError } from "../domains/errors.js";
 
 export type ErrandType = "object_transport" | "purchase" | "errand";
 
@@ -24,35 +24,24 @@ export interface PricingRule {
   updated_at: string;
 }
 
-/**
- * Molecule responsible for pricing rule management.
- * Maintains exactly one active rule per errand type.
- */
 export class PricingMolecule implements IMolecule {
   readonly name = "pricing";
   readonly version = "1.0.0";
+  readonly description =
+    "Pricing rule management: one active rule per errand type.";
 
   constructor(
     private readonly db: Database.Database,
     private readonly logger: ILogger,
   ) {}
 
-  /**
-   * Creates a new pricing rule.
-   * Auto-deactivates existing active rule for the same errand_type.
-   * Inserts the new rule as active.
-   */
   create(data: CreatePricingRuleInput): PricingRule {
-    // Legacy REAL columns remain for compatibility, but all new values are
-    // logical integer COP amounts and whole commission percentages.
     if (
       !Number.isSafeInteger(data.base_rate) ||
       data.base_rate < 1 ||
       data.base_rate > 999_999
     ) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
+      throw new ValidationError(
         "Base rate must be an integer COP amount between 1 and 999,999",
       );
     }
@@ -62,9 +51,7 @@ export class PricingMolecule implements IMolecule {
       data.rate_per_km < 0 ||
       data.rate_per_km > 9_999
     ) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
+      throw new ValidationError(
         "Rate per km must be an integer COP amount between 0 and 9,999",
       );
     }
@@ -74,18 +61,14 @@ export class PricingMolecule implements IMolecule {
       data.commission_percentage < 1 ||
       data.commission_percentage > 50
     ) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
+      throw new ValidationError(
         "Commission must be a whole percentage between 1% and 50%",
       );
     }
 
     const validTypes: ErrandType[] = ["object_transport", "purchase", "errand"];
     if (!validTypes.includes(data.errand_type)) {
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
+      throw new ValidationError(
         "Errand type must be object_transport, purchase or errand",
       );
     }
@@ -93,7 +76,6 @@ export class PricingMolecule implements IMolecule {
     const id = uuidv4();
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
 
-    // Deactivate existing active rule for same type, then insert new
     const createRule = this.db.transaction(() => {
       this.db
         .prepare(
@@ -103,10 +85,8 @@ export class PricingMolecule implements IMolecule {
 
       this.db
         .prepare(
-          `
-        INSERT INTO pricing_rules (id, errand_type, base_rate, rate_per_km, commission_percentage, active, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, 1, ?, ?)
-      `,
+          `INSERT INTO pricing_rules (id, errand_type, base_rate, rate_per_km, commission_percentage, active, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, 1, ?, ?)`,
         )
         .run(
           id,
@@ -131,16 +111,13 @@ export class PricingMolecule implements IMolecule {
       .get(id) as PricingRule;
   }
 
-  /**
-   * Deactivates a pricing rule by marking it inactive.
-   */
   deactivate(ruleId: string): PricingRule {
     const rule = this.db
       .prepare("SELECT * FROM pricing_rules WHERE id = ?")
       .get(ruleId) as PricingRule | undefined;
 
     if (!rule) {
-      throw new AppError(404, "NOT_FOUND", "Pricing rule not found");
+      throw new NotFoundError("Pricing rule", ruleId);
     }
 
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
@@ -158,9 +135,6 @@ export class PricingMolecule implements IMolecule {
       .get(ruleId) as PricingRule;
   }
 
-  /**
-   * Returns the current active pricing rule for a given errand type, or null if none.
-   */
   getActiveByType(errandType: ErrandType): PricingRule | null {
     const rule = this.db
       .prepare(
@@ -171,9 +145,6 @@ export class PricingMolecule implements IMolecule {
     return rule ?? null;
   }
 
-  /**
-   * Lists all pricing rules (active and inactive).
-   */
   list(): PricingRule[] {
     return this.db
       .prepare("SELECT * FROM pricing_rules ORDER BY created_at DESC")

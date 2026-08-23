@@ -43,6 +43,8 @@ type NotificationRow = Omit<InAppNotification, "data"> & {
 export class InAppNotificationMolecule implements IMolecule {
   readonly name = "in-app-notifications";
   readonly version = "1.0.0";
+  readonly description =
+    "Persists and serves in-app notifications independently from SMTP.";
 
   constructor(
     private readonly db: Database.Database,

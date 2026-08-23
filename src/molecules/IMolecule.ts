@@ -1,12 +1,19 @@
 /**
- * Convención ligera para módulos de negocio — definida localmente.
- * Cada molecule implementa esta interfaz para organización consistente.
+ * Base contract for all business-logic modules (molecules).
+ *
+ * Every molecule MUST implement this interface. TypeScript will error if
+ * a concrete class declares `implements IMolecule` without satisfying
+ * all required members.
  */
 export interface IMolecule {
+  /** Stable machine-readable identifier (e.g. "errands", "contracts"). */
   readonly name: string;
+
+  /** SemVer version of the module's public contract. */
   readonly version: string;
-  initialize?(): Promise<void>;
-  dispose?(): Promise<void>;
+
+  /** One-line human-readable description of this module's responsibility. */
+  readonly description: string;
 }
 
 /**

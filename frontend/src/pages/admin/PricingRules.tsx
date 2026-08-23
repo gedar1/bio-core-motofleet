@@ -18,10 +18,10 @@ export const PricingRules: React.FC = () => {
     return <p className="caption text-center py-2xl">{t.common.loading}</p>;
 
   return (
-    <div className="section px-2xl">
+    <div className="section lg:px-2xl px-md">
       <div className="max-w-[1280px] mx-auto">
         <div className="flex justify-between items-center mb-2xl">
-          <h2>{t.admin.pricingTitle}</h2>
+          <h3>{t.admin.pricingTitle}</h3>
           <Link to="/admin/pricing/create">
             <Button>{t.adminForms.crear}</Button>
           </Link>
