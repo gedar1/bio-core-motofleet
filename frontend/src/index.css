@@ -15,6 +15,21 @@
   --color-slate: 74 74 74;
   --color-steel: 106 106 106;
   --color-stone: 138 138 138;
+
+  --color-status-warning: #fef3c7;
+  --color-status-warning-text: #92400e;
+
+  --color-status-info: #dbeafe;
+  --color-status-info-text: #1e40af;
+
+  --color-status-progress: #ede9fe;
+  --color-status-progress-text: #5b21b6;
+
+  --color-status-success: #d1fae5;
+  --color-status-success-text: #065f46;
+
+  --color-status-danger: #fee2e2;
+  --color-status-danger-text: #991b1b;
 }
 
 html.dark {
@@ -135,13 +150,36 @@ html.dark {
 
   /* Badges */
   .badge-orange {
-    @apply inline-flex items-center bg-primary text-on-primary text-caption-bold rounded-full px-sm py-xxs;
+    @apply inline-flex items-center bg-success text-on-primary text-caption-bold rounded-full px-sm py-xxs;
   }
   .badge-cream {
     @apply inline-flex items-center bg-cream-deeper text-ink text-caption-bold rounded-full px-sm py-xxs;
   }
   .badge-dark {
-    @apply inline-flex items-center bg-ink text-on-dark text-caption-bold rounded-full px-sm py-xxs;
+    @apply inline-flex items-center bg-primary text-on-dark text-caption-bold rounded-full px-sm py-xxs;
+  }
+
+  .badge-requested {
+    @apply inline-flex items-center  text-on-dark text-caption-bold rounded-full px-sm py-xxs;
+    background-color: #fde68a;
+  }
+
+  .badge-accepted {
+    @apply inline-flex items-center text-on-dark text-caption-bold rounded-full px-sm py-xxs;
+    background-color: #93c5fd;
+  }
+
+  .badge-picked-up {
+    @apply inline-flex items-center text-on-dark text-caption-bold rounded-full px-sm py-xxs;
+    background-color: #c4b5fd;
+  }
+
+  .badge-delivered {
+    @apply inline-flex items-center  bg-success text-on-dark text-caption-bold rounded-full px-sm py-xxs;
+  }
+
+  .badge-cancelled {
+    @apply inline-flex items-center bg-error text-on-dark text-caption-bold rounded-full px-sm py-xxs;
   }
 
   /* Inputs */

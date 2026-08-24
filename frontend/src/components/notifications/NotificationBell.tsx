@@ -160,6 +160,69 @@ export const NotificationBell: React.FC = () => {
     setToastNotification(null);
   };
 
+  let notificationContent: React.ReactNode;
+  if (isLoading) {
+    notificationContent = (
+      <p className="p-md text-body-sm text-ink-muted">
+        Cargando notificaciones...
+      </p>
+    );
+  } else if (hasError) {
+    notificationContent = (
+      <p className="p-md text-body-sm text-red-700">
+        No fue posible cargar las notificaciones.
+      </p>
+    );
+  } else if (notifications.length === 0) {
+    notificationContent = (
+      <p className="p-md text-body-sm text-ink-muted">
+        No tienes notificaciones.
+      </p>
+    );
+  } else {
+    notificationContent = (
+      <ul className="divide-y divide-hairline-soft">
+        {notifications.map((notification) => (
+          <li
+            key={notification.id}
+            className={`p-md ${notification.read_at ? "bg-canvas" : "bg-cream/40"}`}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="text-body font-semibold text-ink">
+                  {notification.title}
+                </p>
+                <p className="mt-1 text-body-sm text-ink-muted">
+                  {notification.message}
+                </p>
+                <p className="mt-2 text-caption text-ink-muted">
+                  {formatDate(notification.created_at)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void deleteNotification(notification)}
+                className="text-body-sm text-ink-muted underline"
+                aria-label={`Eliminar ${notification.title}`}
+              >
+                Eliminar
+              </button>
+            </div>
+            {!notification.read_at && (
+              <button
+                type="button"
+                onClick={() => void markAsRead(notification)}
+                className="mt-2 text-body-sm text-ink underline"
+              >
+                Marcar como leída
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
     <div ref={containerRef} className="relative">
       <button
@@ -214,7 +277,7 @@ export const NotificationBell: React.FC = () => {
 
       {isOpen && (
         <section
-          className="absolute lg_right-0 right-[-125px] mt-2 w-[min(24rem,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto rounded-md border border-primary-deep bg-canvas shadow-lg"
+          className="absolute lg:right-0 right-[-65px] mt-2 w-[min(24rem,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto rounded-md border border-primary-deep bg-canvas shadow-lg"
           aria-label="Bandeja de notificaciones"
         >
           <header className="sticky top-0 flex items-center justify-between gap-3 border-b border-hairline-soft bg-canvas p-md">
@@ -236,59 +299,7 @@ export const NotificationBell: React.FC = () => {
             </button>
           </header>
 
-          {isLoading ? (
-            <p className="p-md text-body-sm text-ink-muted">
-              Cargando notificaciones...
-            </p>
-          ) : hasError ? (
-            <p className="p-md text-body-sm text-red-700">
-              No fue posible cargar las notificaciones.
-            </p>
-          ) : notifications.length === 0 ? (
-            <p className="p-md text-body-sm text-ink-muted">
-              No tienes notificaciones.
-            </p>
-          ) : (
-            <ul className="divide-y divide-hairline-soft">
-              {notifications.map((notification) => (
-                <li
-                  key={notification.id}
-                  className={`p-md ${notification.read_at ? "bg-canvas" : "bg-cream/40"}`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="text-body font-semibold text-ink">
-                        {notification.title}
-                      </p>
-                      <p className="mt-1 text-body-sm text-ink-muted">
-                        {notification.message}
-                      </p>
-                      <p className="mt-2 text-caption text-ink-muted">
-                        {formatDate(notification.created_at)}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => void deleteNotification(notification)}
-                      className="text-body-sm text-ink-muted underline"
-                      aria-label={`Eliminar ${notification.title}`}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                  {!notification.read_at && (
-                    <button
-                      type="button"
-                      onClick={() => void markAsRead(notification)}
-                      className="mt-2 text-body-sm text-ink underline"
-                    >
-                      Marcar como leída
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+          {notificationContent}
         </section>
       )}
     </div>
