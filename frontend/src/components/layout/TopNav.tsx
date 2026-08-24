@@ -6,8 +6,8 @@ import { t } from "../../i18n";
 import { getRoleHomePath } from "../../navigation";
 import { NotificationBell } from "../notifications/NotificationBell";
 import sunIcon from "../../assets/icons/sun.svg";
-import signIn from "../../assets/icons/signIn.svg";
-import logInBlack from "../../assets/icons/logInBlack.svg";
+import logOutPrimary from "../../assets/icons/logOutPrimary.svg";
+import logInPrimary from "../../assets/icons/logInPrimary.svg";
 import moonBlack from "../../assets/icons/moonBlack.svg";
 
 export const TopNav: React.FC = () => {
@@ -16,7 +16,7 @@ export const TopNav: React.FC = () => {
   const homePath = getRoleHomePath(role);
 
   return (
-    <nav className="fixed left-0 right-0 top-0 z-50 flex h-[64px] items-center lg:justify-between justify-around border-b border-hairline-soft bg-canvas lg:px-2xl px-md transition-colors duration-200">
+    <nav className="fixed left-0 right-0 top-0 z-50 flex h-[64px] items-center justify-between border-b border-hairline-soft bg-canvas lg:px-2xl px-md transition-colors duration-200">
       <Link
         to={isAuthenticated ? homePath : "/"}
         className="wordmark no-underline"
@@ -58,32 +58,46 @@ export const TopNav: React.FC = () => {
             <button
               type="button"
               onClick={logout}
-              className="btn-secondary text-body-sm"
+              className="flex h-[48px] w-[48px] items-center justify-center rounded-md border border-hairline text-ink transition-colors"
             >
-              {t.nav.logout.toUpperCase()}
+              <img
+                src={logOutPrimary}
+                alt=""
+                aria-hidden="true"
+                className="h-7 w-7"
+              />
             </button>
           </>
         ) : (
           <>
-            <Link to="/register" className="btn-primary no-underline">
+            {/* <Link to="/register" className="btn-primary no-underline">
               {t.nav.signup.toUpperCase()}
-            </Link>
-            <Link to="/login" className="nav-link no-underline">
-              {isDark ? (
+            </Link> */}
+            <Link
+              to="/login"
+              className="flex h-[48px] w-[48px] items-center justify-center rounded-md border border-hairline text-ink transition-colors"
+            >
+              <img
+                src={logInPrimary}
+                alt=""
+                aria-hidden="true"
+                className="h-7 w-7"
+              />
+              {/* {isDark ? (
                 <img
-                  src={signIn}
+                  src={logInDark}
                   alt=""
                   aria-hidden="true"
                   className="h-7 w-7"
                 />
               ) : (
                 <img
-                  src={logInBlack}
+                  src={logInLight}
                   alt=""
                   aria-hidden="true"
                   className="h-7 w-7"
                 />
-              )}
+              )} */}
             </Link>
           </>
         )}

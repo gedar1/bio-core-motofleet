@@ -4,6 +4,14 @@ import type { Errand } from "../../hooks/useErrands";
 import { Table, type TableColumn } from "../../components/shared";
 import { t, translateStatus } from "../../i18n";
 
+const statusBadgeClass: Record<string, string> = {
+  requested: "badge-requested",
+  accepted: "badge-accepted",
+  picked_up: "badge-picked-up",
+  delivered: "badge-delivered",
+  cancelled: "badge-cancelled",
+};
+
 const errandColumns: readonly TableColumn<Errand>[] = [
   {
     id: "type",
@@ -16,7 +24,9 @@ const errandColumns: readonly TableColumn<Errand>[] = [
     id: "status",
     header: "Estado",
     render: (errand) => (
-      <span className="caption">{translateStatus(errand.status)}</span>
+      <span className={statusBadgeClass[errand.status]}>
+        {translateStatus(errand.status)}
+      </span>
     ),
   },
   {
