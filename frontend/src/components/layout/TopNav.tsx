@@ -69,37 +69,17 @@ export const TopNav: React.FC = () => {
             </button>
           </>
         ) : (
-          <>
-            {/* <Link to="/register" className="btn-primary no-underline">
-              {t.nav.signup.toUpperCase()}
-            </Link> */}
-            <Link
-              to="/login"
-              className="flex h-[48px] w-[48px] items-center justify-center rounded-md border border-hairline text-ink transition-colors"
-            >
-              <img
-                src={logInPrimary}
-                alt=""
-                aria-hidden="true"
-                className="h-7 w-7"
-              />
-              {/* {isDark ? (
-                <img
-                  src={logInDark}
-                  alt=""
-                  aria-hidden="true"
-                  className="h-7 w-7"
-                />
-              ) : (
-                <img
-                  src={logInLight}
-                  alt=""
-                  aria-hidden="true"
-                  className="h-7 w-7"
-                />
-              )} */}
-            </Link>
-          </>
+          <Link
+            to="/login"
+            className="flex h-[48px] w-[48px] items-center justify-center rounded-md border border-hairline text-ink transition-colors"
+          >
+            <img
+              src={logInPrimary}
+              alt=""
+              aria-hidden="true"
+              className="h-7 w-7"
+            />
+          </Link>
         )}
       </div>
     </nav>

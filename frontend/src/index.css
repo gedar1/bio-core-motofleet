@@ -161,17 +161,16 @@ html.dark {
 
   .badge-requested {
     @apply inline-flex items-center  text-on-dark text-caption-bold rounded-full px-sm py-xxs;
-    background-color: #fde68a;
+    background-color: #0d58f9;
   }
 
   .badge-accepted {
-    @apply inline-flex items-center text-on-dark text-caption-bold rounded-full px-sm py-xxs;
-    background-color: #93c5fd;
+    @apply inline-flex items-center bg-primary text-on-dark text-caption-bold rounded-full px-sm py-xxs;
   }
 
   .badge-picked-up {
     @apply inline-flex items-center text-on-dark text-caption-bold rounded-full px-sm py-xxs;
-    background-color: #c4b5fd;
+    background-color: #5632dd;
   }
 
   .badge-delivered {
