@@ -149,6 +149,19 @@ export const RiderErrands: React.FC = () => {
                       <p className="caption mt-sm">
                         {t.rider.earn}: ${e.rider_earnings}
                       </p>
+                      {e.pin && (
+                        <div className="mt-md p-md bg-warning-50 rounded-lg border border-warning-200">
+                          <p className="caption text-warning-800 font-semibold">
+                            🔐 PIN de verificación:{" "}
+                            <span className="text-lg font-bold tracking-wider">
+                              {e.pin}
+                            </span>
+                          </p>
+                          <p className="text-xs text-muted mt-xs">
+                            Pide este código al recoger y entregar el paquete
+                          </p>
+                        </div>
+                      )}
                     </div>
                     <div className="flex flex-col gap-sm">
                       {e.status === "accepted" && (

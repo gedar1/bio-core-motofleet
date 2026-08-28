@@ -198,6 +198,7 @@ export interface Errand {
   ganancia_rider: number;
   estado: ErrandState;
   metodo_pago: PaymentMethod;
+  pin?: string;
   motivo_cancelacion?: string;
   solicitado_at: string;
   aceptado_at?: string;

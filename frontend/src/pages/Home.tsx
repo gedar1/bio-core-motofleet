@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button, Card } from "../components/ui";
+
 import { t } from "../i18n";
+import { ImageContentHome } from "../components/layout";
 
 interface FeatureCardProps {
   readonly title: string;
@@ -21,10 +23,8 @@ export const Home: React.FC = () => {
   return (
     <>
       {/* Hero Section — warm sunset gradient */}
-      <section className="relative flex flex-col items-center justify-center min-h-screen:[80vh] px-2xl lg:py-hero py-section-sm text-center ">
-        <h1 className="text-display-lg md:text-hero font-display text-ink max-w-[800px]">
-          {t.home.hero}
-        </h1>
+      <section className="home-hero-gradient relative flex flex-col items-center justify-center min-h-screen:[80vh] px-2xl py-section-sm text-center lg:py-hero">
+        <ImageContentHome />
         <p className="mt-xl font-body text-subtitle text-ink-tint max-w-[600px]">
           {t.home.subtitle}
         </p>

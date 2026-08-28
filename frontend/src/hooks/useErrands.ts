@@ -21,6 +21,7 @@ export interface Errand {
   motorcycle_plate: string | null;
   status: string;
   payment_method: string;
+  pin: string | null;
   requested_at: string;
 }
 

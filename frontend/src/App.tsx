@@ -6,6 +6,7 @@ import { getRoleHomePath } from "./navigation";
 import { Home } from "./pages/Home";
 import { Login } from "./pages/auth/Login";
 import { Register } from "./pages/auth/Register";
+import { RegisterRider } from "./pages/auth/RegisterRider";
 import { AdminWorkspace } from "./pages/admin/AdminWorkspace";
 import { CreateCosigner } from "./pages/admin/CreateCosigner";
 import { CreatePayment } from "./pages/admin/CreatePayment";
@@ -63,6 +64,14 @@ const AppRoutes: React.FC = () => (
       element={
         <GuestRoute>
           <Register />
+        </GuestRoute>
+      }
+    />
+    <Route
+      path="/register/rider"
+      element={
+        <GuestRoute>
+          <RegisterRider />
         </GuestRoute>
       }
     />

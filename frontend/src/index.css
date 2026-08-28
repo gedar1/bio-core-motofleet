@@ -238,6 +238,174 @@ html.dark {
     @apply bg-cream text-ink py-section px-2xl transition-colors duration-200;
   }
 
+  /* Home hero — base visual; logo and decorative icons are intentionally added separately. */
+  .home-hero-gradient {
+    background:
+      radial-gradient(
+        circle at 16% 22%,
+        rgb(255 255 255 / 80%) 0,
+        rgb(237 249 255 / 38%) 20%,
+        transparent 43%
+      ),
+      radial-gradient(
+        circle at 82% 64%,
+        rgb(255 255 255 / 66%) 0,
+        rgb(255 237 207 / 28%) 22%,
+        transparent 45%
+      ),
+      linear-gradient(
+        102deg,
+        #dcefff 0%,
+        #e9f7ff 33%,
+        #fdf9ee 57%,
+        #fff0d6 78%,
+        #ffe6bd 100%
+      );
+  }
+
+  html.dark .home-hero-gradient {
+    background:
+      radial-gradient(
+        72% 100% at 10% 24%,
+        rgb(24 111 164 / 34%) 0%,
+        transparent 68%
+      ),
+      radial-gradient(
+        68% 94% at 92% 28%,
+        rgb(255 107 29 / 27%) 0%,
+        transparent 64%
+      ),
+      radial-gradient(
+        38% 54% at 50% 47%,
+        rgb(255 255 255 / 7%) 0%,
+        transparent 78%
+      ),
+      linear-gradient(
+        110deg,
+        #071a29 0%,
+        #0b2637 42%,
+        #182733 67%,
+        #3a2119 100%
+      );
+  }
+
+  /* Brand lockup — intentionally excludes the decorative hero icons. */
+  .home-brand-lockup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .home-brand-logo-stage {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    isolation: isolate;
+  }
+
+  .home-brand-logo {
+    position: relative;
+    z-index: 1;
+    width: clamp(9rem, 19vw, 14rem);
+    height: auto;
+  }
+
+  html.dark .home-brand-logo-stage::before {
+    position: absolute;
+    z-index: 0;
+    inset: -28%;
+    content: "";
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 46% 48%,
+      rgb(255 255 255 / 82%) 0%,
+      rgb(243 245 246) 33%,
+      rgb(243 215 191 / 57%) 56%,
+      transparent 74%
+    );
+    filter: blur(14px);
+  }
+
+  .home-brand-logo-nav {
+    width: clamp(2.75rem, 10vw, 4rem);
+    height: auto;
+    max-height: 44px;
+    flex-shrink: 0;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgb(0 63 112 / 18%));
+  }
+  .home-brand-copy {
+    color: #003f70;
+    text-align: left;
+  }
+
+  .home-brand-title {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    color: inherit;
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 6.5vw, 5.25rem);
+    font-weight: 700;
+    line-height: 0.86;
+    letter-spacing: -0.06em;
+  }
+
+  .home-brand-prefix {
+    margin-bottom: 0.28em;
+    font-size: 0.56em;
+    letter-spacing: 0.14em;
+  }
+
+  .home-brand-tagline {
+    max-width: 10rem;
+    margin: 0.8rem 0 0;
+    color: #964815;
+    font-family: var(--font-body);
+    font-size: clamp(0.85rem, 1.8vw, 1.15rem);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .home-hero-message {
+    margin: 0;
+  }
+
+  html.dark .home-brand-copy {
+    color: #d7f0ff;
+  }
+
+  html.dark .home-brand-tagline {
+    color: #ffd29e;
+  }
+
+  @media (max-width: 560px) {
+    .home-brand-lockup {
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .home-brand-copy {
+      text-align: center;
+    }
+
+    .home-brand-tagline {
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .home-brand-logo-nav {
+      width: 2.5rem;
+      max-height: 40px;
+    }
+
+    html.dark .home-brand-copy {
+      margin-top: 2rem;
+    }
+  }
+
   /* Section */
   .section {
     @apply py-section;
