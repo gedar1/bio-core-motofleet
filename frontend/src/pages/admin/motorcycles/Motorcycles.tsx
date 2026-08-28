@@ -1,16 +1,34 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useMotorcycles } from "../../hooks";
-import type { Motorcycle } from "../../hooks/useMotorcycles";
-import { Table, type TableColumn } from "../../components/shared";
-import { Button } from "../../components/ui";
-import { t, translateStatus } from "../../i18n";
+import { useMotorcycles } from "../../../hooks";
+import type { Motorcycle } from "../../../hooks/useMotorcycles";
+import { Table, type TableColumn } from "../../../components/shared";
+import { Button } from "../../../components/ui";
+import { t, translateStatus } from "../../../i18n";
 
 const statusBadgeClass: Record<string, string> = {
   available: "badge-orange",
   rented: "badge-dark",
   maintenance: "badge-cream",
   retired: "badge-cream",
+};
+
+// Función para formatear fechas
+const formatDate = (dateString: string | null): string => {
+  if (!dateString) return "—";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString("es-CO", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  } catch {
+    return "—";
+  }
 };
 
 const columns: readonly TableColumn<Motorcycle>[] = [
@@ -49,6 +67,20 @@ const columns: readonly TableColumn<Motorcycle>[] = [
       <span className={statusBadgeClass[motorcycle.status] ?? "badge-cream"}>
         {translateStatus(motorcycle.status)}
       </span>
+    ),
+  },
+  {
+    id: "created_at",
+    header: "Creado",
+    render: (motorcycle) => (
+      <span className="caption">{formatDate(motorcycle.created_at)}</span>
+    ),
+  },
+  {
+    id: "updated_at",
+    header: "Actualizado",
+    render: (motorcycle) => (
+      <span className="caption">{formatDate(motorcycle.updated_at)}</span>
     ),
   },
 ];

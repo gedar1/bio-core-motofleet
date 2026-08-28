@@ -134,7 +134,7 @@ export const es = {
   // Footer
   footer: {
     tagline: "Alquiler de flotas de motocicletas y marketplace de favores",
-    copyright: "© 2026 MotoFleet. Todos los derechos reservados.",
+    copyright: "© 2026 Gedar. Todos los derechos reservados.",
   },
 
   // Admin Forms

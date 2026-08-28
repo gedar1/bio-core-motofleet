@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { usePricingRules } from "../../hooks";
-import { Card, Button } from "../../components/ui";
-import { t, translateStatus } from "../../i18n";
+import { usePricingRules } from "../../../hooks";
+import { Card, Button } from "../../../components/ui";
+import { t, translateStatus } from "../../../i18n";
 
 const formatCop = (amount: number) =>
   new Intl.NumberFormat("es-CO", {
@@ -10,6 +10,24 @@ const formatCop = (amount: number) =>
     currency: "COP",
     maximumFractionDigits: 0,
   }).format(amount);
+
+// Función para formatear fechas
+const formatDate = (dateString: string | null): string => {
+  if (!dateString) return "—";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString("es-CO", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  } catch {
+    return "—";
+  }
+};
 
 export const PricingRules: React.FC = () => {
   const { rules, loading } = usePricingRules();
@@ -34,13 +52,17 @@ export const PricingRules: React.FC = () => {
           <div className="flex flex-col gap-lg">
             {rules.map((r) => (
               <Card key={r.id} className="p-xl">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-start">
                   <div>
                     <p className="caption">{translateStatus(r.errand_type)}</p>
                     <p className="font-body text-body-md text-ink mt-xs">
                       Base: {formatCop(r.base_rate)} · /km:{" "}
                       {formatCop(r.rate_per_km)} · Comisión:{" "}
                       {r.commission_percentage}%
+                    </p>
+                    <p className="caption text-slate mt-sm">
+                      Creado: {formatDate(r.created_at)} · Actualizado:{" "}
+                      {formatDate(r.updated_at)}
                     </p>
                   </div>
                   <span

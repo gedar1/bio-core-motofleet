@@ -22,7 +22,7 @@ export const AvailableErrands: React.FC = () => {
   const firstAvailableErrandId = errands[0]?.id;
 
   return (
-    <div className="section px-2xl">
+    <div className="section-mobile md:section  px-2xl">
       <div className="max-w-[1280px] mx-auto">
         <h2 className="mb-2xl">{t.rider.availableTitle}</h2>
         {errands.length === 0 ? (

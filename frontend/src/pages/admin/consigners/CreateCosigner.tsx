@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { api } from "../../services/api";
-import { Button, Input } from "../../components/ui";
+import { useAuth } from "../../../context/AuthContext";
+import { api } from "../../../services/api";
+import { Button, Input } from "../../../components/ui";
 
 export const CreateCosigner: React.FC = () => {
   const { token } = useAuth();
@@ -92,7 +92,7 @@ export const CreateCosigner: React.FC = () => {
             required
           />
           {error && (
-            <p className="font-body text-caption text-error">{error}</p>
+            <span className="font-body text-caption text-error">{error}</span>
           )}
           <Button type="submit" className="mt-lg w-full" disabled={loading}>
             {loading ? "Registrando..." : "Registrar Codeudor"}

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { api } from "../../services/api";
-import { Button, Input } from "../../components/ui";
+import { useAuth } from "../../../context/AuthContext";
+import { api } from "../../../services/api";
+import { Button, Input } from "../../../components/ui";
 
 export const CreatePricingRule: React.FC = () => {
   const { token } = useAuth();

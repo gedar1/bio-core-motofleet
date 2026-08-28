@@ -13,6 +13,8 @@ export interface Contract {
   monthly_amount: number;
   payment_day: number;
   status: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useContracts = () => {

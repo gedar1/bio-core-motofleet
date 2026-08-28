@@ -9,6 +9,8 @@ export interface PricingRule {
   rate_per_km: number;
   commission_percentage: number;
   active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export const usePricingRules = () => {

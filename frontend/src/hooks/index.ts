@@ -7,5 +7,6 @@ export {
   useMyErrands,
   useAdminErrands,
   useErrandActions,
+  type PeriodFilterType,
 } from "./useErrands";
-export { useMetrics } from "./useMetrics";
+export { useMetrics, type PeriodType, type MetricsData } from "./useMetrics";

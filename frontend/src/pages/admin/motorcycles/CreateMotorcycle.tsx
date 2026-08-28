@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { api } from "../../services/api";
-import { Button, Input } from "../../components/ui";
+import { useAuth } from "../../../context/AuthContext";
+import { api } from "../../../services/api";
+import { Button, Input } from "../../../components/ui";
 
 export const CreateMotorcycle: React.FC = () => {
   const { token } = useAuth();
@@ -33,8 +33,8 @@ export const CreateMotorcycle: React.FC = () => {
     try {
       await api.createMotorcycle(token, {
         ...form,
-        year: parseInt(form.year, 10),
-        engine_cc: parseInt(form.engine_cc, 10),
+        year: Number.parseInt(form.year, 10),
+        engine_cc: Number.parseInt(form.engine_cc, 10),
       });
       navigate("/admin/motorcycles");
     } catch (err: unknown) {

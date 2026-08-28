@@ -23,7 +23,7 @@ export const TopNav: React.FC = () => {
         className="flex flex-row items-center  wordmark no-underline"
       >
         <img src={logoFvr} alt="Isotipo RYD" className="home-brand-logo-nav" />
-        <span className="flex gap-sm text-heading-3">
+        <span className="flex gap-sm text-heading-4">
           <span>RYD</span>
           <span>Favorcitos</span>
         </span>

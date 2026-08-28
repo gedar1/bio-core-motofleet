@@ -8,7 +8,7 @@ import { Login } from "./pages/auth/Login";
 import { Register } from "./pages/auth/Register";
 import { RegisterRider } from "./pages/auth/RegisterRider";
 import { AdminWorkspace } from "./pages/admin/AdminWorkspace";
-import { CreateCosigner } from "./pages/admin/CreateCosigner";
+import { CreateCosigner } from "./pages/admin/consigners/CreateCosigner";
 import { CreatePayment } from "./pages/admin/CreatePayment";
 import { AvailableErrands } from "./pages/rider/AvailableErrands";
 import { RiderErrands } from "./pages/rider/RiderErrands";

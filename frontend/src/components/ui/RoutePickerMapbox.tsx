@@ -200,7 +200,7 @@ export const RoutePickerMapbox = ({
 
   return (
     <fieldset className="w-full flex flex-col gap-sm">
-      <legend className="flex justify-around w-full items-center p-xs font-body text-body-md-medium text-ink">
+      <legend className="flex justify-between w-full items-center pt-xs pb-md  font-body text-body-md-medium text-ink">
         Ruta
         <Button
           type="button"

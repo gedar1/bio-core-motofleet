@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { RiderRegistrationForm } from "../../components/shared/RiderRegistrationForm";
+import { RiderRegistrationForm } from "../../../components/shared/RiderRegistrationForm";
 
 export const CreateRider: React.FC = () => {
   const navigate = useNavigate();
