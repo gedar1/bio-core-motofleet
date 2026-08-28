@@ -1,11 +1,29 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useRiders, type Rider } from "../../hooks/useRiders";
-import { useAuth } from "../../context/AuthContext";
-import { api } from "../../services/api";
-import { Table, type TableColumn } from "../../components/shared";
-import { Button } from "../../components/ui";
-import { t, translateStatus } from "../../i18n";
+import { useRiders, type Rider } from "../../../hooks/useRiders";
+import { useAuth } from "../../../context/AuthContext";
+import { api } from "../../../services/api";
+import { Table, type TableColumn } from "../../../components/shared";
+import { Button } from "../../../components/ui";
+import { t, translateStatus } from "../../../i18n";
+
+// Función para formatear fechas
+const formatDate = (dateString: string | null): string => {
+  if (!dateString) return "—";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString("es-CO", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  } catch {
+    return "—";
+  }
+};
 
 export const Riders: React.FC = () => {
   const { riders, loading, refresh } = useRiders();
@@ -73,6 +91,20 @@ export const Riders: React.FC = () => {
         <span className="caption">
           {rider.available ? "✅ Disponible" : "⏸️ No disponible"}
         </span>
+      ),
+    },
+    {
+      id: "created_at",
+      header: "Registrado",
+      render: (rider) => (
+        <span className="caption">{formatDate(rider.created_at)}</span>
+      ),
+    },
+    {
+      id: "updated_at",
+      header: "Actualizado",
+      render: (rider) => (
+        <span className="caption">{formatDate(rider.updated_at)}</span>
       ),
     },
     {

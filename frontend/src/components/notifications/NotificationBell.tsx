@@ -5,7 +5,7 @@ import { api } from "../../services/api";
 import type { InAppNotification } from "../../types/api";
 
 const POLL_INTERVAL_MS = 30_000;
-const TOAST_DURATION_MS = 7_000;
+const TOAST_DURATION_MS = 700_000;
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("es-CO", {
@@ -242,7 +242,7 @@ export const NotificationBell: React.FC = () => {
 
       {toastNotification && (
         <section
-          className="fixed inset-x-4 bottom-4 z-[60] rounded-md border border-hairline bg-canvas p-md shadow-lg sm:left-auto sm:right-4 sm:w-[24rem]"
+          className="fixed inset-x-4 bottom-4 z-[60] right-0 m-sm rounded-md border border-primary bg-cream p-md shadow-lg sm:left-auto sm:right-4 sm:w-[24rem]"
           role="status"
           aria-live="polite"
           aria-label="Nueva notificación"

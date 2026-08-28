@@ -160,7 +160,7 @@ export const CreateErrand: React.FC = () => {
   // Show PIN confirmation after creation
   if (createdPin) {
     return (
-      <div className="section px-2xl">
+      <div className="section-mobile md:section px-2xl">
         <div className="max-w-[500px] mx-auto">
           <Card className="p-2xl text-center">
             <div className="mb-xl">
@@ -213,7 +213,7 @@ export const CreateErrand: React.FC = () => {
   }
 
   return (
-    <div className="section px-0 lg:px-2xl">
+    <div className="section-mobile md:section px-2xl">
       <div className="mx-auto max-w-[600px] lg:max-w-[600px]">
         <h2 className="hidden mb-2xl lg:block">{t.user.createErrandTitle}</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-0 lg:gap-lg">

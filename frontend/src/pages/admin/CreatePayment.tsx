@@ -39,7 +39,7 @@ export const CreatePayment: React.FC = () => {
         token,
         body: {
           ...form,
-          amount: parseFloat(form.amount),
+          amount: Number.parseFloat(form.amount),
         },
       });
       navigate("/admin/contracts");

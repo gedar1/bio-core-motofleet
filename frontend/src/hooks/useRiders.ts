@@ -13,6 +13,8 @@ export interface Rider {
   license_expiry: string;
   status: string;
   available: boolean | number;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useRiders = () => {

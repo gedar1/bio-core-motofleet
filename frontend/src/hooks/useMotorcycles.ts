@@ -11,6 +11,8 @@ export interface Motorcycle {
   color: string;
   engine_cc: number;
   status: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useMotorcycles = () => {

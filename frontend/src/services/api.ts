@@ -186,12 +186,30 @@ export const api = {
     return this.request("/pricing-rules", { token });
   },
 
-  getMetrics(token: string) {
-    return this.request("/admin/metrics", { token });
+  getMetrics(token: string, startDate?: string, endDate?: string) {
+    const params = new URLSearchParams();
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
+    const queryString = params.toString();
+    const path = queryString
+      ? `/admin/metrics?${queryString}`
+      : "/admin/metrics";
+    return this.request(path, { token });
   },
 
-  getAdminErrands(token: string) {
-    return this.request("/admin/errands", { token });
+  getAdminErrands(
+    token: string,
+    startDate?: string | null,
+    endDate?: string | null,
+  ) {
+    const params = new URLSearchParams();
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
+    const queryString = params.toString();
+    const path = queryString
+      ? `/admin/errands?${queryString}`
+      : "/admin/errands";
+    return this.request(path, { token });
   },
 
   getRiders(token: string) {

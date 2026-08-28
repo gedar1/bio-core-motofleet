@@ -161,7 +161,7 @@ html.dark {
 
   .badge-requested {
     @apply inline-flex items-center  text-on-dark text-caption-bold rounded-full px-sm py-xxs;
-    background-color: #fde68a;
+    background-color: #ffa902;
   }
 
   .badge-accepted {
@@ -171,7 +171,7 @@ html.dark {
 
   .badge-picked-up {
     @apply inline-flex items-center text-on-dark text-caption-bold rounded-full px-sm py-xxs;
-    background-color: #c4b5fd;
+    background-color: #5d32fd;
   }
 
   .badge-delivered {
@@ -236,6 +236,9 @@ html.dark {
   /* Footer */
   .footer-region {
     @apply bg-cream text-ink py-section px-2xl transition-colors duration-200;
+  }
+  .footer-region-mobile {
+    @apply bg-cream text-ink pb-section pt-sm px-2xl transition-colors duration-200;
   }
 
   /* Home hero — base visual; logo and decorative icons are intentionally added separately. */
@@ -409,6 +412,9 @@ html.dark {
   /* Section */
   .section {
     @apply py-section;
+  }
+  .section-mobile {
+    @apply pb-section pt-sm;
   }
 }
 

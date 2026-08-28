@@ -1,10 +1,17 @@
-import React from "react";
-import { useMetrics } from "../../hooks";
-import { Card } from "../../components/ui";
-import { t, translateStatus } from "../../i18n";
+import React, { useState } from "react";
+import { useMetrics, type PeriodType } from "../../../hooks";
+import { Card, Button } from "../../../components/ui";
+import { t, translateStatus } from "../../../i18n";
 
 export const Metrics: React.FC = () => {
-  const { metrics, loading } = useMetrics();
+  const [period, setPeriod] = useState<PeriodType>("monthly");
+  const { metrics, loading, refresh } = useMetrics(period);
+
+  const handlePeriodChange = async (newPeriod: PeriodType) => {
+    setPeriod(newPeriod);
+    // Refresh with the new period
+    await refresh(newPeriod);
+  };
 
   if (loading)
     return <p className="caption text-center py-2xl">{t.common.loading}</p>;
@@ -14,7 +21,38 @@ export const Metrics: React.FC = () => {
   return (
     <div className="section px-2xl">
       <div className="max-w-[1280px] mx-auto">
-        <h2 className="mb-2xl">{t.admin.metricsTitle}</h2>
+        <div className="flex justify-between items-center mb-2xl">
+          <h2>{t.admin.metricsTitle}</h2>
+          <div className="flex gap-md">
+            <Button
+              type="button"
+              variant={period === "daily" ? "primary" : "secondary"}
+              onClick={() => handlePeriodChange("daily")}
+            >
+              Hoy
+            </Button>
+            <Button
+              type="button"
+              variant={period === "weekly" ? "primary" : "secondary"}
+              onClick={() => handlePeriodChange("weekly")}
+            >
+              Semana
+            </Button>
+            <Button
+              type="button"
+              variant={period === "monthly" ? "primary" : "secondary"}
+              onClick={() => handlePeriodChange("monthly")}
+            >
+              Mes
+            </Button>
+          </div>
+        </div>
+
+        {metrics.period && (
+          <p className="caption text-slate mb-2xl">
+            Período: {metrics.period.start_date} a {metrics.period.end_date}
+          </p>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-xl mb-2xl">
           <Card className="p-xl text-center">

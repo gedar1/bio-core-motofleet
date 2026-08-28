@@ -111,7 +111,7 @@ export const RiderErrands: React.FC = () => {
   const activeErrandId = activeErrands[0]?.id;
 
   return (
-    <div className="section px-0 lg:px-2xl">
+    <div className="section-mobile md:section px-0 lg:px-2xl">
       <div className="mx-auto max-w-[1280px]">
         {/* Active errands */}
         {activeErrands.length > 0 && (

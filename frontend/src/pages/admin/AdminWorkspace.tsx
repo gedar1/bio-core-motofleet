@@ -1,15 +1,15 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
-import { Motorcycles } from "./Motorcycles";
-import { Riders } from "./Riders";
-import { Contracts } from "./Contracts";
-import { PricingRules } from "./PricingRules";
-import { AdminErrands } from "./AdminErrands";
-import { Metrics } from "./Metrics";
-import { CreateMotorcycle } from "./CreateMotorcycle";
-import { CreateRider } from "./CreateRider";
-import { CreateContract } from "./CreateContract";
-import { CreatePricingRule } from "./CreatePricingRule";
+import { Motorcycles } from "./motorcycles/Motorcycles";
+import { Riders } from "./riders/Riders";
+import { Contracts } from "./contracts/Contracts";
+import { PricingRules } from "./rules/PricingRules";
+import { AdminErrands } from "./errands/AdminErrands";
+import { Metrics } from "./metrics/Metrics";
+import { CreateMotorcycle } from "./motorcycles/CreateMotorcycle";
+import { CreateRider } from "./riders/CreateRider";
+import { CreateContract } from "./contracts/CreateContract";
+import { CreatePricingRule } from "./rules/CreatePricingRule";
 
 import chartBarIcon from "../../assets/icons/chart-bar.svg";
 import motorcycleIcon from "../../assets/icons/motorcycle.svg";
