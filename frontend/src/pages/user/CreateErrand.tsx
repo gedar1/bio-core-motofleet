@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useErrandActions } from "../../hooks";
 import {
   Button,
+  Card,
   Input,
   RoutePickerMapbox,
   type RoutePreview,
@@ -45,6 +46,7 @@ export const CreateErrand: React.FC = () => {
     description: "",
     payment_method: "cash",
   });
+  const [createdPin, setCreatedPin] = useState<string | null>(null);
 
   const handleChange =
     (field: keyof typeof form) =>
@@ -126,7 +128,7 @@ export const CreateErrand: React.FC = () => {
 
     setLoading(true);
     try {
-      await create({
+      const errand = (await create({
         ...form,
         origin_address: route.origin.address,
         origin_lat: route.origin.latitude,
@@ -135,8 +137,12 @@ export const CreateErrand: React.FC = () => {
         destination_lat: route.destination.latitude,
         destination_lng: route.destination.longitude,
         quote_id: quotePreview.quoteId,
-      });
-      navigate("/user/errands");
+      })) as { pin?: string };
+      if (errand.pin) {
+        setCreatedPin(errand.pin);
+      } else {
+        navigate("/user/errands");
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error al crear mandado");
     } finally {
@@ -149,6 +155,61 @@ export const CreateErrand: React.FC = () => {
     submitLabel = t.user.creatingBtn;
   } else if (quotePreview) {
     submitLabel = "Aprobar costo y crear favor";
+  }
+
+  // Show PIN confirmation after creation
+  if (createdPin) {
+    return (
+      <div className="section px-2xl">
+        <div className="max-w-[500px] mx-auto">
+          <Card className="p-2xl text-center">
+            <div className="mb-xl">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success-light mb-md">
+                <span className="text-3xl">✓</span>
+              </div>
+              <h2 className="text-heading-2 text-ink mb-sm">
+                ¡Favor creado exitosamente!
+              </h2>
+              <p className="font-body text-body-md text-slate">
+                Tu solicitud ha sido publicada. Un rider la tomará pronto.
+              </p>
+            </div>
+
+            <div className="p-lg bg-primary-50 rounded-lg border-2 border-primary-300 mb-xl">
+              <p className="caption text-primary-700 mb-xs">
+                🔐 PIN de verificación
+              </p>
+              <p className="text-heading-1 text-primary font-bold tracking-widest">
+                {createdPin}
+              </p>
+              <p className="text-xs text-muted mt-sm">
+                Comparte este código con la persona que recibirá el paquete
+              </p>
+            </div>
+
+            <div className="p-md bg-cream rounded-md mb-xl text-left">
+              <p className="caption text-ink font-semibold mb-xs">
+                ¿Para qué sirve el PIN?
+              </p>
+              <ul className="text-xs text-slate space-y-xs">
+                <li>• El rider te pedirá el PIN al recoger el paquete</li>
+                <li>
+                  • El destinatario debe conocer el PIN para recibir el paquete
+                </li>
+                <li>• Comparte el PIN solo con personas de confianza</li>
+              </ul>
+            </div>
+
+            <Button
+              onClick={() => navigate("/user/errands")}
+              className="w-full"
+            >
+              Ver mis favores
+            </Button>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -23,6 +23,9 @@ export default {
       steel: "rgb(var(--color-steel) / <alpha-value>)",
       stone: "rgb(var(--color-stone) / <alpha-value>)",
       // Brand (fixed — same in both modes)
+      brand: {
+        primary: "#003f70",
+      },
       primary: "#fa520f",
       "primary-deep": "#cc3a05",
       "on-primary": "#ffffff",

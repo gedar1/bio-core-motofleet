@@ -47,6 +47,20 @@ export const UserMyErrands: React.FC = () => {
                     <p className="caption mt-sm">
                       {translateStatus(e.payment_method)} · ${e.fare}
                     </p>
+                    {e.pin && (
+                      <div className="mt-md p-md bg-primary-50 rounded-lg border border-primary-200">
+                        <p className="caption text-primary-700 font-semibold">
+                          🔐 PIN de verificación:{" "}
+                          <span className="text-lg font-bold tracking-wider">
+                            {e.pin}
+                          </span>
+                        </p>
+                        <p className="text-xs text-muted mt-xs">
+                          Comparte este PIN con la persona que recibirá el
+                          paquete
+                        </p>
+                      </div>
+                    )}
                   </div>
                   {(e.status === "requested" || e.status === "accepted") && (
                     <Button

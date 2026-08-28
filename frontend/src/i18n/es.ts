@@ -15,7 +15,7 @@ export const es = {
 
   // Home
   home: {
-    hero: "Mueve lo que importa.",
+    hero: "Más que un favor, una solución",
     subtitle:
       "Solicita favores, renta motocicletas y entrega por toda la ciudad — todo desde una plataforma.",
     getStarted: "Comenzar",

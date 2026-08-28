@@ -1,5 +1,6 @@
 import type Database from "better-sqlite3";
 import { v4 as uuidv4 } from "uuid";
+import * as crypto from "node:crypto";
 import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule, PaginatedResult, Role } from "./IMolecule.js";
 import { isValidErrandTransition } from "../atoms/stateMachines.js";
@@ -16,6 +17,16 @@ import {
 import type { RoutingProvider } from "../domains/errands/RoutingProvider.js";
 
 export type ErrandType = "object_transport" | "purchase" | "errand";
+
+/**
+ * Generates a random 6-digit PIN for delivery verification.
+ * The PIN ensures secure handoff between user, rider, and recipient.
+ */
+function generatePin(): string {
+  // Generate a random 6-digit number (100000-999999)
+  const pin = crypto.randomInt(100000, 1000000);
+  return pin.toString();
+}
 
 export interface CreateErrandInput {
   type: ErrandType;
@@ -66,6 +77,7 @@ export interface Errand {
   rider_earnings_cop: number | null;
   status: ErrandState;
   payment_method: string;
+  pin: string | null;
   cancellation_reason: string | null;
   requested_at: string;
   accepted_at: string | null;
@@ -118,6 +130,7 @@ export class ErrandMolecule implements IMolecule {
     }
 
     const id = uuidv4();
+    const pin = generatePin();
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
 
     const createFromQuote = this.db.transaction(() => {
@@ -177,8 +190,8 @@ export class ErrandMolecule implements IMolecule {
 
       this.db
         .prepare(
-          `INSERT INTO errands (id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, estimated_distance_km, estimated_duration_minutes, routing_provider, routing_profile, route_calculated_at, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, requested_at, created_at, updated_at)
-           VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested', ?, ?, ?, ?)`,
+          `INSERT INTO errands (id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, estimated_distance_km, estimated_duration_minutes, routing_provider, routing_profile, route_calculated_at, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, pin, requested_at, created_at, updated_at)
+           VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested', ?, ?, ?, ?, ?)`,
         )
         .run(
           id,
@@ -204,6 +217,7 @@ export class ErrandMolecule implements IMolecule {
           quote.platform_commission_cop,
           quote.rider_earnings_cop,
           data.payment_method,
+          pin,
           now,
           now,
           now,
@@ -216,6 +230,7 @@ export class ErrandMolecule implements IMolecule {
       userId,
       quoteId: data.quote_id,
       type: data.type,
+      pin,
     });
     return this.getById(id) as Errand;
   }
@@ -571,9 +586,11 @@ export class ErrandMolecule implements IMolecule {
   }
 
   listAvailable(): Errand[] {
+    // Expose all fields EXCEPT pin for available errands
+    // The pin should only be visible to the user (owner) and the assigned rider
     return this.db
       .prepare(
-        "SELECT * FROM errands WHERE status = 'requested' ORDER BY requested_at DESC",
+        "SELECT id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, NULL as pin, cancellation_reason, requested_at, accepted_at, picked_up_at, delivered_at, cancelled_at, created_at, updated_at FROM errands WHERE status = 'requested' ORDER BY requested_at DESC",
       )
       .all() as Errand[];
   }
