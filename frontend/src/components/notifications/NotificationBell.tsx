@@ -4,12 +4,12 @@ import { useNotifications } from "../../hooks/useNotifications";
 import { NotificationList } from "./NotificationList";
 import { NotificationToast } from "./NotificationToast";
 
-const TOAST_DURATION_MS = 700_000;
+const TOAST_DURATION_MS = 7_000;
 
 export const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const toastTimeoutRef = useRef<NodeJS.Timeout>();
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const {
     notifications,
