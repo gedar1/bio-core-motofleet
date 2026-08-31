@@ -2,6 +2,10 @@ import React, { useMemo, useState } from "react";
 import { useMyErrands, useErrandActions } from "../../hooks";
 import { Card, Button, RiderRouteActions } from "../../components/ui";
 import { t, translateStatus } from "../../i18n";
+import {
+  getCurrentDateColombia,
+  formatDateColombia,
+} from "../../utils/dateFormatter";
 import type { Errand } from "../../hooks/useErrands";
 
 type DateRange = "today" | "week" | "all";
@@ -12,24 +16,138 @@ const formatCop = new Intl.NumberFormat("es-CO", {
   maximumFractionDigits: 0,
 });
 
+/**
+ * Obtiene la fecha de hoy en zona horaria de Colombia (sin hora)
+ */
+const getTodayColombia = (): string => {
+  try {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat("es-CO", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: "America/Bogota",
+    });
+
+    const parts = formatter.formatToParts(now);
+    const partMap: Record<string, string> = {};
+
+    for (const part of parts) {
+      if (part.type !== "literal") {
+        partMap[part.type] = part.value;
+      }
+    }
+
+    return `${partMap.year}-${partMap.month}-${partMap.day}`;
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
+};
+
+/**
+ * Obtiene el inicio de la semana en Colombia (como string YYYY-MM-DD)
+ */
+const getStartOfWeekColombia = (): string => {
+  try {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat("es-CO", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: "America/Bogota",
+    });
+
+    const parts = formatter.formatToParts(now);
+    const partMap: Record<string, string> = {};
+
+    for (const part of parts) {
+      if (part.type !== "literal") {
+        partMap[part.type] = part.value;
+      }
+    }
+
+    // Construir fecha de hoy en Colombia
+    const todayStr = `${partMap.year}-${partMap.month}-${partMap.day}`;
+    const today = new Date(todayStr);
+
+    // Calcular inicio de semana (domingo = 0)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+
+    // Retornar como string YYYY-MM-DD
+    const year = startOfWeek.getFullYear();
+    const month = String(startOfWeek.getMonth() + 1).padStart(2, "0");
+    const day = String(startOfWeek.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  } catch {
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+
+    const year = startOfWeek.getFullYear();
+    const month = String(startOfWeek.getMonth() + 1).padStart(2, "0");
+    const day = String(startOfWeek.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+};
+
+/**
+ * Convierte una fecha ISO a fecha de Colombia para comparación
+ */
+const getDateColombia = (dateStr: string): string => {
+  if (!dateStr) return "Sin fecha";
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "Sin fecha";
+
+    // Usar Intl.DateTimeFormat para obtener la fecha en Colombia
+    const formatter = new Intl.DateTimeFormat("es-CO", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: "America/Bogota",
+    });
+
+    const parts = formatter.formatToParts(date);
+    const partMap: Record<string, string> = {};
+
+    for (const part of parts) {
+      if (part.type !== "literal") {
+        partMap[part.type] = part.value;
+      }
+    }
+
+    return `${partMap.year}-${partMap.month}-${partMap.day}`;
+  } catch {
+    return "Sin fecha";
+  }
+};
+
 const isToday = (dateStr: string): boolean => {
-  const today = new Date().toISOString().slice(0, 10);
-  return dateStr.slice(0, 10) === today;
+  const today = getTodayColombia();
+  const errandDate = getDateColombia(dateStr);
+  return errandDate !== "Sin fecha" && errandDate === today;
 };
 
 const isThisWeek = (dateStr: string): boolean => {
-  const now = new Date();
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  startOfWeek.setHours(0, 0, 0, 0);
-  const target = new Date(dateStr.replace(" ", "T"));
-  return target >= startOfWeek;
+  const errandDate = getDateColombia(dateStr);
+  if (errandDate === "Sin fecha") return false;
+
+  const startOfWeek = getStartOfWeekColombia();
+  const today = getTodayColombia();
+
+  // Comparar strings de fecha (YYYY-MM-DD)
+  // "Esta semana" incluye desde el inicio de semana hasta hoy
+  return errandDate >= startOfWeek && errandDate <= today;
 };
 
 const groupByDate = (errands: Errand[]): Map<string, Errand[]> => {
   const groups = new Map<string, Errand[]>();
   for (const errand of errands) {
-    const dateKey = (errand.requested_at ?? "").slice(0, 10) || "Sin fecha";
+    // Usar fecha en zona horaria de Colombia
+    const dateKey = getDateColombia(errand.requested_at ?? "");
     const group = groups.get(dateKey);
     if (group) group.push(errand);
     else groups.set(dateKey, [errand]);
@@ -39,9 +157,11 @@ const groupByDate = (errands: Errand[]): Map<string, Errand[]> => {
 
 const formatDateLabel = (dateKey: string): string => {
   if (dateKey === "Sin fecha") return dateKey;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getTodayColombia();
   if (dateKey === today) return "Hoy";
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const yesterday = new Date(new Date().getTime() - 86400000)
+    .toISOString()
+    .slice(0, 10);
   if (dateKey === yesterday) return "Ayer";
   return new Date(dateKey + "T12:00:00").toLocaleDateString("es-CO", {
     weekday: "long",
@@ -263,6 +383,12 @@ export const RiderErrands: React.FC = () => {
                             </p>
                             <p className="font-body text-body-sm text-slate mt-xs">
                               {e.origin_address} → {e.destination_address}
+                            </p>
+                            <p className="caption text-muted mt-sm">
+                              📅{" "}
+                              {formatDateColombia(e.requested_at, {
+                                showSeconds: false,
+                              })}
                             </p>
                           </div>
                           <p className="font-body text-body-sm-medium text-primary whitespace-nowrap">

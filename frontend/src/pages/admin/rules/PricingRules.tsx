@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { usePricingRules } from "../../../hooks";
 import { Card, Button } from "../../../components/ui";
 import { t, translateStatus } from "../../../i18n";
+import { formatDateColombia } from "../../../utils/dateFormatter";
 
 const formatCop = (amount: number) =>
   new Intl.NumberFormat("es-CO", {
@@ -10,24 +11,6 @@ const formatCop = (amount: number) =>
     currency: "COP",
     maximumFractionDigits: 0,
   }).format(amount);
-
-// Función para formatear fechas
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "—";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleString("es-CO", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  } catch {
-    return "—";
-  }
-};
 
 export const PricingRules: React.FC = () => {
   const { rules, loading } = usePricingRules();
@@ -61,8 +44,8 @@ export const PricingRules: React.FC = () => {
                       {r.commission_percentage}%
                     </p>
                     <p className="caption text-slate mt-sm">
-                      Creado: {formatDate(r.created_at)} · Actualizado:{" "}
-                      {formatDate(r.updated_at)}
+                      Creado: {formatDateColombia(r.created_at)} · Actualizado:{" "}
+                      {formatDateColombia(r.updated_at)}
                     </p>
                   </div>
                   <span

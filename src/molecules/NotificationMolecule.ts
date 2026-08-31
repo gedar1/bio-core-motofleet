@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule } from "./IMolecule.js";
 import type { ErrandState } from "../atoms/stateMachines.js";
+import { getCurrentUtcTimestamp } from "../atoms/dateUtils.js";
 import nodemailer from "nodemailer";
 
 export interface Notification {
@@ -105,7 +106,7 @@ export class NotificationMolecule implements IMolecule {
     );
 
     const id = uuidv4();
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     this.db
       .prepare(
@@ -133,7 +134,7 @@ export class NotificationMolecule implements IMolecule {
       return 0;
     }
 
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     // Get pending notifications that are ready for send/retry
     const pending = this.db

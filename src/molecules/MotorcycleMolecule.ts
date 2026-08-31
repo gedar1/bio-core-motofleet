@@ -7,6 +7,7 @@ import {
   getValidMotorcycleTransitions,
 } from "../atoms/stateMachines.js";
 import type { MotorcycleState } from "../atoms/stateMachines.js";
+import { getCurrentUtcTimestamp } from "../atoms/dateUtils.js";
 import {
   BusinessRuleViolation,
   ConflictError,
@@ -72,7 +73,8 @@ export class MotorcycleMolecule implements IMolecule {
     }
 
     const id = uuidv4();
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    // Guardar en UTC - el frontend aplicará la zona horaria de Colombia
+    const now = getCurrentUtcTimestamp();
 
     const stmt = this.db.prepare(`
       INSERT INTO motorcycles (id, plate, brand, model, year, color, engine_cc, soat_expiry, inspection_expiry, status, created_at, updated_at)
@@ -131,7 +133,7 @@ export class MotorcycleMolecule implements IMolecule {
       return existing;
     }
 
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
     fields.push("updated_at = ?");
     values.push(now);
     values.push(id);
@@ -173,7 +175,7 @@ export class MotorcycleMolecule implements IMolecule {
       );
     }
 
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     this.db
       .prepare("UPDATE motorcycles SET status = ?, updated_at = ? WHERE id = ?")

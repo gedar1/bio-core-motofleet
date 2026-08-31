@@ -5,24 +5,10 @@ import type { Contract } from "../../../hooks/useContracts";
 import { Table, type TableColumn } from "../../../components/shared";
 import { Button } from "../../../components/ui";
 import { t, translateStatus } from "../../../i18n";
-
-// Función para formatear fechas
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "—";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleString("es-CO", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  } catch {
-    return "—";
-  }
-};
+import {
+  formatDateColombia,
+  formatDateShort,
+} from "../../../utils/dateFormatter";
 
 const contractColumns: readonly TableColumn<Contract>[] = [
   {
@@ -56,20 +42,21 @@ const contractColumns: readonly TableColumn<Contract>[] = [
   {
     id: "term",
     header: "Vigencia",
-    render: (contract) => `${contract.start_date} → ${contract.end_date}`,
+    render: (contract) =>
+      `${formatDateShort(contract.start_date)} → ${formatDateShort(contract.end_date)}`,
   },
   {
     id: "created_at",
     header: "Creado",
     render: (contract) => (
-      <span className="caption">{formatDate(contract.created_at)}</span>
+      <span className="caption">{formatDateColombia(contract.created_at)}</span>
     ),
   },
   {
     id: "updated_at",
     header: "Actualizado",
     render: (contract) => (
-      <span className="caption">{formatDate(contract.updated_at)}</span>
+      <span className="caption">{formatDateColombia(contract.updated_at)}</span>
     ),
   },
 ];
