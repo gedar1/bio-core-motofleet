@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useMetrics, type PeriodType } from "../../../hooks";
 import { Card, Button } from "../../../components/ui";
 import { t, translateStatus } from "../../../i18n";
+import { formatDateShort } from "../../../utils/dateFormatter";
 
 export const Metrics: React.FC = () => {
   const [period, setPeriod] = useState<PeriodType>("monthly");
@@ -50,7 +51,8 @@ export const Metrics: React.FC = () => {
 
         {metrics.period && (
           <p className="caption text-slate mb-2xl">
-            Período: {metrics.period.start_date} a {metrics.period.end_date}
+            Período: {formatDateShort(metrics.period.start_date)} a{" "}
+            {formatDateShort(metrics.period.end_date)}
           </p>
         )}
 

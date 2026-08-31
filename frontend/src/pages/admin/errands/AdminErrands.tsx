@@ -4,6 +4,7 @@ import type { Errand } from "../../../hooks/useErrands";
 import { Table, type TableColumn } from "../../../components/shared";
 import { Button } from "../../../components/ui";
 import { t, translateStatus } from "../../../i18n";
+import { formatDateColombia } from "../../../utils/dateFormatter";
 
 const statusBadgeClass: Record<string, string> = {
   requested: "badge-requested",
@@ -11,24 +12,6 @@ const statusBadgeClass: Record<string, string> = {
   picked_up: "badge-picked-up",
   delivered: "badge-delivered",
   cancelled: "badge-cancelled",
-};
-
-// Función para formatear fechas
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "—";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleString("es-CO", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  } catch {
-    return "—";
-  }
 };
 
 const errandColumns: readonly TableColumn<Errand>[] = [
@@ -82,35 +65,35 @@ const errandColumns: readonly TableColumn<Errand>[] = [
     id: "requested_at",
     header: "Solicitado",
     render: (errand) => (
-      <span className="caption">{formatDate(errand.requested_at)}</span>
+      <span className="caption">{formatDateColombia(errand.requested_at)}</span>
     ),
   },
   {
     id: "accepted_at",
     header: "Aceptado",
     render: (errand) => (
-      <span className="caption">{formatDate(errand.accepted_at)}</span>
+      <span className="caption">{formatDateColombia(errand.accepted_at)}</span>
     ),
   },
   {
     id: "picked_up_at",
     header: "Recogido",
     render: (errand) => (
-      <span className="caption">{formatDate(errand.picked_up_at)}</span>
+      <span className="caption">{formatDateColombia(errand.picked_up_at)}</span>
     ),
   },
   {
     id: "delivered_at",
     header: "Entregado",
     render: (errand) => (
-      <span className="caption">{formatDate(errand.delivered_at)}</span>
+      <span className="caption">{formatDateColombia(errand.delivered_at)}</span>
     ),
   },
   {
     id: "cancelled_at",
     header: "Cancelado",
     render: (errand) => (
-      <span className="caption">{formatDate(errand.cancelled_at)}</span>
+      <span className="caption">{formatDateColombia(errand.cancelled_at)}</span>
     ),
   },
 ];

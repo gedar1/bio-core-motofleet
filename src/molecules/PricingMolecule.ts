@@ -2,6 +2,7 @@ import type Database from "better-sqlite3";
 import { v4 as uuidv4 } from "uuid";
 import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule } from "./IMolecule.js";
+import { getCurrentUtcTimestamp } from "../atoms/dateUtils.js";
 import { NotFoundError, ValidationError } from "../domains/errors.js";
 
 export type ErrandType = "object_transport" | "purchase" | "errand";
@@ -74,7 +75,7 @@ export class PricingMolecule implements IMolecule {
     }
 
     const id = uuidv4();
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     const createRule = this.db.transaction(() => {
       this.db
@@ -120,7 +121,7 @@ export class PricingMolecule implements IMolecule {
       throw new NotFoundError("Pricing rule", ruleId);
     }
 
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     this.db
       .prepare(

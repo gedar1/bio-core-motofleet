@@ -4,6 +4,7 @@ import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule, PaginatedResult } from "./IMolecule.js";
 import { isValidContractTransition } from "../atoms/stateMachines.js";
 import type { ContractState } from "../atoms/stateMachines.js";
+import { getCurrentUtcTimestamp } from "../atoms/dateUtils.js";
 import {
   BusinessRuleViolation,
   ConflictError,
@@ -128,7 +129,7 @@ export class ContractMolecule implements IMolecule {
     }
 
     const id = uuidv4();
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     this.db
       .prepare(
@@ -177,7 +178,7 @@ export class ContractMolecule implements IMolecule {
       );
     }
 
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     this.db
       .prepare(
@@ -219,7 +220,7 @@ export class ContractMolecule implements IMolecule {
       );
     }
 
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     this.db
       .prepare(
@@ -233,7 +234,7 @@ export class ContractMolecule implements IMolecule {
   }
 
   expireOverdue(): number {
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
     const today = now.substring(0, 10);
 
     const overdueContracts = this.db

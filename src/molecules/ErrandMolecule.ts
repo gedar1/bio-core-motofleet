@@ -6,6 +6,7 @@ import type { IMolecule, PaginatedResult, Role } from "./IMolecule.js";
 import { isValidErrandTransition } from "../atoms/stateMachines.js";
 import type { ErrandState } from "../atoms/stateMachines.js";
 import { calculateFare } from "../atoms/tarifa.js";
+import { getCurrentUtcTimestamp } from "../atoms/dateUtils.js";
 import {
   BusinessRuleViolation,
   ConflictError,
@@ -131,7 +132,7 @@ export class ErrandMolecule implements IMolecule {
 
     const id = uuidv4();
     const pin = generatePin();
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     const createFromQuote = this.db.transaction(() => {
       const quote = this.db
@@ -401,7 +402,7 @@ export class ErrandMolecule implements IMolecule {
       throw new InvalidStateTransition("Errand", errand.status, "accepted");
     }
 
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     this.db
       .prepare(
@@ -437,7 +438,7 @@ export class ErrandMolecule implements IMolecule {
       );
     }
 
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     this.db
       .prepare(
@@ -469,7 +470,7 @@ export class ErrandMolecule implements IMolecule {
       );
     }
 
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     this.db
       .prepare(
@@ -529,7 +530,7 @@ export class ErrandMolecule implements IMolecule {
       }
     }
 
-    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const now = getCurrentUtcTimestamp();
 
     this.db
       .prepare(
