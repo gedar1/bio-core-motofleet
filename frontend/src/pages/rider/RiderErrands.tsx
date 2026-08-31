@@ -2,10 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useMyErrands, useErrandActions } from "../../hooks";
 import { Card, Button, RiderRouteActions } from "../../components/ui";
 import { t, translateStatus } from "../../i18n";
-import {
-  getCurrentDateColombia,
-  formatDateColombia,
-} from "../../utils/dateFormatter";
+import { formatDateColombia } from "../../utils/dateFormatter";
 import type { Errand } from "../../hooks/useErrands";
 
 type DateRange = "today" | "week" | "all";
