@@ -28,7 +28,8 @@ export class NotFoundError extends DomainError {
 }
 
 export class ValidationError extends DomainError {
-  readonly code = "VALIDATION_ERROR";
+  /** Subclasses may expose a more specific validation code while retaining HTTP 400. */
+  readonly code: string = "VALIDATION_ERROR";
   readonly details?: Record<string, string[]>;
 
   constructor(message: string, details?: Record<string, string[]>) {
@@ -64,5 +65,6 @@ export class UnauthorizedError extends DomainError {
 }
 
 export class ConflictError extends DomainError {
-  readonly code = "CONFLICT";
+  /** Subclasses may expose a more specific conflict code while retaining HTTP 409. */
+  readonly code: string = "CONFLICT";
 }

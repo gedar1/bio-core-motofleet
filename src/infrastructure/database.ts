@@ -16,8 +16,13 @@ export function createDatabase(dbPath: string): Database.Database {
   }
 
   const db = new Database(dbPath);
+  db.pragma("foreign_keys = ON");
   db.pragma("journal_mode = WAL");
-  log.info("Database connection opened", { path: dbPath, mode: "WAL" });
+  log.info("Database connection opened", {
+    path: dbPath,
+    mode: "WAL",
+    foreignKeys: true,
+  });
   return db;
 }
 

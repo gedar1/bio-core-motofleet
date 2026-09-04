@@ -1,0 +1,736 @@
+--- biocore_application_components
+Name | Layer | Kind | File | Contract | Purpose
+MoleculeContainer | Composition | interface | src/app.ts | - | -
+createApp | Composition | function | src/app.ts | - | -
+getCurrentUtcTimestamp | Atom | function | src/atoms/dateUtils.ts | - | -
+getCurrentUtcTimestampSqlite | Atom | function | src/atoms/dateUtils.ts | - | -
+toUtcIso | Atom | function | src/atoms/dateUtils.ts | - | -
+toUtcSqlite | Atom | function | src/atoms/dateUtils.ts | - | -
+normalizeDocumentFilename | Atom | function | src/atoms/documentFilename.ts | - | -
+toRadians | Atom | function | src/atoms/haversine.ts | - | -
+haversineDistance | Atom | function | src/atoms/haversine.ts | - | -
+hashPassword | Atom | function | src/atoms/password.ts | - | -
+verifyPassword | Atom | function | src/atoms/password.ts | - | -
+isValidPassword | Atom | function | src/atoms/password.ts | - | -
+LoginInput | Atom | type | src/atoms/schemas/auth.schemas.ts | - | -
+loginSchema | Atom | const | src/atoms/schemas/auth.schemas.ts | - | -
+emailSchema | Atom | const | src/atoms/schemas/base.schemas.ts | - | -
+phoneSchema | Atom | const | src/atoms/schemas/base.schemas.ts | - | -
+passwordSchema | Atom | const | src/atoms/schemas/base.schemas.ts | - | -
+futureDateSchema | Atom | const | src/atoms/schemas/base.schemas.ts | - | -
+latitudeSchema | Atom | const | src/atoms/schemas/base.schemas.ts | - | -
+longitudeSchema | Atom | const | src/atoms/schemas/base.schemas.ts | - | -
+CreateContractInput | Atom | type | src/atoms/schemas/contract.schemas.ts | - | -
+createContractSchema | Atom | const | src/atoms/schemas/contract.schemas.ts | - | -
+SignatureCaseParams | Atom | type | src/atoms/schemas/contractSignature.schemas.ts | - | -
+ContractSignatureCaseParams | Atom | type | src/atoms/schemas/contractSignature.schemas.ts | - | -
+DocumentVersionParams | Atom | type | src/atoms/schemas/contractSignature.schemas.ts | - | -
+PublicSignatureLinkParams | Atom | type | src/atoms/schemas/contractSignature.schemas.ts | - | -
+ManualVerificationInput | Atom | type | src/atoms/schemas/contractSignature.schemas.ts | - | -
+ApprovalInput | Atom | type | src/atoms/schemas/contractSignature.schemas.ts | - | -
+RejectionInput | Atom | type | src/atoms/schemas/contractSignature.schemas.ts | - | -
+ReviewQueueQuery | Atom | type | src/atoms/schemas/contractSignature.schemas.ts | - | -
+AuditPaginationQuery | Atom | type | src/atoms/schemas/contractSignature.schemas.ts | - | -
+uuidSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+signatureCaseIdSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+documentVersionIdSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+signatureLinkTokenSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+signatureCaseParamsSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+contractSignatureCaseParamsSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+documentVersionParamsSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+publicSignatureLinkParamsSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+reviewStartSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+manualVerificationSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+approvalSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+rejectionSchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+reviewQueueQuerySchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+auditPaginationQuerySchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+signatureCaseDetailQuerySchema | Atom | const | src/atoms/schemas/contractSignature.schemas.ts | - | -
+CreateCosignerInput | Atom | type | src/atoms/schemas/cosigner.schemas.ts | - | -
+createCosignerSchema | Atom | const | src/atoms/schemas/cosigner.schemas.ts | - | -
+CreateErrandInput | Atom | type | src/atoms/schemas/errand.schemas.ts | - | -
+RouteEstimateRequest | Atom | type | src/atoms/schemas/errand.schemas.ts | - | -
+routeCoordinatesSchema | Atom | const | src/atoms/schemas/errand.schemas.ts | - | -
+routeEstimateRequestSchema | Atom | const | src/atoms/schemas/errand.schemas.ts | - | -
+quoteErrandRequestSchema | Atom | const | src/atoms/schemas/errand.schemas.ts | - | -
+createErrandSchema | Atom | const | src/atoms/schemas/errand.schemas.ts | - | -
+index | Atom | module | src/atoms/schemas/index.ts | - | -
+CreateMotorcycleInput | Atom | type | src/atoms/schemas/motorcycle.schemas.ts | - | -
+createMotorcycleSchema | Atom | const | src/atoms/schemas/motorcycle.schemas.ts | - | -
+CreatePaymentInput | Atom | type | src/atoms/schemas/payment.schemas.ts | - | -
+createPaymentSchema | Atom | const | src/atoms/schemas/payment.schemas.ts | - | -
+must | Atom | type | src/atoms/schemas/pricing.schemas.ts | - | -
+CreatePricingRuleInput | Atom | type | src/atoms/schemas/pricing.schemas.ts | - | -
+createPricingRuleSchema | Atom | const | src/atoms/schemas/pricing.schemas.ts | - | -
+RiderDocumentType | Atom | type | src/atoms/schemas/rider.schemas.ts | - | -
+must | Atom | type | src/atoms/schemas/rider.schemas.ts | - | -
+CreateRiderInput | Atom | type | src/atoms/schemas/rider.schemas.ts | - | -
+riderDocumentTypes | Atom | const | src/atoms/schemas/rider.schemas.ts | - | -
+documentTypeSchema | Atom | const | src/atoms/schemas/rider.schemas.ts | - | -
+documentNumberSchema | Atom | const | src/atoms/schemas/rider.schemas.ts | - | -
+createRiderSchema | Atom | const | src/atoms/schemas/rider.schemas.ts | - | -
+CreateUserInput | Atom | type | src/atoms/schemas/user.schemas.ts | - | -
+createUserSchema | Atom | const | src/atoms/schemas/user.schemas.ts | - | -
+schemas | Atom | module | src/atoms/schemas.ts | - | -
+MotorcycleState | Atom | type | src/atoms/stateMachines.ts | - | -
+ContractState | Atom | type | src/atoms/stateMachines.ts | - | -
+ErrandState | Atom | type | src/atoms/stateMachines.ts | - | -
+isValidMotorcycleTransition | Atom | function | src/atoms/stateMachines.ts | - | -
+isValidContractTransition | Atom | function | src/atoms/stateMachines.ts | - | -
+isValidErrandTransition | Atom | function | src/atoms/stateMachines.ts | - | -
+getValidMotorcycleTransitions | Atom | function | src/atoms/stateMachines.ts | - | -
+getValidErrandTransitions | Atom | function | src/atoms/stateMachines.ts | - | -
+PricingInput | Atom | interface | src/atoms/tarifa.ts | - | -
+PricingResult | Atom | interface | src/atoms/tarifa.ts | - | -
+roundHalfUp | Atom | function | src/atoms/tarifa.ts | - | -
+assertSafeInteger | Atom | function | src/atoms/tarifa.ts | - | -
+calculateFare | Atom | function | src/atoms/tarifa.ts | - | -
+DocumentStatus | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+FormalizationStatus | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+DeliveryAttention | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+DocumentVersionKind | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+DocumentStorageStatus | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+ContractSignatureActorType | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+VerificationResult | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+DeliveryStatus | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+OutboxStatus | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+ContractEmailEventType | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+ContractAuditEventType | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+AuditResult | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+PdfValidationCode | Domain | type | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+PdfValidationError | Domain | class | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+getValidDocumentTransitions | Domain | function | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+isValidDocumentTransition | Domain | function | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+getValidFormalizationTransitions | Domain | function | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+isValidFormalizationTransition | Domain | function | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+ContractSignatureStateConflictError | Domain | class | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+assertDocumentTransition | Domain | function | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+assertFormalizationTransition | Domain | function | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+DOCUMENT_STATUSES | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+FORMALIZATION_STATUSES | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+DELIVERY_ATTENTIONS | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+DOCUMENT_VERSION_KINDS | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+DOCUMENT_STORAGE_STATUSES | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+CONTRACT_SIGNATURE_ACTOR_TYPES | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+VERIFICATION_RESULTS | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+DELIVERY_STATUSES | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+OUTBOX_STATUSES | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+CONTRACT_EMAIL_EVENT_TYPES | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+CONTRACT_AUDIT_EVENT_TYPES | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+AUDIT_RESULTS | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+PDF_VALIDATION_CODES | Domain | const | src/domains/contractSignature.ts | extends ValidationError,extends ConflictError | -
+RouteEstimateRequest | Domain | interface | src/domains/errands/route.dto.ts | - | -
+RouteEstimateResponse | Domain | interface | src/domains/errands/route.dto.ts | - | -
+RoutingProviderName | Domain | type | src/domains/errands/RoutingProvider.ts | - | -
+RoutingProfile | Domain | type | src/domains/errands/RoutingProvider.ts | - | -
+Coordinates | Domain | interface | src/domains/errands/RoutingProvider.ts | - | -
+RouteGeometry | Domain | interface | src/domains/errands/RoutingProvider.ts | - | -
+RouteEstimate | Domain | interface | src/domains/errands/RoutingProvider.ts | - | -
+RoutingProvider | Domain | interface | src/domains/errands/RoutingProvider.ts | - | -
+to | Domain | class | src/domains/errors.ts | extends Error,extends DomainError | -
+DomainError | Domain | class | src/domains/errors.ts | extends Error,extends DomainError | -
+NotFoundError | Domain | class | src/domains/errors.ts | extends Error,extends DomainError | -
+ValidationError | Domain | class | src/domains/errors.ts | extends Error,extends DomainError | -
+BusinessRuleViolation | Domain | class | src/domains/errors.ts | extends Error,extends DomainError | -
+InvalidStateTransition | Domain | class | src/domains/errors.ts | extends Error,extends DomainError | -
+ForbiddenError | Domain | class | src/domains/errors.ts | extends Error,extends DomainError | -
+UnauthorizedError | Domain | class | src/domains/errors.ts | extends Error,extends DomainError | -
+ConflictError | Domain | class | src/domains/errors.ts | extends Error,extends DomainError | -
+Database | Composition | type | src/index.ts | - | -
+MoleculeContainer | Composition | type | src/index.ts | - | -
+ApplicationStartupStep | Composition | type | src/index.ts | - | -
+ApplicationOptions | Composition | interface | src/index.ts | - | -
+ApplicationRuntime | Composition | interface | src/index.ts | - | -
+guarantees | Composition | function | src/index.ts | - | -
+createApplication | Composition | function | src/index.ts | - | -
+main | Composition | function | src/index.ts | - | -
+DownloadableStatus | Infrastructure | type | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+BackupCapacityEstimate | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+BackupVersionEntry | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+BackupObjectEntry | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+BackupManifest | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+BackupRestoreIncident | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+RestoreActivationContext | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+RestoreOptions | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+RestoreReport | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+BackupCoordinatorOptions | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+VersionRow | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+RestoreVersionRow | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+VersionIssue | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+BackupInventory | Infrastructure | interface | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+BackupCoordinatorError | Infrastructure | class | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+BackupIntegrityError | Infrastructure | class | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+BackupCoordinator | Infrastructure | class | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+isCapacityGuard | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+isDownloadableStatus | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+assertStorageKey | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+assertMetadataMatches | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+assertUniqueVersionReferences | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+assertUniqueObjects | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+toManifestVersion | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+toManifestObject | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+readVersionRows | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+readRestoreVersionRows | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+assertSameVersionSnapshot | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+fingerprintVersions | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+validateManifestVersion | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+duplicateRowsByKey | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+groupManifestEntries | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+copyStorageObject | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+copyReadableExclusive | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+copyFileExclusive | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+fileMetadata | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+writeClosedManifest | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+readClosedManifest | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+prepareEmptyDirectory | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+safeManifestPath | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+safeManifestObjectPath | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+restoreReason | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+normalizeBackupError | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+isRecord | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+defaultWriteWindow | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+assertBackupComponents | Infrastructure | function | src/infrastructure/BackupCoordinator.ts | extends Error,extends BackupCoordinatorError | -
+Database | Infrastructure | type | src/infrastructure/ContractAuditService.ts | - | -
+AuditResult | Infrastructure | type | src/infrastructure/ContractAuditService.ts | - | -
+ContractAuditEventType | Infrastructure | type | src/infrastructure/ContractAuditService.ts | - | -
+ContractSignatureActorType | Infrastructure | type | src/infrastructure/ContractAuditService.ts | - | -
+ContractAuditActor | Infrastructure | interface | src/infrastructure/ContractAuditService.ts | - | -
+RecordContractAuditEventInput | Infrastructure | interface | src/infrastructure/ContractAuditService.ts | - | -
+ContractAuditEvent | Infrastructure | interface | src/infrastructure/ContractAuditService.ts | - | -
+ContractAuditPage | Infrastructure | interface | src/infrastructure/ContractAuditService.ts | - | -
+ContractAuditServiceOptions | Infrastructure | interface | src/infrastructure/ContractAuditService.ts | - | -
+ContractAuditEventRow | Infrastructure | interface | src/infrastructure/ContractAuditService.ts | - | -
+AuditCursor | Infrastructure | interface | src/infrastructure/ContractAuditService.ts | - | -
+ContractAuditService | Infrastructure | class | src/infrastructure/ContractAuditService.ts | - | -
+sanitizeAuditMetadata | Infrastructure | function | src/infrastructure/ContractAuditService.ts | - | -
+sanitizeObject | Infrastructure | function | src/infrastructure/ContractAuditService.ts | - | -
+sanitizeValue | Infrastructure | function | src/infrastructure/ContractAuditService.ts | - | -
+normalizeErrorCode | Infrastructure | function | src/infrastructure/ContractAuditService.ts | - | -
+sanitizeErrorMessage | Infrastructure | function | src/infrastructure/ContractAuditService.ts | - | -
+parseMetadata | Infrastructure | function | src/infrastructure/ContractAuditService.ts | - | -
+normalizeLimit | Infrastructure | function | src/infrastructure/ContractAuditService.ts | - | -
+encodeCursor | Infrastructure | function | src/infrastructure/ContractAuditService.ts | - | -
+decodeCursor | Infrastructure | function | src/infrastructure/ContractAuditService.ts | - | -
+RepositoryCapacityStatus | Infrastructure | interface | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+CapacityGuard | Infrastructure | interface | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+RepositoryConfigurationError | Infrastructure | class | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+RepositoryCapacityError | Infrastructure | class | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+RepositoryCapacityMonitorOptions | Infrastructure | interface | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+RepositoryCapacityMonitor | Infrastructure | class | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+ContractDocumentRepositoryConfiguration | Infrastructure | interface | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+parsePositiveInteger | Infrastructure | function | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+parseThresholds | Infrastructure | function | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+readContractDocumentRepositoryConfiguration | Infrastructure | function | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+DEFAULT_CAPACITY_THRESHOLDS | Infrastructure | const | src/infrastructure/ContractDocumentRepository.ts | CapacityGuard,extends Error | -
+Database | Infrastructure | type | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+ContractEmailEventType | Infrastructure | type | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+ContractEmailProcessingError | Infrastructure | class | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+ContractEmailServiceOptions | Infrastructure | interface | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+ContractEmailQueueRow | Infrastructure | interface | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+RenderedContractEmail | Infrastructure | interface | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+ContractEmailSendResult | Infrastructure | interface | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+ContractEmailPayload | Infrastructure | type | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+ContractEmailService | Infrastructure | class | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+html | Infrastructure | type | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+are | Infrastructure | type | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+isContractEmailEventType | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+asPayload | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+requiredText | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+optionalText | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+normalizeDynamicText | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+normalizeIdentifier | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+normalizeCiphertext | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+normalizeRecipient | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+normalizeHeader | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+normalizeBaseUrl | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+safeLink | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+escapeHtml | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+plainText | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+parsePort | Infrastructure | function | src/infrastructure/ContractEmailService.ts | ContractEmailServiceContract,extends Error,extends ContractEmailQueueInput | -
+Database | Infrastructure | type | src/infrastructure/ContractEmailWorker.ts | - | -
+ProcessingStatus | Infrastructure | type | src/infrastructure/ContractEmailWorker.ts | - | -
+ContractEmailQueueDbRow | Infrastructure | interface | src/infrastructure/ContractEmailWorker.ts | - | -
+ClaimedEmail | Infrastructure | interface | src/infrastructure/ContractEmailWorker.ts | - | -
+ContractEmailWorkerOptions | Infrastructure | interface | src/infrastructure/ContractEmailWorker.ts | - | -
+ContractEmailDeliveryPort | Infrastructure | interface | src/infrastructure/ContractEmailWorker.ts | - | -
+ContractEmailWorker | Infrastructure | class | src/infrastructure/ContractEmailWorker.ts | - | -
+toQueueInput | Infrastructure | function | src/infrastructure/ContractEmailWorker.ts | - | -
+normalizePositiveMinutes | Infrastructure | function | src/infrastructure/ContractEmailWorker.ts | - | -
+normalizePositiveInteger | Infrastructure | function | src/infrastructure/ContractEmailWorker.ts | - | -
+readProcessingTimeoutMinutes | Infrastructure | function | src/infrastructure/ContractEmailWorker.ts | - | -
+CONTRACT_EMAIL_MAX_ATTEMPTS | Infrastructure | const | src/infrastructure/ContractEmailWorker.ts | - | -
+CONTRACT_EMAIL_RETRY_DELAY_MS | Infrastructure | const | src/infrastructure/ContractEmailWorker.ts | - | -
+DEFAULT_PROCESSING_TIMEOUT_MINUTES | Infrastructure | const | src/infrastructure/ContractEmailWorker.ts | - | -
+Database | Infrastructure | type | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+ContractExpirationOutbox | Infrastructure | interface | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+ContractSignatureSchedulerMetrics | Infrastructure | interface | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+ContractSignatureSchedulerJobsOptions | Infrastructure | interface | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+ContractSignatureSchedulerJobsDependencies | Infrastructure | interface | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+ExpiredAttemptRow | Infrastructure | interface | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+SignatureCaseRow | Infrastructure | interface | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+QueueAdminRow | Infrastructure | interface | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+ContractSignatureSchedulerJobs | Infrastructure | class | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+SchedulerIntervals | Infrastructure | interface | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+readSchedulerIntervals | Infrastructure | function | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+readInterval | Infrastructure | function | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+readStorageRetentionPolicy | Infrastructure | function | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+readNonNegativeInterval | Infrastructure | function | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+readRetentionAction | Infrastructure | function | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+RegisterContractSignatureJobsOptions | Infrastructure | interface | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+only | Infrastructure | function | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+registerContractSignatureJobs | Infrastructure | function | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+CONTRACT_EMAIL_WORKER_INTERVAL_MS | Infrastructure | const | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+CONTRACT_SIGNATURE_EXPIRATION_INTERVAL_MS | Infrastructure | const | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+DEFAULT_STORAGE_RECONCILIATION_INTERVAL_MS | Infrastructure | const | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+DEFAULT_STORAGE_CAPACITY_INTERVAL_MS | Infrastructure | const | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+DEFAULT_STORAGE_RETENTION_POLICY | Infrastructure | const | src/infrastructure/ContractSignatureScheduler.ts | extends ContractSignatureSchedulerJobsOptions,extends readonly | -
+createDatabase | Infrastructure | function | src/infrastructure/database.ts | - | -
+runMigrations | Infrastructure | function | src/infrastructure/database.ts | - | -
+getDatabase | Infrastructure | function | src/infrastructure/database.ts | - | -
+closeDatabase | Infrastructure | function | src/infrastructure/database.ts | - | -
+DownloadableStorageStatus | Infrastructure | type | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+DocumentMetadata | Infrastructure | interface | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+TemporaryDocument | Infrastructure | interface | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+StoredDocument | Infrastructure | interface | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+StoredDocumentEntry | Infrastructure | interface | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+TemporaryDocumentEntry | Infrastructure | interface | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+RetentionDeletionRequest | Infrastructure | interface | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+DocumentStorage | Infrastructure | interface | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+DocumentStorageError | Infrastructure | class | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+DocumentStorageLimitError | Infrastructure | class | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+createStorageKey | Infrastructure | function | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+createTemporaryKey | Infrastructure | function | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+isSafeKey | Infrastructure | function | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+isWithin | Infrastructure | function | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+PrivateFilesystemStorageOptions | Infrastructure | interface | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+PrivateFilesystemDocumentStorage | Infrastructure | class | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+MAX_CONTRACT_DOCUMENT_BYTES | Infrastructure | const | src/infrastructure/DocumentStorage.ts | DocumentStorage,extends DocumentMetadata,extends StoredDocument,extends TemporaryDocument,extends Error,extends DocumentStorageError | -
+S3ObjectClient | Infrastructure | type | src/infrastructure/DocumentStorageFactory.ts | - | -
+DocumentStorageProvider | Infrastructure | type | src/infrastructure/DocumentStorageFactory.ts | - | -
+ConfiguredDocumentStorage | Infrastructure | interface | src/infrastructure/DocumentStorageFactory.ts | - | -
+DocumentStorageFactoryOptions | Infrastructure | interface | src/infrastructure/DocumentStorageFactory.ts | - | -
+createConfiguredDocumentStorage | Infrastructure | function | src/infrastructure/DocumentStorageFactory.ts | - | -
+createConfiguredS3DocumentStorage | Infrastructure | function | src/infrastructure/DocumentStorageFactory.ts | - | -
+readProvider | Infrastructure | function | src/infrastructure/DocumentStorageFactory.ts | - | -
+DocumentMetadata | Infrastructure | type | src/infrastructure/DocumentStorageMigration.ts | - | -
+DocumentStorage | Infrastructure | type | src/infrastructure/DocumentStorageMigration.ts | - | -
+DownloadableStorageStatus | Infrastructure | type | src/infrastructure/DocumentStorageMigration.ts | - | -
+StorageReconciliationReport | Infrastructure | type | src/infrastructure/DocumentStorageMigration.ts | - | -
+StorageRetentionPolicy | Infrastructure | type | src/infrastructure/DocumentStorageMigration.ts | - | -
+VersionRow | Infrastructure | interface | src/infrastructure/DocumentStorageMigration.ts | - | -
+MigrationVersionResultStatus | Infrastructure | type | src/infrastructure/DocumentStorageMigration.ts | - | -
+MigrationVersionResult | Infrastructure | interface | src/infrastructure/DocumentStorageMigration.ts | - | -
+DocumentStorageMigrationOptions | Infrastructure | interface | src/infrastructure/DocumentStorageMigration.ts | - | -
+DocumentStorageMigrationReport | Infrastructure | interface | src/infrastructure/DocumentStorageMigration.ts | - | -
+DocumentStorageMigration | Infrastructure | class | src/infrastructure/DocumentStorageMigration.ts | - | -
+isDownloadableStorageStatus | Infrastructure | function | src/infrastructure/DocumentStorageMigration.ts | - | -
+sameMetadata | Infrastructure | function | src/infrastructure/DocumentStorageMigration.ts | - | -
+withSqliteWritesPaused | Infrastructure | function | src/infrastructure/DocumentStorageMigration.ts | - | -
+emptyReconciliationReport | Infrastructure | function | src/infrastructure/DocumentStorageMigration.ts | - | -
+PinoLogger | Infrastructure | type | src/infrastructure/logger.ts | ILogger | -
+PinoStream | Infrastructure | type | src/infrastructure/logger.ts | ILogger | -
+PinoFactory | Infrastructure | type | src/infrastructure/logger.ts | ILogger | -
+decoupled | Infrastructure | interface | src/infrastructure/logger.ts | ILogger | -
+ILogger | Infrastructure | interface | src/infrastructure/logger.ts | ILogger | -
+LoggerCore | Infrastructure | interface | src/infrastructure/logger.ts | ILogger | -
+loggerLevel | Infrastructure | function | src/infrastructure/logger.ts | ILogger | -
+createLoggerCore | Infrastructure | function | src/infrastructure/logger.ts | ILogger | -
+createPostShutdownLogger | Infrastructure | function | src/infrastructure/logger.ts | ILogger | -
+LoggerRegistry | Infrastructure | class | src/infrastructure/logger.ts | ILogger | -
+startLoggerLifecycle | Infrastructure | function | src/infrastructure/logger.ts | ILogger | -
+shutdownLoggerLifecycle | Infrastructure | function | src/infrastructure/logger.ts | ILogger | -
+flushAndCloseTransport | Infrastructure | function | src/infrastructure/logger.ts | ILogger | -
+PinoLoggerAdapter | Infrastructure | class | src/infrastructure/logger.ts | ILogger | -
+createLogger | Infrastructure | function | src/infrastructure/logger.ts | ILogger | -
+MultipartUploadErrorCode | Infrastructure | type | src/infrastructure/multipartUpload.ts | extends Error | -
+MultipartUploadError | Infrastructure | class | src/infrastructure/multipartUpload.ts | extends Error | -
+MultipartFileUpload | Infrastructure | interface | src/infrastructure/multipartUpload.ts | extends Error | -
+parseSingleMultipartFile | Infrastructure | function | src/infrastructure/multipartUpload.ts | extends Error | -
+parseMultipartBody | Infrastructure | function | src/infrastructure/multipartUpload.ts | extends Error | -
+extractBoundary | Infrastructure | function | src/infrastructure/multipartUpload.ts | extends Error | -
+parseHeaders | Infrastructure | function | src/infrastructure/multipartUpload.ts | extends Error | -
+getParameter | Infrastructure | function | src/infrastructure/multipartUpload.ts | extends Error | -
+invalidMultipart | Infrastructure | function | src/infrastructure/multipartUpload.ts | extends Error | -
+PdfValidationCode | Infrastructure | type | src/infrastructure/PdfValidator.ts | - | -
+PdfValidationInput | Infrastructure | interface | src/infrastructure/PdfValidator.ts | - | -
+ValidatedPdf | Infrastructure | interface | src/infrastructure/PdfValidator.ts | - | -
+PdfValidator | Infrastructure | class | src/infrastructure/PdfValidator.ts | - | -
+normalizePdfMimeType | Infrastructure | function | src/infrastructure/PdfValidator.ts | - | -
+hasPdfTrailer | Infrastructure | function | src/infrastructure/PdfValidator.ts | - | -
+MAX_PDF_BYTES | Infrastructure | const | src/infrastructure/PdfValidator.ts | - | -
+PDF_MIME_TYPE | Infrastructure | const | src/infrastructure/PdfValidator.ts | - | -
+RoutingFailureReason | Infrastructure | type | src/infrastructure/routing/MapboxRoutingProvider.ts | RoutingProvider,extends Error | -
+MapboxRoutingError | Infrastructure | class | src/infrastructure/routing/MapboxRoutingProvider.ts | RoutingProvider,extends Error | -
+MapboxRequest | Infrastructure | interface | src/infrastructure/routing/MapboxRoutingProvider.ts | RoutingProvider,extends Error | -
+MapboxDirectionsService | Infrastructure | interface | src/infrastructure/routing/MapboxRoutingProvider.ts | RoutingProvider,extends Error | -
+MapboxDirectionsServiceFactory | Infrastructure | type | src/infrastructure/routing/MapboxRoutingProvider.ts | RoutingProvider,extends Error | -
+MapboxDirectionsResponse | Infrastructure | interface | src/infrastructure/routing/MapboxRoutingProvider.ts | RoutingProvider,extends Error | -
+MapboxRoutingProvider | Infrastructure | class | src/infrastructure/routing/MapboxRoutingProvider.ts | RoutingProvider,extends Error | -
+DocumentMetadata | Infrastructure | type | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+DocumentStorage | Infrastructure | type | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+DownloadableStorageStatus | Infrastructure | type | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+RetentionDeletionRequest | Infrastructure | type | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+StoredDocument | Infrastructure | type | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+StoredDocumentEntry | Infrastructure | type | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+TemporaryDocument | Infrastructure | type | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+TemporaryDocumentEntry | Infrastructure | type | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+S3Directory | Infrastructure | type | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+S3ObjectClient | Infrastructure | interface | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+S3ObjectInfo | Infrastructure | interface | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+S3ListedObject | Infrastructure | interface | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+S3CompatibleDocumentStorageOptions | Infrastructure | interface | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+S3CompatibleDocumentStorage | Infrastructure | class | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+normalizePrefix | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+createTemporaryKey | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+assertStorageKey | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+assertTemporaryKey | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+assertRetentionExpired | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+assertMetadata | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+sameMetadata | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+readBounded | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+toReadable | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+isConflict | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+isNotFound | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+normalizeStorageError | Infrastructure | function | src/infrastructure/S3CompatibleDocumentStorage.ts | DocumentStorage | -
+S3ClientConfig | Infrastructure | type | src/infrastructure/S3ObjectClient.ts | S3ObjectClient | -
+AwsS3CompatibleClientOptions | Infrastructure | interface | src/infrastructure/S3ObjectClient.ts | S3ObjectClient | -
+AwsS3CompatibleObjectClient | Infrastructure | class | src/infrastructure/S3ObjectClient.ts | S3ObjectClient | -
+createAwsS3CompatibleObjectClientFromEnvironment | Infrastructure | function | src/infrastructure/S3ObjectClient.ts | S3ObjectClient | -
+parseDate | Infrastructure | function | src/infrastructure/S3ObjectClient.ts | S3ObjectClient | -
+isNotFound | Infrastructure | function | src/infrastructure/S3ObjectClient.ts | S3ObjectClient | -
+SchedulerClock | Infrastructure | type | src/infrastructure/scheduler.ts | - | -
+SchedulerTimerHandle | Infrastructure | type | src/infrastructure/scheduler.ts | - | -
+SchedulerTimers | Infrastructure | interface | src/infrastructure/scheduler.ts | - | -
+SchedulerOptions | Infrastructure | interface | src/infrastructure/scheduler.ts | - | -
+ScheduledTask | Infrastructure | interface | src/infrastructure/scheduler.ts | - | -
+Scheduler | Infrastructure | class | src/infrastructure/scheduler.ts | - | -
+isLogger | Infrastructure | function | src/infrastructure/scheduler.ts | - | -
+readClock | Infrastructure | function | src/infrastructure/scheduler.ts | - | -
+assertInterval | Infrastructure | function | src/infrastructure/scheduler.ts | - | -
+Database | Infrastructure | type | src/infrastructure/StorageReconciler.ts | - | -
+RetentionAction | Infrastructure | type | src/infrastructure/StorageReconciler.ts | - | -
+StorageRetentionPolicy | Infrastructure | interface | src/infrastructure/StorageReconciler.ts | - | -
+StorageReconcilerOptions | Infrastructure | interface | src/infrastructure/StorageReconciler.ts | - | -
+StorageReconciliationReport | Infrastructure | interface | src/infrastructure/StorageReconciler.ts | - | -
+VersionRow | Infrastructure | interface | src/infrastructure/StorageReconciler.ts | - | -
+MutableStorageReconciliationReport | Infrastructure | interface | src/infrastructure/StorageReconciler.ts | - | -
+StorageReconciler | Infrastructure | class | src/infrastructure/StorageReconciler.ts | - | -
+assertPolicy | Infrastructure | function | src/infrastructure/StorageReconciler.ts | - | -
+groupByKey | Infrastructure | function | src/infrastructure/StorageReconciler.ts | - | -
+parseDate | Infrastructure | function | src/infrastructure/StorageReconciler.ts | - | -
+isExpired | Infrastructure | function | src/infrastructure/StorageReconciler.ts | - | -
+Database | Infrastructure | type | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+GeneratedLinkToken | Infrastructure | interface | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+ResolvedContractLink | Infrastructure | interface | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+ContractLinkResolution | Infrastructure | type | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+DeliveryAttemptRow | Infrastructure | interface | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+TokenServiceOptions | Infrastructure | interface | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+TokenService | Infrastructure | class | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+applyPublicLinkSecurityHeaders | Infrastructure | function | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+sendPublicLinkResolutionError | Infrastructure | function | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+RateLimitResult | Infrastructure | interface | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+TokenIpRateLimiter | Infrastructure | class | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+addCalendarDaysUtc | Infrastructure | function | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+normalizeEncryptionKey | Infrastructure | function | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+PublicLinkRateLimitStore | Infrastructure | interface | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+PublicLinkRateLimiterOptions | Infrastructure | interface | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+PublicLinkRateLimitDecision | Infrastructure | interface | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+RateLimitEntry | Infrastructure | interface | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+PublicLinkRateLimiter | Infrastructure | class | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+MapRateLimitStore | Infrastructure | class | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+LINK_TOKEN_BYTES | Infrastructure | const | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+LINK_EXPIRY_DAYS | Infrastructure | const | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+INVALID_LINK_RESPONSE | Infrastructure | const | src/infrastructure/TokenService.ts | PublicLinkRateLimitStore | -
+Request | Middleware | interface | src/middleware/auth.middleware.ts | - | -
+authMiddleware | Middleware | function | src/middleware/auth.middleware.ts | - | -
+optionalAuthMiddleware | Middleware | function | src/middleware/auth.middleware.ts | - | -
+with | Middleware | class | src/middleware/errorHandler.middleware.ts | extends Error | -
+AppError | Middleware | class | src/middleware/errorHandler.middleware.ts | extends Error | -
+domainErrorToStatus | Middleware | function | src/middleware/errorHandler.middleware.ts | extends Error | -
+formatZodError | Middleware | function | src/middleware/errorHandler.middleware.ts | extends Error | -
+errorHandler | Middleware | function | src/middleware/errorHandler.middleware.ts | extends Error | -
+appendContractSignatureStatuses | Middleware | function | src/middleware/errorHandler.middleware.ts | extends Error | -
+that | Middleware | function | src/middleware/roleGuard.middleware.ts | - | -
+roleGuard | Middleware | function | src/middleware/roleGuard.middleware.ts | - | -
+ZodSchema | Middleware | type | src/middleware/validate.middleware.ts | - | -
+that | Middleware | function | src/middleware/validate.middleware.ts | - | -
+validate | Middleware | function | src/middleware/validate.middleware.ts | - | -
+formatZodError | Middleware | function | src/middleware/validate.middleware.ts | - | -
+AuthMolecule | Molecule | class | src/molecules/AuthMolecule.ts | IMolecule | -
+ContractEmailService | Molecule | module | src/molecules/ContractEmailService.ts | - | -
+Database | Molecule | type | src/molecules/ContractMolecule.ts | IMolecule | -
+CreateContractInput | Molecule | interface | src/molecules/ContractMolecule.ts | IMolecule | -
+RentalContract | Molecule | interface | src/molecules/ContractMolecule.ts | IMolecule | -
+ContractFilters | Molecule | interface | src/molecules/ContractMolecule.ts | IMolecule | -
+ContractMolecule | Molecule | class | src/molecules/ContractMolecule.ts | IMolecule | -
+Database | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractEmailEventType | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+DeliveryStatus | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+DocumentStatus | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+FormalizationStatus | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+DocumentVersionKind | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+DocumentStorageStatus | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+VerificationResult | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+CreateCaseInput | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+UploadOriginalDocumentInput | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+UploadSignedDocumentInput | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractSignatureCase | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractDocumentVersion | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+UploadOriginalDocumentResult | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractRow | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+RiderRow | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+MotorcycleRow | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+AdminRow | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+DeliveryContextRow | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+DeliveryAttemptRow | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractDeliveryAttempt | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+SendContractInput | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+SendContractResult | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+StartReviewInput | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ManualVerificationInput | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractVerification | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ManualVerificationResult | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ApprovalInput | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ApprovalResult | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+RejectionInput | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+RejectionResult | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ReviewStartResult | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+AdministrativeSignatureCase | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractDeliveryAttemptPage | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ReviewQueueItem | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ReviewQueuePage | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+AdministrativeDocumentDownload | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractSignatureCursor | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractSignaturePageOptions | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ReviewInput | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractDecisionResult | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+PublicLinkAccessResult | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+PublicOriginalDownloadResult | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+PublicSignedUploadResult | Molecule | type | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractEmailQueueInput | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractEmailService | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractSignatureMoleculeOptions | Molecule | interface | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+bufferStream | Molecule | function | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+ContractSignatureMolecule | Molecule | class | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+isDownloadableStorageStatus | Molecule | function | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+normalizeContractSignaturePageLimit | Molecule | function | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+encodeContractSignatureCursor | Molecule | function | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+decodeContractSignatureCursor | Molecule | function | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+normalizePublicLinkBaseUrl | Molecule | function | src/molecules/ContractSignatureMolecule.ts | IMolecule,extends ContractDeliveryAttempt,extends ContractSignatureCase | -
+Database | Molecule | type | src/molecules/CosignerMolecule.ts | IMolecule | -
+CreateCosignerInput | Molecule | interface | src/molecules/CosignerMolecule.ts | IMolecule | -
+UpdateCosignerInput | Molecule | interface | src/molecules/CosignerMolecule.ts | IMolecule | -
+Cosigner | Molecule | interface | src/molecules/CosignerMolecule.ts | IMolecule | -
+CosignerMolecule | Molecule | class | src/molecules/CosignerMolecule.ts | IMolecule | -
+Database | Molecule | type | src/molecules/ErrandMolecule.ts | IMolecule | -
+ErrandType | Molecule | type | src/molecules/ErrandMolecule.ts | IMolecule | -
+generatePin | Molecule | function | src/molecules/ErrandMolecule.ts | IMolecule | -
+CreateErrandInput | Molecule | interface | src/molecules/ErrandMolecule.ts | IMolecule | -
+QuoteErrandInput | Molecule | interface | src/molecules/ErrandMolecule.ts | IMolecule | -
+ErrandQuote | Molecule | type | src/molecules/ErrandMolecule.ts | IMolecule | -
+Errand | Molecule | interface | src/molecules/ErrandMolecule.ts | IMolecule | -
+ErrandFilters | Molecule | interface | src/molecules/ErrandMolecule.ts | IMolecule | -
+ErrandMolecule | Molecule | class | src/molecules/ErrandMolecule.ts | IMolecule | -
+declares | Molecule | class | src/molecules/IMolecule.ts | IMolecule | -
+IMolecule | Molecule | interface | src/molecules/IMolecule.ts | IMolecule | -
+Role | Molecule | type | src/molecules/IMolecule.ts | IMolecule | -
+PaginatedResult | Molecule | interface | src/molecules/IMolecule.ts | IMolecule | -
+JwtPayload | Molecule | interface | src/molecules/IMolecule.ts | IMolecule | -
+Database | Molecule | type | src/molecules/InAppNotificationMolecule.ts | IMolecule | -
+NotificationRecipientRole | Molecule | type | src/molecules/InAppNotificationMolecule.ts | IMolecule | -
+NotificationPriority | Molecule | type | src/molecules/InAppNotificationMolecule.ts | IMolecule | -
+InAppNotification | Molecule | interface | src/molecules/InAppNotificationMolecule.ts | IMolecule | -
+CreateNotificationInput | Molecule | interface | src/molecules/InAppNotificationMolecule.ts | IMolecule | -
+NotificationRow | Molecule | type | src/molecules/InAppNotificationMolecule.ts | IMolecule | -
+InAppNotificationMolecule | Molecule | class | src/molecules/InAppNotificationMolecule.ts | IMolecule | -
+Database | Molecule | type | src/molecules/MetricsMolecule.ts | IMolecule | -
+ErrandsByStatus | Molecule | interface | src/molecules/MetricsMolecule.ts | IMolecule | -
+MotorcyclesByStatus | Molecule | interface | src/molecules/MetricsMolecule.ts | IMolecule | -
+ContractsByStatus | Molecule | interface | src/molecules/MetricsMolecule.ts | IMolecule | -
+AdminErrandFilters | Molecule | interface | src/molecules/MetricsMolecule.ts | IMolecule | -
+AdminErrand | Molecule | interface | src/molecules/MetricsMolecule.ts | IMolecule | -
+MetricsMolecule | Molecule | class | src/molecules/MetricsMolecule.ts | IMolecule | -
+to | Molecule | function | src/molecules/MetricsMolecule.ts | IMolecule | -
+listAllRiders | Molecule | function | src/molecules/MetricsMolecule.ts | IMolecule | -
+listMotorcyclesForSelection | Molecule | function | src/molecules/MetricsMolecule.ts | IMolecule | -
+listRidersForSelection | Molecule | function | src/molecules/MetricsMolecule.ts | IMolecule | -
+Database | Molecule | type | src/molecules/MotorcycleMolecule.ts | IMolecule | -
+CreateMotorcycleInput | Molecule | interface | src/molecules/MotorcycleMolecule.ts | IMolecule | -
+UpdateMotorcycleInput | Molecule | interface | src/molecules/MotorcycleMolecule.ts | IMolecule | -
+Motorcycle | Molecule | interface | src/molecules/MotorcycleMolecule.ts | IMolecule | -
+MotorcycleFilters | Molecule | interface | src/molecules/MotorcycleMolecule.ts | IMolecule | -
+MotorcycleMolecule | Molecule | class | src/molecules/MotorcycleMolecule.ts | IMolecule | -
+Database | Molecule | type | src/molecules/NotificationMolecule.ts | IMolecule | -
+Notification | Molecule | interface | src/molecules/NotificationMolecule.ts | IMolecule | -
+NotificationMolecule | Molecule | class | src/molecules/NotificationMolecule.ts | IMolecule | -
+Database | Molecule | type | src/molecules/PaymentMolecule.ts | IMolecule | -
+CreatePaymentInput | Molecule | interface | src/molecules/PaymentMolecule.ts | IMolecule | -
+RentalPayment | Molecule | interface | src/molecules/PaymentMolecule.ts | IMolecule | -
+PaymentMolecule | Molecule | class | src/molecules/PaymentMolecule.ts | IMolecule | -
+Database | Molecule | type | src/molecules/PricingMolecule.ts | IMolecule | -
+ErrandType | Molecule | type | src/molecules/PricingMolecule.ts | IMolecule | -
+CreatePricingRuleInput | Molecule | interface | src/molecules/PricingMolecule.ts | IMolecule | -
+PricingRule | Molecule | interface | src/molecules/PricingMolecule.ts | IMolecule | -
+PricingMolecule | Molecule | class | src/molecules/PricingMolecule.ts | IMolecule | -
+must | Molecule | type | src/molecules/PricingMolecule.ts | IMolecule | -
+Database | Molecule | type | src/molecules/RiderMolecule.ts | IMolecule | -
+CreateRiderInput | Molecule | interface | src/molecules/RiderMolecule.ts | IMolecule | -
+Rider | Molecule | interface | src/molecules/RiderMolecule.ts | IMolecule | -
+RiderMolecule | Molecule | class | src/molecules/RiderMolecule.ts | IMolecule | -
+Database | Molecule | type | src/molecules/UserMolecule.ts | IMolecule | -
+CreateUserInput | Molecule | interface | src/molecules/UserMolecule.ts | IMolecule | -
+User | Molecule | interface | src/molecules/UserMolecule.ts | IMolecule | -
+UserMolecule | Molecule | class | src/molecules/UserMolecule.ts | IMolecule | -
+createAuthRoutes | Route | function | src/routes/auth.routes.ts | - | -
+NextFunction | Route | type | src/routes/contract-signature.admin.routes.ts | extends Request | -
+Request | Route | type | src/routes/contract-signature.admin.routes.ts | extends Request | -
+RequestHandler | Route | type | src/routes/contract-signature.admin.routes.ts | extends Request | -
+Response | Route | type | src/routes/contract-signature.admin.routes.ts | extends Request | -
+MultipartFileUpload | Route | type | src/routes/contract-signature.admin.routes.ts | extends Request | -
+AdministrativeRequest | Route | interface | src/routes/contract-signature.admin.routes.ts | extends Request | -
+createContractSignatureAdminRoutes | Route | function | src/routes/contract-signature.admin.routes.ts | extends Request | -
+withCaseAuthorization | Route | function | src/routes/contract-signature.admin.routes.ts | extends Request | -
+parseAdministrativeMultipart | Route | function | src/routes/contract-signature.admin.routes.ts | extends Request | -
+serializeCase | Route | function | src/routes/contract-signature.admin.routes.ts | extends Request | -
+serializeVersion | Route | function | src/routes/contract-signature.admin.routes.ts | extends Request | -
+serializeAttempt | Route | function | src/routes/contract-signature.admin.routes.ts | extends Request | -
+serializeReviewQueueItem | Route | function | src/routes/contract-signature.admin.routes.ts | extends Request | -
+NextFunction | Route | type | src/routes/contract-signature.public.routes.ts | - | -
+Request | Route | type | src/routes/contract-signature.public.routes.ts | - | -
+Response | Route | type | src/routes/contract-signature.public.routes.ts | - | -
+ContractSignaturePublicRoutesOptions | Route | interface | src/routes/contract-signature.public.routes.ts | - | -
+createContractSignaturePublicRoutes | Route | function | src/routes/contract-signature.public.routes.ts | - | -
+publicRequestGuard | Route | function | src/routes/contract-signature.public.routes.ts | - | -
+sendPublicUploadError | Route | function | src/routes/contract-signature.public.routes.ts | - | -
+sendPublicEndpointError | Route | function | src/routes/contract-signature.public.routes.ts | - | -
+sendPublicUnexpectedError | Route | function | src/routes/contract-signature.public.routes.ts | - | -
+createContractRoutes | Route | function | src/routes/contract.routes.ts | - | -
+createCosignerRoutes | Route | function | src/routes/cosigner.routes.ts | - | -
+createErrandRoutes | Route | function | src/routes/errand.routes.ts | - | -
+createMetricsRoutes | Route | function | src/routes/metrics.routes.ts | - | -
+as | Route | type | src/routes/metrics.routes.ts | - | -
+createMotorcycleRoutes | Route | function | src/routes/motorcycle.routes.ts | - | -
+NextFunction | Route | type | src/routes/notification.routes.ts | - | -
+Request | Route | type | src/routes/notification.routes.ts | - | -
+Response | Route | type | src/routes/notification.routes.ts | - | -
+createNotificationRoutes | Route | function | src/routes/notification.routes.ts | - | -
+createPaymentRoutes | Route | function | src/routes/payment.routes.ts | - | -
+createPricingRoutes | Route | function | src/routes/pricing.routes.ts | - | -
+createRiderRoutes | Route | function | src/routes/rider.routes.ts | - | -
+createUserRoutes | Route | function | src/routes/user.routes.ts | - | -
+Footer | FrontendComponent | const | frontend/src/components/layout/Footer.tsx | - | Provides site-wide navigation and business information.
+ImageContentHome | FrontendComponent | const | frontend/src/components/layout/ImageContentHome.tsx | - | Promotes the service with branded home-page imagery.
+index | FrontendComponent | module | frontend/src/components/layout/index.ts | - | -
+NavigationItem | FrontendComponent | interface | frontend/src/components/layout/MobileBottomNav.tsx | - | -
+MobileBottomNav | FrontendComponent | const | frontend/src/components/layout/MobileBottomNav.tsx | - | Enables mobile users to navigate core app areas.
+TopNav | FrontendComponent | const | frontend/src/components/layout/TopNav.tsx | - | Provides authenticated navigation and account controls.
+NotificationBell | FrontendComponent | const | frontend/src/components/notifications/NotificationBell.tsx | - | Signals unread operational updates to users.
+NotificationDropdownProps | FrontendComponent | interface | frontend/src/components/notifications/NotificationDropdown.tsx | - | -
+NotificationDropdown | FrontendComponent | const | frontend/src/components/notifications/NotificationDropdown.tsx | - | Displays recent notifications for quick user action.
+NotificationListProps | FrontendComponent | interface | frontend/src/components/notifications/NotificationList.tsx | - | -
+NotificationList | FrontendComponent | const | frontend/src/components/notifications/NotificationList.tsx | - | Organizes notifications for review and management.
+NotificationListItemProps | FrontendComponent | interface | frontend/src/components/notifications/NotificationListItem.tsx | - | -
+NotificationListItem | FrontendComponent | const | frontend/src/components/notifications/NotificationListItem.tsx | - | Presents notification details and available actions.
+NotificationModalProps | FrontendComponent | interface | frontend/src/components/notifications/NotificationModal.tsx | - | -
+NotificationModal | FrontendComponent | const | frontend/src/components/notifications/NotificationModal.tsx | - | Provides focused notification review and interaction.
+NotificationToastProps | FrontendComponent | interface | frontend/src/components/notifications/NotificationToast.tsx | - | -
+NotificationToast | FrontendComponent | const | frontend/src/components/notifications/NotificationToast.tsx | - | Alerts users to timely events with quick inbox access.
+index | FrontendComponent | module | frontend/src/components/shared/components/index.ts | - | -
+TableColumn | FrontendComponent | interface | frontend/src/components/shared/components/Table/index.tsx | - | -
+TableProps | FrontendComponent | interface | frontend/src/components/shared/components/Table/index.tsx | - | -
+Table | FrontendComponent | const | frontend/src/components/shared/components/Table/index.tsx | - | Presents business records in a consistent, scannable format.
+index | FrontendComponent | module | frontend/src/components/shared/index.ts | - | -
+RiderRegistrationFormProps | FrontendComponent | interface | frontend/src/components/shared/RiderRegistrationForm.tsx | - | -
+RiderRegistrationForm | FrontendComponent | const | frontend/src/components/shared/RiderRegistrationForm.tsx | - | Captures rider details to initiate onboarding.
+ButtonProps | FrontendComponent | interface | frontend/src/components/ui/Button.tsx | extends React | -
+Button | FrontendComponent | const | frontend/src/components/ui/Button.tsx | extends React | Provides consistent action controls across business workflows.
+CaptionProps | FrontendComponent | interface | frontend/src/components/ui/Caption.tsx | - | -
+Caption | FrontendComponent | const | frontend/src/components/ui/Caption.tsx | - | Displays supporting text that clarifies business content.
+CardProps | FrontendComponent | interface | frontend/src/components/ui/Card.tsx | - | -
+Card | FrontendComponent | const | frontend/src/components/ui/Card.tsx | - | Groups related business content into a clear visual unit.
+RouteLocation | FrontendComponent | type | frontend/src/components/ui/index.ts | - | -
+RoutePreview | FrontendComponent | type | frontend/src/components/ui/index.ts | - | -
+RouteValue | FrontendComponent | type | frontend/src/components/ui/index.ts | - | -
+InputProps | FrontendComponent | interface | frontend/src/components/ui/Input.tsx | extends React | -
+Input | FrontendComponent | const | frontend/src/components/ui/Input.tsx | extends React | Captures validated user data for business workflows.
+RiderRouteActionsProps | FrontendComponent | interface | frontend/src/components/ui/RiderRouteActions.tsx | - | -
+RiderRouteActions | FrontendComponent | const | frontend/src/components/ui/RiderRouteActions.tsx | - | Supports rider route decisions and errand progression.
+MapRef | FrontendComponent | type | frontend/src/components/ui/RoutePickerMapbox.tsx | - | -
+RouteLocation | FrontendComponent | interface | frontend/src/components/ui/RoutePickerMapbox.tsx | - | -
+RouteValue | FrontendComponent | interface | frontend/src/components/ui/RoutePickerMapbox.tsx | - | -
+RoutePreview | FrontendComponent | type | frontend/src/components/ui/RoutePickerMapbox.tsx | - | -
+RoutePickerMapboxProps | FrontendComponent | interface | frontend/src/components/ui/RoutePickerMapbox.tsx | - | -
+PointKind | FrontendComponent | type | frontend/src/components/ui/RoutePickerMapbox.tsx | - | -
+GeocoderFeature | FrontendComponent | type | frontend/src/components/ui/RoutePickerMapbox.tsx | - | -
+ReverseGeocodingResponse | FrontendComponent | type | frontend/src/components/ui/RoutePickerMapbox.tsx | - | -
+RoutePickerMapbox | FrontendComponent | const | frontend/src/components/ui/RoutePickerMapbox.tsx | - | Helps users select and preview delivery routes.
+AuthState | FrontendContext | interface | frontend/src/context/AuthContext.tsx | extends AuthState | -
+AuthContextType | FrontendContext | interface | frontend/src/context/AuthContext.tsx | extends AuthState | -
+RegisterData | FrontendContext | interface | frontend/src/context/AuthContext.tsx | extends AuthState | -
+AuthProvider | FrontendContext | const | frontend/src/context/AuthContext.tsx | extends AuthState | Manages user identity and access across the application.
+useAuth | FrontendContext | const | frontend/src/context/AuthContext.tsx | extends AuthState | -
+PeriodFilterType | FrontendHook | type | frontend/src/hooks/index.ts | - | -
+PeriodType | FrontendHook | type | frontend/src/hooks/index.ts | - | -
+MetricsData | FrontendHook | type | frontend/src/hooks/index.ts | - | -
+Contract | FrontendHook | interface | frontend/src/hooks/useContracts.ts | - | -
+useContracts | FrontendHook | const | frontend/src/hooks/useContracts.ts | - | Retrieves and refreshes contract data for administrators.
+useDarkMode | FrontendHook | function | frontend/src/hooks/useDarkMode.ts | - | Controls display theme preferences across the application.
+Errand | FrontendHook | interface | frontend/src/hooks/useErrands.ts | - | -
+PeriodFilterType | FrontendHook | type | frontend/src/hooks/useErrands.ts | - | -
+useAvailableErrands | FrontendHook | const | frontend/src/hooks/useErrands.ts | - | Retrieves errands available for rider assignment.
+useMyErrands | FrontendHook | const | frontend/src/hooks/useErrands.ts | - | Retrieves a user's errands for status tracking.
+useAdminErrands | FrontendHook | const | frontend/src/hooks/useErrands.ts | - | Retrieves errand data for administrative oversight.
+useErrandActions | FrontendHook | const | frontend/src/hooks/useErrands.ts | - | Coordinates errand actions across fulfillment workflows.
+StatusCount | FrontendHook | interface | frontend/src/hooks/useMetrics.ts | - | -
+MetricsData | FrontendHook | interface | frontend/src/hooks/useMetrics.ts | - | -
+PeriodType | FrontendHook | type | frontend/src/hooks/useMetrics.ts | - | -
+useMetrics | FrontendHook | const | frontend/src/hooks/useMetrics.ts | - | Retrieves business metrics and reporting date ranges.
+Motorcycle | FrontendHook | interface | frontend/src/hooks/useMotorcycles.ts | - | -
+useMotorcycles | FrontendHook | const | frontend/src/hooks/useMotorcycles.ts | - | Retrieves and refreshes fleet motorcycle records.
+UseNotificationsReturn | FrontendHook | interface | frontend/src/hooks/useNotifications.ts | - | -
+useNotifications | FrontendHook | const | frontend/src/hooks/useNotifications.ts | - | Retrieves notifications and manages their read status.
+PricingRule | FrontendHook | interface | frontend/src/hooks/usePricingRules.ts | - | -
+usePricingRules | FrontendHook | const | frontend/src/hooks/usePricingRules.ts | - | Retrieves pricing rules for quote management.
+Rider | FrontendHook | interface | frontend/src/hooks/useRiders.ts | - | -
+useRiders | FrontendHook | const | frontend/src/hooks/useRiders.ts | - | Retrieves and refreshes rider records for operations.
+TabConfig | FrontendPage | interface | frontend/src/pages/admin/AdminWorkspace.tsx | - | -
+AdminWorkspace | FrontendPage | const | frontend/src/pages/admin/AdminWorkspace.tsx | - | Centralizes administrative operations and oversight.
+CreateCosigner | FrontendPage | const | frontend/src/pages/admin/consigners/CreateCosigner.tsx | - | Records cosigner details for rider contract support.
+TableColumn | FrontendPage | type | frontend/src/pages/admin/contracts/Contracts.tsx | - | -
+Contracts | FrontendPage | const | frontend/src/pages/admin/contracts/Contracts.tsx | - | Enables administrators to monitor rider contracts.
+RiderOption | FrontendPage | interface | frontend/src/pages/admin/contracts/CreateContract.tsx | - | -
+MotorcycleOption | FrontendPage | interface | frontend/src/pages/admin/contracts/CreateContract.tsx | - | -
+CreateContract | FrontendPage | const | frontend/src/pages/admin/contracts/CreateContract.tsx | - | Creates rider contracts with required business terms.
+CreatePayment | FrontendPage | const | frontend/src/pages/admin/CreatePayment.tsx | - | Records contract payments for financial tracking.
+PeriodFilterType | FrontendPage | type | frontend/src/pages/admin/errands/AdminErrands.tsx | - | -
+TableColumn | FrontendPage | type | frontend/src/pages/admin/errands/AdminErrands.tsx | - | -
+AdminErrands | FrontendPage | const | frontend/src/pages/admin/errands/AdminErrands.tsx | - | Helps administrators oversee errand operations.
+PeriodType | FrontendPage | type | frontend/src/pages/admin/metrics/Metrics.tsx | - | -
+Metrics | FrontendPage | const | frontend/src/pages/admin/metrics/Metrics.tsx | - | Displays operational metrics for business decision-making.
+CreateMotorcycle | FrontendPage | const | frontend/src/pages/admin/motorcycles/CreateMotorcycle.tsx | - | Registers motorcycles for fleet management.
+TableColumn | FrontendPage | type | frontend/src/pages/admin/motorcycles/Motorcycles.tsx | - | -
+Motorcycles | FrontendPage | const | frontend/src/pages/admin/motorcycles/Motorcycles.tsx | - | Enables administrators to manage the motorcycle fleet.
+CreateRider | FrontendPage | const | frontend/src/pages/admin/riders/CreateRider.tsx | - | Registers riders for operational assignment.
+Rider | FrontendPage | type | frontend/src/pages/admin/riders/Riders.tsx | - | -
+TableColumn | FrontendPage | type | frontend/src/pages/admin/riders/Riders.tsx | - | -
+Riders | FrontendPage | const | frontend/src/pages/admin/riders/Riders.tsx | - | Supports administration of rider records and availability.
+CreatePricingRule | FrontendPage | const | frontend/src/pages/admin/rules/CreatePricingRule.tsx | - | Defines pricing rules for consistent errand quotes.
+PricingRules | FrontendPage | const | frontend/src/pages/admin/rules/PricingRules.tsx | - | Enables administrators to manage active pricing rules.
+Login | FrontendPage | const | frontend/src/pages/auth/Login.tsx | - | Authenticates users before granting application access.
+Register | FrontendPage | const | frontend/src/pages/auth/Register.tsx | - | Creates customer accounts for service access.
+RegisterRider | FrontendPage | const | frontend/src/pages/auth/RegisterRider.tsx | - | Starts rider onboarding and account creation.
+Dashboard | FrontendPage | const | frontend/src/pages/Dashboard.tsx | - | Gives users a role-based summary of key activities.
+FeatureCardProps | FrontendPage | interface | frontend/src/pages/Home.tsx | - | -
+Home | FrontendPage | const | frontend/src/pages/Home.tsx | - | Introduces the service and directs users to core actions.
+AvailableErrands | FrontendPage | const | frontend/src/pages/rider/AvailableErrands.tsx | - | Helps riders discover and accept available errands.
+DateRange | FrontendPage | type | frontend/src/pages/rider/RiderErrands.tsx | - | -
+RiderErrands | FrontendPage | const | frontend/src/pages/rider/RiderErrands.tsx | - | Lets riders track and manage their assigned errands.
+RiderHome | FrontendPage | const | frontend/src/pages/rider/RiderHome.tsx | - | Summarizes rider workload and current errand activity.
+RoutePreview | FrontendPage | type | frontend/src/pages/user/CreateErrand.tsx | - | -
+RouteValue | FrontendPage | type | frontend/src/pages/user/CreateErrand.tsx | - | -
+CreateErrandForm | FrontendPage | type | frontend/src/pages/user/CreateErrand.tsx | - | -
+CreateErrand | FrontendPage | const | frontend/src/pages/user/CreateErrand.tsx | - | Captures delivery requests for pricing and fulfillment.
+UserMyErrands | FrontendPage | const | frontend/src/pages/user/MyErrands.tsx | - | Lets customers track and manage their errand requests.
+RequestOptions | FrontendService | interface | frontend/src/services/api.ts | extends Error | -
+ApiError | FrontendService | class | frontend/src/services/api.ts | extends Error | -
+api | FrontendService | const | frontend/src/services/api.ts | extends Error | -

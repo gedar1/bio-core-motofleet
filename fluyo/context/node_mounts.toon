@@ -1,0 +1,27 @@
+--- node_mounts
+Name | Mount | Router | Middleware | File
+src/app.ts#/api/auth:createAuthRoutes | /api/auth | createAuthRoutes | - | src/app.ts
+src/app.ts#/api/users:createUserRoutes | /api/users | createUserRoutes | - | src/app.ts
+src/app.ts#/api/riders:createRiderRoutes | /api/riders | createRiderRoutes | - | src/app.ts
+src/app.ts#/public/contract-signatures:createContractSignaturePublicRoutes | /public/contract-signatures | createContractSignaturePublicRoutes | - | src/app.ts
+src/app.ts#/api:createContractSignatureAdminRoutes | /api | createContractSignatureAdminRoutes | - | src/app.ts
+src/app.ts#/api/motorcycles:createMotorcycleRoutes | /api/motorcycles | createMotorcycleRoutes | - | src/app.ts
+src/app.ts#/api/contracts:createContractRoutes | /api/contracts | createContractRoutes | - | src/app.ts
+src/app.ts#/api/pricing-rules:createPricingRoutes | /api/pricing-rules | createPricingRoutes | - | src/app.ts
+src/app.ts#/api/admin:createMetricsRoutes | /api/admin | createMetricsRoutes | - | src/app.ts
+src/app.ts#/api/riders:createCosignerRoutes | /api/riders | createCosignerRoutes | - | src/app.ts
+src/app.ts#/api/contracts:createPaymentRoutes | /api/contracts | createPaymentRoutes | - | src/app.ts
+src/app.ts#/api/errands:createErrandRoutes | /api/errands | createErrandRoutes | - | src/app.ts
+src/app.ts#/api/notifications:createNotificationRoutes | /api/notifications | createNotificationRoutes | - | src/app.ts
+src/app.ts#/:errorHandler | / | - | errorHandler | src/app.ts
+src/routes/contract-signature.admin.routes.ts#/contracts/:contractId/signature-case:authMiddleware,roleGuard | /contracts/:contractId/signature-case | - | authMiddleware,roleGuard | src/routes/contract-signature.admin.routes.ts
+src/routes/contract-signature.admin.routes.ts#/contract-signatures:authMiddleware,roleGuard | /contract-signatures | - | authMiddleware,roleGuard | src/routes/contract-signature.admin.routes.ts
+src/routes/contract-signature.public.routes.ts#/:optionalAuthMiddleware | / | - | optionalAuthMiddleware | src/routes/contract-signature.public.routes.ts
+src/routes/contract.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/contract.routes.ts
+src/routes/cosigner.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/cosigner.routes.ts
+src/routes/errand.routes.ts#/:authMiddleware | / | - | authMiddleware | src/routes/errand.routes.ts
+src/routes/metrics.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/metrics.routes.ts
+src/routes/motorcycle.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/motorcycle.routes.ts
+src/routes/notification.routes.ts#/:authMiddleware | / | - | authMiddleware | src/routes/notification.routes.ts
+src/routes/payment.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/payment.routes.ts
+src/routes/pricing.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/pricing.routes.ts

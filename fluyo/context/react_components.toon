@@ -1,0 +1,44 @@
+--- react_components
+Name | File | Purpose | Props | Consumes
+Footer | frontend/src/components/layout/Footer.tsx | Provides site-wide navigation and business information. | - | -
+ImageContentHome | frontend/src/components/layout/ImageContentHome.tsx | Promotes the service with branded home-page imagery. | - | -
+MobileBottomNav | frontend/src/components/layout/MobileBottomNav.tsx | Enables mobile users to navigate core app areas. | isActive | useAuth
+TopNav | frontend/src/components/layout/TopNav.tsx | Provides authenticated navigation and account controls. | - | useAuth,useDarkMode
+NotificationBell | frontend/src/components/notifications/NotificationBell.tsx | Signals unread operational updates to users. | - | useNotifications
+NotificationDropdown | frontend/src/components/notifications/NotificationDropdown.tsx | Displays recent notifications for quick user action. | unreadCount,notifications,isLoading,hasError,onClose | -
+NotificationList | frontend/src/components/notifications/NotificationList.tsx | Organizes notifications for review and management. | notifications,isLoading,hasError,onMarkAsRead,onDelete | -
+NotificationListItem | frontend/src/components/notifications/NotificationListItem.tsx | Presents notification details and available actions. | notification,onMarkAsRead,onDelete | -
+NotificationModal | frontend/src/components/notifications/NotificationModal.tsx | Provides focused notification review and interaction. | - | -
+NotificationToast | frontend/src/components/notifications/NotificationToast.tsx | Alerts users to timely events with quick inbox access. | notification,onClose,onOpenInbox | -
+Table | frontend/src/components/shared/components/Table/index.tsx | Presents business records in a consistent, scannable format. | - | -
+RiderRegistrationForm | frontend/src/components/shared/RiderRegistrationForm.tsx | Captures rider details to initiate onboarding. | title,submitLabel,onSuccess | -
+Button | frontend/src/components/ui/Button.tsx | Provides consistent action controls across business workflows. | variant = "primary",children,className = "",...props | -
+Caption | frontend/src/components/ui/Caption.tsx | Displays supporting text that clarifies business content. | children,className = "" | -
+Card | frontend/src/components/ui/Card.tsx | Groups related business content into a clear visual unit. | children,variant = "base",className = "" | -
+Input | frontend/src/components/ui/Input.tsx | Captures validated user data for business workflows. | label,className = "",id,...props | -
+RiderRouteActions | frontend/src/components/ui/RiderRouteActions.tsx | Supports rider route decisions and errand progression. | errand,navigationTarget,mobileMapFirst = false,autoLoadOnMobile = false | useEffect,useState,useErrandActions
+RoutePickerMapbox | frontend/src/components/ui/RoutePickerMapbox.tsx | Helps users select and preview delivery routes. | value,onChange,routePreview = null | useRef,useState
+AuthProvider | frontend/src/context/AuthContext.tsx | Manages user identity and access across the application. | children | -
+AdminWorkspace | frontend/src/pages/admin/AdminWorkspace.tsx | Centralizes administrative operations and oversight. | - | useSearchParams
+CreateCosigner | frontend/src/pages/admin/consigners/CreateCosigner.tsx | Records cosigner details for rider contract support. | name,address,phone,relationship,identity_document | useNavigate,useAuth
+Contracts | frontend/src/pages/admin/contracts/Contracts.tsx | Enables administrators to monitor rider contracts. | - | useContracts
+CreateContract | frontend/src/pages/admin/contracts/CreateContract.tsx | Creates rider contracts with required business terms. | ...prev,[field] | useNavigate,useAuth
+CreatePayment | frontend/src/pages/admin/CreatePayment.tsx | Records contract payments for financial tracking. | amount,payment_date,payment_method,period,notes | useNavigate,useAuth
+AdminErrands | frontend/src/pages/admin/errands/AdminErrands.tsx | Helps administrators oversee errand operations. | - | useAdminErrands
+Metrics | frontend/src/pages/admin/metrics/Metrics.tsx | Displays operational metrics for business decision-making. | - | useMetrics
+CreateMotorcycle | frontend/src/pages/admin/motorcycles/CreateMotorcycle.tsx | Registers motorcycles for fleet management. | ...prev,[field] | useNavigate,useAuth
+Motorcycles | frontend/src/pages/admin/motorcycles/Motorcycles.tsx | Enables administrators to manage the motorcycle fleet. | - | useMotorcycles
+CreateRider | frontend/src/pages/admin/riders/CreateRider.tsx | Registers riders for operational assignment. | - | useNavigate
+Riders | frontend/src/pages/admin/riders/Riders.tsx | Supports administration of rider records and availability. | - | useRiders,useAuth
+CreatePricingRule | frontend/src/pages/admin/rules/CreatePricingRule.tsx | Defines pricing rules for consistent errand quotes. | errand_type,base_rate,rate_per_km,commission_percentage | useNavigate,useAuth
+PricingRules | frontend/src/pages/admin/rules/PricingRules.tsx | Enables administrators to manage active pricing rules. | - | usePricingRules
+Login | frontend/src/pages/auth/Login.tsx | Authenticates users before granting application access. | - | useNavigate,useAuth
+Register | frontend/src/pages/auth/Register.tsx | Creates customer accounts for service access. | name,email,phone,address,password | useNavigate,useAuth
+RegisterRider | frontend/src/pages/auth/RegisterRider.tsx | Starts rider onboarding and account creation. | - | useNavigate
+Dashboard | frontend/src/pages/Dashboard.tsx | Gives users a role-based summary of key activities. | title,href | useAuth
+Home | frontend/src/pages/Home.tsx | Introduces the service and directs users to core actions. | title,description | -
+AvailableErrands | frontend/src/pages/rider/AvailableErrands.tsx | Helps riders discover and accept available errands. | - | useAvailableErrands,useErrandActions
+RiderErrands | frontend/src/pages/rider/RiderErrands.tsx | Lets riders track and manage their assigned errands. | - | useMyErrands,useErrandActions
+RiderHome | frontend/src/pages/rider/RiderHome.tsx | Summarizes rider workload and current errand activity. | - | useMyErrands
+CreateErrand | frontend/src/pages/user/CreateErrand.tsx | Captures delivery requests for pricing and fulfillment. | origin,destination | useNavigate,useErrandActions
+UserMyErrands | frontend/src/pages/user/MyErrands.tsx | Lets customers track and manage their errand requests. | - | useMyErrands,useErrandActions

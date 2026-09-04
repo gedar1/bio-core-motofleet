@@ -68,3 +68,44 @@ export function authMiddleware(
     });
   }
 }
+
+/**
+ * Reads a JWT when one is supplied, without making authentication mandatory.
+ * Public contract links remain bearer-authorized by themselves; a valid Rider
+ * JWT only narrows access to the Rider bound to the link.
+ */
+export function optionalAuthMiddleware(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    next();
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(
+      authHeader.slice(7),
+      JWT_SECRET,
+    ) as jsonwebtoken.JwtPayload;
+
+    if (
+      typeof decoded.id === "string" &&
+      typeof decoded.role === "string" &&
+      typeof decoded.email === "string"
+    ) {
+      req.user = {
+        id: decoded.id,
+        role: decoded.role as Role,
+        email: decoded.email,
+      };
+    }
+  } catch {
+    // The link is the public credential. An invalid optional JWT is treated as
+    // absent so it cannot make a valid link enumerable through JWT errors.
+  }
+
+  next();
+}

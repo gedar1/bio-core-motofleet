@@ -8,6 +8,7 @@ export * from "./user.schemas.js";
 export * from "./rider.schemas.js";
 export * from "./motorcycle.schemas.js";
 export * from "./contract.schemas.js";
+export * from "./contractSignature.schemas.js";
 export * from "./payment.schemas.js";
 export * from "./errand.schemas.js";
 export * from "./pricing.schemas.js";

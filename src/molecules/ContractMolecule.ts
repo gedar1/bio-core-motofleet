@@ -180,17 +180,21 @@ export class ContractMolecule implements IMolecule {
 
     const now = getCurrentUtcTimestamp();
 
-    this.db
-      .prepare(
-        "UPDATE rental_contracts SET status = 'cancelled', updated_at = ? WHERE id = ?",
-      )
-      .run(now, contractId);
+    const cancelContract = this.db.transaction(() => {
+      this.db
+        .prepare(
+          "UPDATE rental_contracts SET status = 'cancelled', updated_at = ? WHERE id = ?",
+        )
+        .run(now, contractId);
 
-    this.db
-      .prepare(
-        "UPDATE motorcycles SET status = 'available', updated_at = ? WHERE id = ?",
-      )
-      .run(now, contract.motorcycle_id);
+      this.db
+        .prepare(
+          "UPDATE motorcycles SET status = 'available', updated_at = ? WHERE id = ?",
+        )
+        .run(now, contract.motorcycle_id);
+    });
+
+    cancelContract.immediate();
 
     this.logger.info("Contract cancelled", { contractId });
 
@@ -222,11 +226,15 @@ export class ContractMolecule implements IMolecule {
 
     const now = getCurrentUtcTimestamp();
 
-    this.db
-      .prepare(
-        "UPDATE rental_contracts SET status = 'renewed', end_date = ?, updated_at = ? WHERE id = ?",
-      )
-      .run(newEndDate, now, contractId);
+    const renewContract = this.db.transaction(() => {
+      this.db
+        .prepare(
+          "UPDATE rental_contracts SET status = 'renewed', end_date = ?, updated_at = ? WHERE id = ?",
+        )
+        .run(newEndDate, now, contractId);
+    });
+
+    renewContract.immediate();
 
     this.logger.info("Contract renewed", { contractId, newEndDate });
 
@@ -261,7 +269,7 @@ export class ContractMolecule implements IMolecule {
       }
     });
 
-    batchExpire();
+    batchExpire.immediate();
 
     this.logger.info("Contracts expired", { count: overdueContracts.length });
 

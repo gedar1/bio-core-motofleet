@@ -1,0 +1,13 @@
+--- react_hooks
+Name | File | Purpose | Returns
+useContracts | frontend/src/hooks/useContracts.ts | Retrieves and refreshes contract data for administrators. | { contracts, loading, error, refresh }
+useDarkMode | frontend/src/hooks/useDarkMode.ts | Controls display theme preferences across the application. | { isDark, toggle }
+useAvailableErrands | frontend/src/hooks/useErrands.ts | Retrieves errands available for rider assignment. | { errands, loading, error, refresh }
+useMyErrands | frontend/src/hooks/useErrands.ts | Retrieves a user's errands for status tracking. | { errands, loading, error, refresh }
+useAdminErrands | frontend/src/hooks/useErrands.ts | Retrieves errand data for administrative oversight. | { errands, loading, error, refresh }
+useErrandActions | frontend/src/hooks/useErrands.ts | Coordinates errand actions across fulfillment workflows. | { errands, loading, error, refresh }
+useMetrics | frontend/src/hooks/useMetrics.ts | Retrieves business metrics and reporting date ranges. | { metrics, loading, error, refresh, getDateRange }
+useMotorcycles | frontend/src/hooks/useMotorcycles.ts | Retrieves and refreshes fleet motorcycle records. | { motorcycles, loading, error, refresh }
+useNotifications | frontend/src/hooks/useNotifications.ts | Retrieves notifications and manages their read status. | UseNotificationsReturn
+usePricingRules | frontend/src/hooks/usePricingRules.ts | Retrieves pricing rules for quote management. | { rules, loading, error, refresh }
+useRiders | frontend/src/hooks/useRiders.ts | Retrieves and refreshes rider records for operations. | { riders, loading, error, refresh }

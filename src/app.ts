@@ -11,6 +11,7 @@ import type { ErrandMolecule } from "./molecules/ErrandMolecule.js";
 import type { NotificationMolecule } from "./molecules/NotificationMolecule.js";
 import type { InAppNotificationMolecule } from "./molecules/InAppNotificationMolecule.js";
 import type { MetricsMolecule } from "./molecules/MetricsMolecule.js";
+import type { ContractSignatureMolecule } from "./molecules/ContractSignatureMolecule.js";
 import { createAuthRoutes } from "./routes/auth.routes.js";
 import { createUserRoutes } from "./routes/user.routes.js";
 import { createRiderRoutes } from "./routes/rider.routes.js";
@@ -22,6 +23,8 @@ import { createPricingRoutes } from "./routes/pricing.routes.js";
 import { createErrandRoutes } from "./routes/errand.routes.js";
 import { createNotificationRoutes } from "./routes/notification.routes.js";
 import { createMetricsRoutes } from "./routes/metrics.routes.js";
+import { createContractSignaturePublicRoutes } from "./routes/contract-signature.public.routes.js";
+import { createContractSignatureAdminRoutes } from "./routes/contract-signature.admin.routes.js";
 import { errorHandler } from "./middleware/errorHandler.middleware.js";
 
 /**
@@ -40,6 +43,7 @@ export interface MoleculeContainer {
   notifications: NotificationMolecule;
   inAppNotifications: InAppNotificationMolecule;
   metrics: MetricsMolecule;
+  contractSignatures: ContractSignatureMolecule;
 }
 
 /**
@@ -92,6 +96,18 @@ export function createApp(
   app.use("/api/auth", createAuthRoutes(molecules.auth));
   app.use("/api/users", createUserRoutes(molecules.users));
   app.use("/api/riders", createRiderRoutes(molecules.riders));
+  app.use(
+    "/public/contract-signatures",
+    createContractSignaturePublicRoutes(molecules.contractSignatures),
+  );
+  // The administrative signature router is mounted at /api because it owns
+  // both /contracts/:contractId/signature-case and /contract-signatures/*.
+  // Its authorization boundary is path-scoped inside the router so unrelated
+  // legacy /api routes continue to reach their own middleware unchanged.
+  app.use(
+    "/api",
+    createContractSignatureAdminRoutes(molecules.contractSignatures),
+  );
 
   // --- Admin routes ---
   app.use("/api/motorcycles", createMotorcycleRoutes(molecules.motorcycles));

@@ -1,6 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import { createLogger } from "../infrastructure/logger.js";
+import { MultipartUploadError } from "../infrastructure/multipartUpload.js";
+import { RepositoryCapacityError } from "../infrastructure/ContractDocumentRepository.js";
 import {
   BusinessRuleViolation,
   ConflictError,
@@ -112,6 +114,7 @@ export function errorHandler(
       response.details = err.details;
     }
 
+    appendContractSignatureStatuses(response, res);
     res.status(status).json(response);
     return;
   }
@@ -144,6 +147,7 @@ export function errorHandler(
       response.details = err.details;
     }
 
+    appendContractSignatureStatuses(response, res);
     res.status(err.status).json(response);
     return;
   }
@@ -155,12 +159,37 @@ export function errorHandler(
       method: req.method,
     });
 
-    res.status(400).json({
+    const response = {
       status: 400,
       code: "VALIDATION_ERROR",
       message: "Invalid input data",
       details: formatZodError(err),
-    });
+    };
+    appendContractSignatureStatuses(response, res);
+    res.status(400).json(response);
+    return;
+  }
+
+  if (err instanceof MultipartUploadError) {
+    const response = {
+      status: 400,
+      code: err.code,
+      message: err.message,
+      details: { file: [err.code] },
+    };
+    appendContractSignatureStatuses(response, res);
+    res.status(400).json(response);
+    return;
+  }
+
+  if (err instanceof RepositoryCapacityError) {
+    const response = {
+      status: err.statusCode,
+      code: "DOCUMENT_STORAGE_UNAVAILABLE",
+      message: "Contract document storage is unavailable",
+    };
+    appendContractSignatureStatuses(response, res);
+    res.status(err.statusCode).json(response);
     return;
   }
 
@@ -171,9 +200,30 @@ export function errorHandler(
     error: err.message,
   });
 
-  res.status(500).json({
+  const response = {
     status: 500,
     code: "INTERNAL_ERROR",
     message: "An unexpected error occurred",
-  });
+  };
+  appendContractSignatureStatuses(response, res);
+  res.status(500).json(response);
+}
+
+function appendContractSignatureStatuses(
+  response: Record<string, unknown>,
+  res: Response,
+): void {
+  const statuses = res.locals.contractSignatureStatus as
+    | {
+        contractual_status?: string;
+        legacy_contract_status?: string;
+      }
+    | undefined;
+  if (!statuses) return;
+  if (statuses.contractual_status !== undefined) {
+    response.contractual_status = statuses.contractual_status;
+  }
+  if (statuses.legacy_contract_status !== undefined) {
+    response.legacy_contract_status = statuses.legacy_contract_status;
+  }
 }
