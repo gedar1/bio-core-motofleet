@@ -2,9 +2,9 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { t } from "../../i18n";
-import packageIcon from "../../assets/icons/package.svg";
+import packageIcon from "../../assets/icons/package_light.svg";
 import notePencilIcon from "../../assets/icons/note-pencil.svg";
-import personSimpleBikeIcon from "../../assets/icons/person-simple-bike.svg";
+import personSimpleBikeIcon from "../../assets/icons/person_simple_bike.svg";
 
 interface NavigationItem {
   readonly to: string;

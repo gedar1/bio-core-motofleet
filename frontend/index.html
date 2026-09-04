@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RYD Favorcitos</title>
     <link rel="icon" type="image/png" href="/src/assets/icons/favicon.ico" />
+    <style>
+      /* Evitar selección de texto al hacer scroll para mejorar UX */
+      body {
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+      }
+
+      /* Permitir selección en inputs y botones */
+      input,
+      textarea,
+      button,
+      a,
+      [role="button"] {
+        user-select: auto;
+        -webkit-user-select: auto;
+      }
+    </style>
     <script>
       // Apply dark mode BEFORE first paint to prevent flash
       const theme = localStorage.getItem("theme");
