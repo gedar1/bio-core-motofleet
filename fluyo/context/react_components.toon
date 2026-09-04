@@ -5,7 +5,7 @@ ImageContentHome | frontend/src/components/layout/ImageContentHome.tsx | Promote
 MobileBottomNav | frontend/src/components/layout/MobileBottomNav.tsx | Enables mobile users to navigate core app areas. | isActive | useAuth
 TopNav | frontend/src/components/layout/TopNav.tsx | Provides authenticated navigation and account controls. | - | useAuth,useDarkMode
 NotificationBell | frontend/src/components/notifications/NotificationBell.tsx | Signals unread operational updates to users. | - | useNotifications
-NotificationDropdown | frontend/src/components/notifications/NotificationDropdown.tsx | Displays recent notifications for quick user action. | unreadCount,notifications,isLoading,hasError,onClose | -
+NotificationDropdown | frontend/src/components/notifications/NotificationDropdown.tsx | Displays recent notifications for quick user action. | - | -
 NotificationList | frontend/src/components/notifications/NotificationList.tsx | Organizes notifications for review and management. | notifications,isLoading,hasError,onMarkAsRead,onDelete | -
 NotificationListItem | frontend/src/components/notifications/NotificationListItem.tsx | Presents notification details and available actions. | notification,onMarkAsRead,onDelete | -
 NotificationModal | frontend/src/components/notifications/NotificationModal.tsx | Provides focused notification review and interaction. | - | -

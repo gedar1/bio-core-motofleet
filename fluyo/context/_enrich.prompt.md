@@ -1,13 +1,9 @@
 # Fluyo: Semantic Enrichment — bio-core-motofleet
 
-Fill the `Purpose` column for each entity below.
-Rules:
-- 1 sentence, business-focused (what problem it solves, not how it works)
-- Max 80 characters
-- Use `-` only for pure config/utility files with no business purpose
-- Return the complete index.toon with Purpose values filled, inside a ```toon block
+Fill only the `Purpose` cells in the facet blocks below.
+Preserve all rows and non-Purpose values. Return only updated facet TOON blocks.
 
-## Entities to enrich (new or unenriched)
+## Entities
 - node_routes: src/routes/auth.routes.ts#POST:/login
 - node_routes: src/routes/contract-signature.admin.routes.ts#POST:/contracts/:contractId/signature-case
 - node_routes: src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/review
@@ -683,26 +679,43 @@ Rules:
 - biocore_application_components: createPricingRoutes
 - biocore_application_components: createRiderRoutes
 - biocore_application_components: createUserRoutes
+- biocore_application_components: Footer
+- biocore_application_components: ImageContentHome
 - biocore_application_components: index
 - biocore_application_components: NavigationItem
+- biocore_application_components: MobileBottomNav
+- biocore_application_components: TopNav
+- biocore_application_components: NotificationBell
 - biocore_application_components: NotificationDropdownProps
+- biocore_application_components: NotificationDropdown
 - biocore_application_components: NotificationListProps
+- biocore_application_components: NotificationList
 - biocore_application_components: NotificationListItemProps
+- biocore_application_components: NotificationListItem
 - biocore_application_components: NotificationModalProps
+- biocore_application_components: NotificationModal
 - biocore_application_components: NotificationToastProps
+- biocore_application_components: NotificationToast
 - biocore_application_components: index
 - biocore_application_components: TableColumn
 - biocore_application_components: TableProps
+- biocore_application_components: Table
 - biocore_application_components: index
 - biocore_application_components: RiderRegistrationFormProps
+- biocore_application_components: RiderRegistrationForm
 - biocore_application_components: ButtonProps
+- biocore_application_components: Button
 - biocore_application_components: CaptionProps
+- biocore_application_components: Caption
 - biocore_application_components: CardProps
+- biocore_application_components: Card
 - biocore_application_components: RouteLocation
 - biocore_application_components: RoutePreview
 - biocore_application_components: RouteValue
 - biocore_application_components: InputProps
+- biocore_application_components: Input
 - biocore_application_components: RiderRouteActionsProps
+- biocore_application_components: RiderRouteActions
 - biocore_application_components: MapRef
 - biocore_application_components: RouteLocation
 - biocore_application_components: RouteValue
@@ -711,52 +724,190 @@ Rules:
 - biocore_application_components: PointKind
 - biocore_application_components: GeocoderFeature
 - biocore_application_components: ReverseGeocodingResponse
+- biocore_application_components: RoutePickerMapbox
 - biocore_application_components: AuthState
 - biocore_application_components: AuthContextType
 - biocore_application_components: RegisterData
+- biocore_application_components: AuthProvider
 - biocore_application_components: useAuth
 - biocore_application_components: PeriodFilterType
 - biocore_application_components: PeriodType
 - biocore_application_components: MetricsData
 - biocore_application_components: Contract
+- biocore_application_components: useContracts
+- biocore_application_components: useDarkMode
 - biocore_application_components: Errand
 - biocore_application_components: PeriodFilterType
+- biocore_application_components: useAvailableErrands
+- biocore_application_components: useMyErrands
+- biocore_application_components: useAdminErrands
+- biocore_application_components: useErrandActions
 - biocore_application_components: StatusCount
 - biocore_application_components: MetricsData
 - biocore_application_components: PeriodType
+- biocore_application_components: useMetrics
 - biocore_application_components: Motorcycle
+- biocore_application_components: useMotorcycles
 - biocore_application_components: UseNotificationsReturn
+- biocore_application_components: useNotifications
 - biocore_application_components: PricingRule
+- biocore_application_components: usePricingRules
 - biocore_application_components: Rider
+- biocore_application_components: useRiders
 - biocore_application_components: TabConfig
+- biocore_application_components: AdminWorkspace
+- biocore_application_components: CreateCosigner
 - biocore_application_components: TableColumn
+- biocore_application_components: Contracts
 - biocore_application_components: RiderOption
 - biocore_application_components: MotorcycleOption
+- biocore_application_components: CreateContract
+- biocore_application_components: CreatePayment
 - biocore_application_components: PeriodFilterType
 - biocore_application_components: TableColumn
+- biocore_application_components: AdminErrands
 - biocore_application_components: PeriodType
+- biocore_application_components: Metrics
+- biocore_application_components: CreateMotorcycle
 - biocore_application_components: TableColumn
+- biocore_application_components: Motorcycles
+- biocore_application_components: CreateRider
 - biocore_application_components: Rider
 - biocore_application_components: TableColumn
+- biocore_application_components: Riders
+- biocore_application_components: CreatePricingRule
+- biocore_application_components: PricingRules
+- biocore_application_components: Login
+- biocore_application_components: Register
+- biocore_application_components: RegisterRider
+- biocore_application_components: Dashboard
 - biocore_application_components: FeatureCardProps
+- biocore_application_components: Home
+- biocore_application_components: AvailableErrands
 - biocore_application_components: DateRange
+- biocore_application_components: RiderErrands
+- biocore_application_components: RiderHome
 - biocore_application_components: RoutePreview
 - biocore_application_components: RouteValue
 - biocore_application_components: CreateErrandForm
+- biocore_application_components: CreateErrand
+- biocore_application_components: UserMyErrands
 - biocore_application_components: RequestOptions
 - biocore_application_components: ApiError
 - biocore_application_components: api
 
-## Current index.toon
-
+## Compact index
 ```toon
 --- meta
 Key | Value
+format | fluyo-context/compact-v1
 project | bio-core-motofleet
-generated | 2026-09-03
+generated | 2026-09-04
+frameworks | react,node
+architecture | biocore-application
+architecture_confidence | 0.98
+architecture_evidence | src/routes,IMolecule contract,src/domains,src/infrastructure,frontend/src,Express dependency
+table_prefix | -
+facet_count | 7
+total_rows | 1192
+files | dependencies.toon,react_components.toon,react_hooks.toon,node_routes.toon,biocore_application_components.toon,node_mounts.toon,relationships.toon
+source | regex
 last_change | register-ui
 new_entities | src/routes/auth.routes.ts#POST:/login,src/routes/contract-signature.admin.routes.ts#POST:/contracts/:contractId/signature-case,src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/review,src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId,src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/original,src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/send,src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/resend,src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId/attempts,src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId/audit,src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/review/start,src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/verify,src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/approve,src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/reject,src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId/versions/:versionId/download,src/routes/contract-signature.public.routes.ts#POST:/:token/signed,src/routes/contract-signature.public.routes.ts#GET:/:token/original,src/routes/contract-signature.public.routes.ts#GET:/:token,src/routes/contract.routes.ts#GET:/,src/routes/contract.routes.ts#POST:/,src/routes/contract.routes.ts#PATCH:/:id/cancel,src/routes/contract.routes.ts#PATCH:/:id/renew,src/routes/cosigner.routes.ts#GET:/:riderId/cosigners,src/routes/cosigner.routes.ts#POST:/:riderId/cosigners,src/routes/cosigner.routes.ts#PUT:/cosigners/:id,src/routes/errand.routes.ts#POST:/route-estimate,src/routes/errand.routes.ts#POST:/quote,src/routes/errand.routes.ts#POST:/,src/routes/errand.routes.ts#GET:/available,src/routes/errand.routes.ts#GET:/my,src/routes/errand.routes.ts#GET:/:id/route-preview,src/routes/errand.routes.ts#PATCH:/:id/accept,src/routes/errand.routes.ts#PATCH:/:id/pickup,src/routes/errand.routes.ts#PATCH:/:id/deliver,src/routes/errand.routes.ts#PATCH:/:id/cancel,src/routes/metrics.routes.ts#GET:/metrics,src/routes/metrics.routes.ts#GET:/errands,src/routes/metrics.routes.ts#GET:/riders,src/routes/metrics.routes.ts#GET:/riders-select,src/routes/metrics.routes.ts#GET:/motorcycles-select,src/routes/metrics.routes.ts#PATCH:/riders/:id/availability,src/routes/motorcycle.routes.ts#GET:/,src/routes/motorcycle.routes.ts#POST:/,src/routes/motorcycle.routes.ts#PUT:/:id,src/routes/motorcycle.routes.ts#PATCH:/:id/status,src/routes/notification.routes.ts#GET:/,src/routes/notification.routes.ts#GET:/unread-count,src/routes/notification.routes.ts#PATCH:/read-all,src/routes/notification.routes.ts#PATCH:/:id/read,src/routes/notification.routes.ts#DELETE:/:id,src/routes/payment.routes.ts#GET:/:contractId/payments,src/routes/payment.routes.ts#POST:/:contractId/payments,src/routes/pricing.routes.ts#GET:/,src/routes/pricing.routes.ts#POST:/,src/routes/pricing.routes.ts#PATCH:/:id/deactivate,src/routes/rider.routes.ts#POST:/register,src/routes/rider.routes.ts#PATCH:/me/availability,src/routes/user.routes.ts#POST:/register,MoleculeContainer,createApp,getCurrentUtcTimestamp,getCurrentUtcTimestampSqlite,toUtcIso,toUtcSqlite,normalizeDocumentFilename,toRadians,haversineDistance,hashPassword,verifyPassword,isValidPassword,LoginInput,loginSchema,emailSchema,phoneSchema,passwordSchema,futureDateSchema,latitudeSchema,longitudeSchema,CreateContractInput,createContractSchema,SignatureCaseParams,ContractSignatureCaseParams,DocumentVersionParams,PublicSignatureLinkParams,ManualVerificationInput,ApprovalInput,RejectionInput,ReviewQueueQuery,AuditPaginationQuery,uuidSchema,signatureCaseIdSchema,documentVersionIdSchema,signatureLinkTokenSchema,signatureCaseParamsSchema,contractSignatureCaseParamsSchema,documentVersionParamsSchema,publicSignatureLinkParamsSchema,reviewStartSchema,manualVerificationSchema,approvalSchema,rejectionSchema,reviewQueueQuerySchema,auditPaginationQuerySchema,signatureCaseDetailQuerySchema,CreateCosignerInput,createCosignerSchema,CreateErrandInput,RouteEstimateRequest,routeCoordinatesSchema,routeEstimateRequestSchema,quoteErrandRequestSchema,createErrandSchema,index,CreateMotorcycleInput,createMotorcycleSchema,CreatePaymentInput,createPaymentSchema,must,CreatePricingRuleInput,createPricingRuleSchema,RiderDocumentType,CreateRiderInput,riderDocumentTypes,documentTypeSchema,documentNumberSchema,createRiderSchema,CreateUserInput,createUserSchema,schemas,MotorcycleState,ContractState,ErrandState,isValidMotorcycleTransition,isValidContractTransition,isValidErrandTransition,getValidMotorcycleTransitions,getValidErrandTransitions,PricingInput,PricingResult,roundHalfUp,assertSafeInteger,calculateFare,DocumentStatus,FormalizationStatus,DeliveryAttention,DocumentVersionKind,DocumentStorageStatus,ContractSignatureActorType,VerificationResult,DeliveryStatus,OutboxStatus,ContractEmailEventType,ContractAuditEventType,AuditResult,PdfValidationCode,PdfValidationError,getValidDocumentTransitions,isValidDocumentTransition,getValidFormalizationTransitions,isValidFormalizationTransition,ContractSignatureStateConflictError,assertDocumentTransition,assertFormalizationTransition,DOCUMENT_STATUSES,FORMALIZATION_STATUSES,DELIVERY_ATTENTIONS,DOCUMENT_VERSION_KINDS,DOCUMENT_STORAGE_STATUSES,CONTRACT_SIGNATURE_ACTOR_TYPES,VERIFICATION_RESULTS,DELIVERY_STATUSES,OUTBOX_STATUSES,CONTRACT_EMAIL_EVENT_TYPES,CONTRACT_AUDIT_EVENT_TYPES,AUDIT_RESULTS,PDF_VALIDATION_CODES,RouteEstimateResponse,RoutingProviderName,RoutingProfile,Coordinates,RouteGeometry,RouteEstimate,RoutingProvider,to,DomainError,NotFoundError,ValidationError,BusinessRuleViolation,InvalidStateTransition,ForbiddenError,UnauthorizedError,ConflictError,Database,ApplicationStartupStep,ApplicationOptions,ApplicationRuntime,guarantees,createApplication,main,DownloadableStatus,BackupCapacityEstimate,BackupVersionEntry,BackupObjectEntry,BackupManifest,BackupRestoreIncident,RestoreActivationContext,RestoreOptions,RestoreReport,BackupCoordinatorOptions,VersionRow,RestoreVersionRow,VersionIssue,BackupInventory,BackupCoordinatorError,BackupIntegrityError,BackupCoordinator,isCapacityGuard,isDownloadableStatus,assertStorageKey,assertMetadataMatches,assertUniqueVersionReferences,assertUniqueObjects,toManifestVersion,toManifestObject,readVersionRows,readRestoreVersionRows,assertSameVersionSnapshot,fingerprintVersions,validateManifestVersion,duplicateRowsByKey,groupManifestEntries,copyStorageObject,copyReadableExclusive,copyFileExclusive,fileMetadata,writeClosedManifest,readClosedManifest,prepareEmptyDirectory,safeManifestPath,safeManifestObjectPath,restoreReason,normalizeBackupError,isRecord,defaultWriteWindow,assertBackupComponents,ContractAuditActor,RecordContractAuditEventInput,ContractAuditEvent,ContractAuditPage,ContractAuditServiceOptions,ContractAuditEventRow,AuditCursor,ContractAuditService,sanitizeAuditMetadata,sanitizeObject,sanitizeValue,normalizeErrorCode,sanitizeErrorMessage,parseMetadata,normalizeLimit,encodeCursor,decodeCursor,RepositoryCapacityStatus,CapacityGuard,RepositoryConfigurationError,RepositoryCapacityError,RepositoryCapacityMonitorOptions,RepositoryCapacityMonitor,ContractDocumentRepositoryConfiguration,parsePositiveInteger,parseThresholds,readContractDocumentRepositoryConfiguration,DEFAULT_CAPACITY_THRESHOLDS,ContractEmailProcessingError,ContractEmailServiceOptions,ContractEmailQueueRow,RenderedContractEmail,ContractEmailSendResult,ContractEmailPayload,ContractEmailService,html,are,isContractEmailEventType,asPayload,requiredText,optionalText,normalizeDynamicText,normalizeIdentifier,normalizeCiphertext,normalizeRecipient,normalizeHeader,normalizeBaseUrl,safeLink,escapeHtml,plainText,parsePort,ProcessingStatus,ContractEmailQueueDbRow,ClaimedEmail,ContractEmailWorkerOptions,ContractEmailDeliveryPort,ContractEmailWorker,toQueueInput,normalizePositiveMinutes,normalizePositiveInteger,readProcessingTimeoutMinutes,CONTRACT_EMAIL_MAX_ATTEMPTS,CONTRACT_EMAIL_RETRY_DELAY_MS,DEFAULT_PROCESSING_TIMEOUT_MINUTES,ContractExpirationOutbox,ContractSignatureSchedulerMetrics,ContractSignatureSchedulerJobsOptions,ContractSignatureSchedulerJobsDependencies,ExpiredAttemptRow,SignatureCaseRow,QueueAdminRow,ContractSignatureSchedulerJobs,SchedulerIntervals,readSchedulerIntervals,readInterval,readStorageRetentionPolicy,readNonNegativeInterval,readRetentionAction,RegisterContractSignatureJobsOptions,only,registerContractSignatureJobs,CONTRACT_EMAIL_WORKER_INTERVAL_MS,CONTRACT_SIGNATURE_EXPIRATION_INTERVAL_MS,DEFAULT_STORAGE_RECONCILIATION_INTERVAL_MS,DEFAULT_STORAGE_CAPACITY_INTERVAL_MS,DEFAULT_STORAGE_RETENTION_POLICY,createDatabase,runMigrations,getDatabase,closeDatabase,DownloadableStorageStatus,DocumentMetadata,TemporaryDocument,StoredDocument,StoredDocumentEntry,TemporaryDocumentEntry,RetentionDeletionRequest,DocumentStorage,DocumentStorageError,DocumentStorageLimitError,createStorageKey,createTemporaryKey,isSafeKey,isWithin,PrivateFilesystemStorageOptions,PrivateFilesystemDocumentStorage,MAX_CONTRACT_DOCUMENT_BYTES,S3ObjectClient,DocumentStorageProvider,ConfiguredDocumentStorage,DocumentStorageFactoryOptions,createConfiguredDocumentStorage,createConfiguredS3DocumentStorage,readProvider,StorageReconciliationReport,StorageRetentionPolicy,MigrationVersionResultStatus,MigrationVersionResult,DocumentStorageMigrationOptions,DocumentStorageMigrationReport,DocumentStorageMigration,isDownloadableStorageStatus,sameMetadata,withSqliteWritesPaused,emptyReconciliationReport,PinoLogger,PinoStream,PinoFactory,decoupled,ILogger,LoggerCore,loggerLevel,createLoggerCore,createPostShutdownLogger,LoggerRegistry,startLoggerLifecycle,shutdownLoggerLifecycle,flushAndCloseTransport,PinoLoggerAdapter,createLogger,MultipartUploadErrorCode,MultipartUploadError,MultipartFileUpload,parseSingleMultipartFile,parseMultipartBody,extractBoundary,parseHeaders,getParameter,invalidMultipart,PdfValidationInput,ValidatedPdf,PdfValidator,normalizePdfMimeType,hasPdfTrailer,MAX_PDF_BYTES,PDF_MIME_TYPE,RoutingFailureReason,MapboxRoutingError,MapboxRequest,MapboxDirectionsService,MapboxDirectionsServiceFactory,MapboxDirectionsResponse,MapboxRoutingProvider,S3Directory,S3ObjectInfo,S3ListedObject,S3CompatibleDocumentStorageOptions,S3CompatibleDocumentStorage,normalizePrefix,assertTemporaryKey,assertRetentionExpired,assertMetadata,readBounded,toReadable,isConflict,isNotFound,normalizeStorageError,S3ClientConfig,AwsS3CompatibleClientOptions,AwsS3CompatibleObjectClient,createAwsS3CompatibleObjectClientFromEnvironment,parseDate,SchedulerClock,SchedulerTimerHandle,SchedulerTimers,SchedulerOptions,ScheduledTask,Scheduler,isLogger,readClock,assertInterval,RetentionAction,StorageReconcilerOptions,MutableStorageReconciliationReport,StorageReconciler,assertPolicy,groupByKey,isExpired,GeneratedLinkToken,ResolvedContractLink,ContractLinkResolution,DeliveryAttemptRow,TokenServiceOptions,TokenService,applyPublicLinkSecurityHeaders,sendPublicLinkResolutionError,RateLimitResult,TokenIpRateLimiter,addCalendarDaysUtc,normalizeEncryptionKey,PublicLinkRateLimitStore,PublicLinkRateLimiterOptions,PublicLinkRateLimitDecision,RateLimitEntry,PublicLinkRateLimiter,MapRateLimitStore,LINK_TOKEN_BYTES,LINK_EXPIRY_DAYS,INVALID_LINK_RESPONSE,Request,authMiddleware,optionalAuthMiddleware,with,AppError,domainErrorToStatus,formatZodError,errorHandler,appendContractSignatureStatuses,that,roleGuard,ZodSchema,validate,AuthMolecule,RentalContract,ContractFilters,ContractMolecule,CreateCaseInput,UploadOriginalDocumentInput,UploadSignedDocumentInput,ContractSignatureCase,ContractDocumentVersion,UploadOriginalDocumentResult,ContractRow,RiderRow,MotorcycleRow,AdminRow,DeliveryContextRow,ContractDeliveryAttempt,SendContractInput,SendContractResult,StartReviewInput,ContractVerification,ManualVerificationResult,ApprovalResult,RejectionResult,ReviewStartResult,AdministrativeSignatureCase,ContractDeliveryAttemptPage,ReviewQueueItem,ReviewQueuePage,AdministrativeDocumentDownload,ContractSignatureCursor,ContractSignaturePageOptions,ReviewInput,ContractDecisionResult,PublicLinkAccessResult,PublicOriginalDownloadResult,PublicSignedUploadResult,ContractEmailQueueInput,ContractSignatureMoleculeOptions,bufferStream,ContractSignatureMolecule,normalizeContractSignaturePageLimit,encodeContractSignatureCursor,decodeContractSignatureCursor,normalizePublicLinkBaseUrl,UpdateCosignerInput,Cosigner,CosignerMolecule,ErrandType,generatePin,QuoteErrandInput,ErrandQuote,Errand,ErrandFilters,ErrandMolecule,declares,IMolecule,Role,PaginatedResult,JwtPayload,NotificationRecipientRole,NotificationPriority,InAppNotification,CreateNotificationInput,NotificationRow,InAppNotificationMolecule,ErrandsByStatus,MotorcyclesByStatus,ContractsByStatus,AdminErrandFilters,AdminErrand,MetricsMolecule,listAllRiders,listMotorcyclesForSelection,listRidersForSelection,UpdateMotorcycleInput,Motorcycle,MotorcycleFilters,MotorcycleMolecule,Notification,NotificationMolecule,RentalPayment,PaymentMolecule,PricingRule,PricingMolecule,Rider,RiderMolecule,User,UserMolecule,createAuthRoutes,NextFunction,RequestHandler,Response,AdministrativeRequest,createContractSignatureAdminRoutes,withCaseAuthorization,parseAdministrativeMultipart,serializeCase,serializeVersion,serializeAttempt,serializeReviewQueueItem,ContractSignaturePublicRoutesOptions,createContractSignaturePublicRoutes,publicRequestGuard,sendPublicUploadError,sendPublicEndpointError,sendPublicUnexpectedError,createContractRoutes,createCosignerRoutes,createErrandRoutes,createMetricsRoutes,as,createMotorcycleRoutes,createNotificationRoutes,createPaymentRoutes,createPricingRoutes,createRiderRoutes,createUserRoutes,NavigationItem,NotificationDropdownProps,NotificationListProps,NotificationListItemProps,NotificationModalProps,NotificationToastProps,TableColumn,TableProps,RiderRegistrationFormProps,ButtonProps,CaptionProps,CardProps,RouteLocation,RoutePreview,RouteValue,InputProps,RiderRouteActionsProps,MapRef,RoutePickerMapboxProps,PointKind,GeocoderFeature,ReverseGeocodingResponse,AuthState,AuthContextType,RegisterData,useAuth,PeriodFilterType,PeriodType,MetricsData,Contract,StatusCount,UseNotificationsReturn,TabConfig,RiderOption,MotorcycleOption,FeatureCardProps,DateRange,CreateErrandForm,RequestOptions,ApiError,api
-files | biocore_application_components.toon,dependencies.toon,node_mounts.toon,node_routes.toon,react_components.toon,react_hooks.toon,relationships.toon
+
+--- facet_stats
+Facet | File | Kind | Rows | Columns
+dependencies | dependencies.toon | support | 28 | Name,Version,Type
+react_components | react_components.toon | entity | 42 | Name,File,Purpose,Props,Consumes
+react_hooks | react_hooks.toon | entity | 11 | Name,File,Purpose,Returns
+node_routes | node_routes.toon | entity | 57 | RouteId,Method,Path,Handler,File,Purpose
+biocore_application_components | biocore_application_components.toon | architecture | 734 | Name,Layer,Kind,File,Contract,Purpose
+node_mounts | node_mounts.toon | architecture | 25 | Name,Mount,Router,Middleware,File
+relationships | relationships.toon | graph | 295 | From,To,Relation,File
+
+--- architecture_summary
+Profile | Layer | Count | Facets | Examples
+biocore-application | dependencies | 28 | dependencies | @fontsource/poppins,@mapbox/search-js-react,mapbox-gl
+biocore-application | react_components | 42 | react_components | Footer,ImageContentHome,MobileBottomNav
+biocore-application | react_hooks | 11 | react_hooks | useContracts,useDarkMode,useAvailableErrands
+biocore-application | node_routes | 57 | node_routes | src/routes/auth.routes.ts#POST:/login,src/routes/contract-signature.admin.routes.ts#POST:/contracts/:contractId/signature-case,src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/review
+biocore-application | Composition | 10 | biocore_application_components | MoleculeContainer,createApp,Database
+biocore-application | Atom | 83 | biocore_application_components | getCurrentUtcTimestamp,getCurrentUtcTimestampSqlite,toUtcIso
+biocore-application | Domain | 51 | biocore_application_components | DocumentStatus,FormalizationStatus,DeliveryAttention
+biocore-application | Infrastructure | 297 | biocore_application_components | DownloadableStatus,BackupCapacityEstimate,BackupVersionEntry
+biocore-application | Middleware | 15 | biocore_application_components | Request,authMiddleware,optionalAuthMiddleware
+biocore-application | Molecule | 125 | biocore_application_components | AuthMolecule,ContractEmailService,Database
+biocore-application | Route | 37 | biocore_application_components | createAuthRoutes,NextFunction,Request
+biocore-application | FrontendComponent | 46 | biocore_application_components | Footer,ImageContentHome,index
+biocore-application | FrontendContext | 5 | biocore_application_components | AuthState,AuthContextType,RegisterData
+biocore-application | FrontendHook | 24 | biocore_application_components | PeriodFilterType,PeriodType,MetricsData
+biocore-application | FrontendPage | 38 | biocore_application_components | TabConfig,AdminWorkspace,CreateCosigner
+biocore-application | FrontendService | 3 | biocore_application_components | RequestOptions,ApiError,api
+biocore-application | node_mounts | 25 | node_mounts | src/app.ts#/api/auth:createAuthRoutes,src/app.ts#/api/users:createUserRoutes,src/app.ts#/api/riders:createRiderRoutes
+biocore-application | relationships | 295 | relationships | app,app,app
+```
+
+## Facets
+```toon
+--- node_routes
+RouteId | Method | Path | Handler | File | Purpose
+src/routes/auth.routes.ts#POST:/login | POST | /login | - | src/routes/auth.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#POST:/contracts/:contractId/signature-case | POST | /contracts/:contractId/signature-case | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/review | GET | /contract-signatures/review | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId | GET | /contract-signatures/:caseId | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/original | POST | /contract-signatures/:caseId/original | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/send | POST | /contract-signatures/:caseId/send | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/resend | POST | /contract-signatures/:caseId/resend | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId/attempts | GET | /contract-signatures/:caseId/attempts | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId/audit | GET | /contract-signatures/:caseId/audit | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/review/start | POST | /contract-signatures/:caseId/review/start | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/verify | POST | /contract-signatures/:caseId/verify | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/approve | POST | /contract-signatures/:caseId/approve | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/reject | POST | /contract-signatures/:caseId/reject | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId/versions/:versionId/download | GET | /contract-signatures/:caseId/versions/:versionId/download | - | src/routes/contract-signature.admin.routes.ts | -
+src/routes/contract-signature.public.routes.ts#POST:/:token/signed | POST | /:token/signed | - | src/routes/contract-signature.public.routes.ts | -
+src/routes/contract-signature.public.routes.ts#GET:/:token/original | GET | /:token/original | - | src/routes/contract-signature.public.routes.ts | -
+src/routes/contract-signature.public.routes.ts#GET:/:token | GET | /:token | - | src/routes/contract-signature.public.routes.ts | -
+src/routes/contract.routes.ts#GET:/ | GET | / | - | src/routes/contract.routes.ts | -
+src/routes/contract.routes.ts#POST:/ | POST | / | - | src/routes/contract.routes.ts | -
+src/routes/contract.routes.ts#PATCH:/:id/cancel | PATCH | /:id/cancel | - | src/routes/contract.routes.ts | -
+src/routes/contract.routes.ts#PATCH:/:id/renew | PATCH | /:id/renew | - | src/routes/contract.routes.ts | -
+src/routes/cosigner.routes.ts#GET:/:riderId/cosigners | GET | /:riderId/cosigners | - | src/routes/cosigner.routes.ts | -
+src/routes/cosigner.routes.ts#POST:/:riderId/cosigners | POST | /:riderId/cosigners | - | src/routes/cosigner.routes.ts | -
+src/routes/cosigner.routes.ts#PUT:/cosigners/:id | PUT | /cosigners/:id | - | src/routes/cosigner.routes.ts | -
+src/routes/errand.routes.ts#POST:/route-estimate | POST | /route-estimate | - | src/routes/errand.routes.ts | -
+src/routes/errand.routes.ts#POST:/quote | POST | /quote | - | src/routes/errand.routes.ts | -
+src/routes/errand.routes.ts#POST:/ | POST | / | - | src/routes/errand.routes.ts | -
+src/routes/errand.routes.ts#GET:/available | GET | /available | - | src/routes/errand.routes.ts | -
+src/routes/errand.routes.ts#GET:/my | GET | /my | - | src/routes/errand.routes.ts | -
+src/routes/errand.routes.ts#GET:/:id/route-preview | GET | /:id/route-preview | - | src/routes/errand.routes.ts | -
+src/routes/errand.routes.ts#PATCH:/:id/accept | PATCH | /:id/accept | - | src/routes/errand.routes.ts | -
+src/routes/errand.routes.ts#PATCH:/:id/pickup | PATCH | /:id/pickup | - | src/routes/errand.routes.ts | -
+src/routes/errand.routes.ts#PATCH:/:id/deliver | PATCH | /:id/deliver | - | src/routes/errand.routes.ts | -
+src/routes/errand.routes.ts#PATCH:/:id/cancel | PATCH | /:id/cancel | - | src/routes/errand.routes.ts | -
+src/routes/metrics.routes.ts#GET:/metrics | GET | /metrics | - | src/routes/metrics.routes.ts | -
+src/routes/metrics.routes.ts#GET:/errands | GET | /errands | - | src/routes/metrics.routes.ts | -
+src/routes/metrics.routes.ts#GET:/riders | GET | /riders | - | src/routes/metrics.routes.ts | -
+src/routes/metrics.routes.ts#GET:/riders-select | GET | /riders-select | - | src/routes/metrics.routes.ts | -
+src/routes/metrics.routes.ts#GET:/motorcycles-select | GET | /motorcycles-select | - | src/routes/metrics.routes.ts | -
+src/routes/metrics.routes.ts#PATCH:/riders/:id/availability | PATCH | /riders/:id/availability | - | src/routes/metrics.routes.ts | -
+src/routes/motorcycle.routes.ts#GET:/ | GET | / | - | src/routes/motorcycle.routes.ts | -
+src/routes/motorcycle.routes.ts#POST:/ | POST | / | - | src/routes/motorcycle.routes.ts | -
+src/routes/motorcycle.routes.ts#PUT:/:id | PUT | /:id | - | src/routes/motorcycle.routes.ts | -
+src/routes/motorcycle.routes.ts#PATCH:/:id/status | PATCH | /:id/status | - | src/routes/motorcycle.routes.ts | -
+src/routes/notification.routes.ts#GET:/ | GET | / | - | src/routes/notification.routes.ts | -
+src/routes/notification.routes.ts#GET:/unread-count | GET | /unread-count | - | src/routes/notification.routes.ts | -
+src/routes/notification.routes.ts#PATCH:/read-all | PATCH | /read-all | - | src/routes/notification.routes.ts | -
+src/routes/notification.routes.ts#PATCH:/:id/read | PATCH | /:id/read | - | src/routes/notification.routes.ts | -
+src/routes/notification.routes.ts#DELETE:/:id | DELETE | /:id | - | src/routes/notification.routes.ts | -
+src/routes/payment.routes.ts#GET:/:contractId/payments | GET | /:contractId/payments | - | src/routes/payment.routes.ts | -
+src/routes/payment.routes.ts#POST:/:contractId/payments | POST | /:contractId/payments | - | src/routes/payment.routes.ts | -
+src/routes/pricing.routes.ts#GET:/ | GET | / | - | src/routes/pricing.routes.ts | -
+src/routes/pricing.routes.ts#POST:/ | POST | / | - | src/routes/pricing.routes.ts | -
+src/routes/pricing.routes.ts#PATCH:/:id/deactivate | PATCH | /:id/deactivate | - | src/routes/pricing.routes.ts | -
+src/routes/rider.routes.ts#POST:/register | POST | /register | - | src/routes/rider.routes.ts | -
+src/routes/rider.routes.ts#PATCH:/me/availability | PATCH | /me/availability | - | src/routes/rider.routes.ts | -
+src/routes/user.routes.ts#POST:/register | POST | /register | - | src/routes/user.routes.ts | -
 
 --- biocore_application_components
 Name | Layer | Kind | File | Contract | Purpose
@@ -1493,481 +1644,4 @@ CreateErrand | FrontendPage | const | frontend/src/pages/user/CreateErrand.tsx |
 UserMyErrands | FrontendPage | const | frontend/src/pages/user/MyErrands.tsx | - | Lets customers track and manage their errand requests.
 RequestOptions | FrontendService | interface | frontend/src/services/api.ts | extends Error | -
 ApiError | FrontendService | class | frontend/src/services/api.ts | extends Error | -
-api | FrontendService | const | frontend/src/services/api.ts | extends Error | -
-
---- dependencies
-Name | Version | Type
-@fontsource/poppins | ^5.3.0 | prod
-@mapbox/search-js-react | 1.6.0 | prod
-mapbox-gl | 3.28.1 | prod
-react | ^18.3.1 | prod
-react-dom | ^18.3.1 | prod
-react-map-gl | 8.1.2 | prod
-react-router-dom | ^6.28.0 | prod
-@vitejs/plugin-react | ^4.3.4 | dev
-autoprefixer | ^10.4.20 | dev
-postcss | ^8.4.49 | dev
-tailwindcss | ^3.4.15 | dev
-typescript | ^5.7.3 | dev
-vite | ^5.4.11 | dev
-@aws-sdk/client-s3 | 3.750.0 | prod
-@mapbox/mapbox-sdk | 0.16.2 | prod
-bcrypt | 5.1.1 | prod
-better-sqlite3 | 11.7.0 | prod
-express | 4.21.2 | prod
-jsonwebtoken | 9.0.2 | prod
-nodemailer | 6.9.16 | prod
-pdf-lib | 1.17.1 | prod
-pino | 9.6.0 | prod
-pino-pretty | 13.0.0 | prod
-uuid | 11.1.0 | prod
-zod | 3.24.2 | prod
-fast-check | 3.23.2 | dev
-supertest | 7.0.0 | dev
-tsx | 4.19.2 | dev
-
---- node_mounts
-Name | Mount | Router | Middleware | File
-src/app.ts#/api/auth:createAuthRoutes | /api/auth | createAuthRoutes | - | src/app.ts
-src/app.ts#/api/users:createUserRoutes | /api/users | createUserRoutes | - | src/app.ts
-src/app.ts#/api/riders:createRiderRoutes | /api/riders | createRiderRoutes | - | src/app.ts
-src/app.ts#/public/contract-signatures:createContractSignaturePublicRoutes | /public/contract-signatures | createContractSignaturePublicRoutes | - | src/app.ts
-src/app.ts#/api:createContractSignatureAdminRoutes | /api | createContractSignatureAdminRoutes | - | src/app.ts
-src/app.ts#/api/motorcycles:createMotorcycleRoutes | /api/motorcycles | createMotorcycleRoutes | - | src/app.ts
-src/app.ts#/api/contracts:createContractRoutes | /api/contracts | createContractRoutes | - | src/app.ts
-src/app.ts#/api/pricing-rules:createPricingRoutes | /api/pricing-rules | createPricingRoutes | - | src/app.ts
-src/app.ts#/api/admin:createMetricsRoutes | /api/admin | createMetricsRoutes | - | src/app.ts
-src/app.ts#/api/riders:createCosignerRoutes | /api/riders | createCosignerRoutes | - | src/app.ts
-src/app.ts#/api/contracts:createPaymentRoutes | /api/contracts | createPaymentRoutes | - | src/app.ts
-src/app.ts#/api/errands:createErrandRoutes | /api/errands | createErrandRoutes | - | src/app.ts
-src/app.ts#/api/notifications:createNotificationRoutes | /api/notifications | createNotificationRoutes | - | src/app.ts
-src/app.ts#/:errorHandler | / | - | errorHandler | src/app.ts
-src/routes/contract-signature.admin.routes.ts#/contracts/:contractId/signature-case:authMiddleware,roleGuard | /contracts/:contractId/signature-case | - | authMiddleware,roleGuard | src/routes/contract-signature.admin.routes.ts
-src/routes/contract-signature.admin.routes.ts#/contract-signatures:authMiddleware,roleGuard | /contract-signatures | - | authMiddleware,roleGuard | src/routes/contract-signature.admin.routes.ts
-src/routes/contract-signature.public.routes.ts#/:optionalAuthMiddleware | / | - | optionalAuthMiddleware | src/routes/contract-signature.public.routes.ts
-src/routes/contract.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/contract.routes.ts
-src/routes/cosigner.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/cosigner.routes.ts
-src/routes/errand.routes.ts#/:authMiddleware | / | - | authMiddleware | src/routes/errand.routes.ts
-src/routes/metrics.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/metrics.routes.ts
-src/routes/motorcycle.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/motorcycle.routes.ts
-src/routes/notification.routes.ts#/:authMiddleware | / | - | authMiddleware | src/routes/notification.routes.ts
-src/routes/payment.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/payment.routes.ts
-src/routes/pricing.routes.ts#/:authMiddleware,roleGuard | / | - | authMiddleware,roleGuard | src/routes/pricing.routes.ts
-
---- node_routes
-RouteId | Method | Path | Handler | File | Purpose
-src/routes/auth.routes.ts#POST:/login | POST | /login | - | src/routes/auth.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#POST:/contracts/:contractId/signature-case | POST | /contracts/:contractId/signature-case | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/review | GET | /contract-signatures/review | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId | GET | /contract-signatures/:caseId | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/original | POST | /contract-signatures/:caseId/original | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/send | POST | /contract-signatures/:caseId/send | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/resend | POST | /contract-signatures/:caseId/resend | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId/attempts | GET | /contract-signatures/:caseId/attempts | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId/audit | GET | /contract-signatures/:caseId/audit | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/review/start | POST | /contract-signatures/:caseId/review/start | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/verify | POST | /contract-signatures/:caseId/verify | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/approve | POST | /contract-signatures/:caseId/approve | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#POST:/contract-signatures/:caseId/reject | POST | /contract-signatures/:caseId/reject | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.admin.routes.ts#GET:/contract-signatures/:caseId/versions/:versionId/download | GET | /contract-signatures/:caseId/versions/:versionId/download | - | src/routes/contract-signature.admin.routes.ts | -
-src/routes/contract-signature.public.routes.ts#POST:/:token/signed | POST | /:token/signed | - | src/routes/contract-signature.public.routes.ts | -
-src/routes/contract-signature.public.routes.ts#GET:/:token/original | GET | /:token/original | - | src/routes/contract-signature.public.routes.ts | -
-src/routes/contract-signature.public.routes.ts#GET:/:token | GET | /:token | - | src/routes/contract-signature.public.routes.ts | -
-src/routes/contract.routes.ts#GET:/ | GET | / | - | src/routes/contract.routes.ts | -
-src/routes/contract.routes.ts#POST:/ | POST | / | - | src/routes/contract.routes.ts | -
-src/routes/contract.routes.ts#PATCH:/:id/cancel | PATCH | /:id/cancel | - | src/routes/contract.routes.ts | -
-src/routes/contract.routes.ts#PATCH:/:id/renew | PATCH | /:id/renew | - | src/routes/contract.routes.ts | -
-src/routes/cosigner.routes.ts#GET:/:riderId/cosigners | GET | /:riderId/cosigners | - | src/routes/cosigner.routes.ts | -
-src/routes/cosigner.routes.ts#POST:/:riderId/cosigners | POST | /:riderId/cosigners | - | src/routes/cosigner.routes.ts | -
-src/routes/cosigner.routes.ts#PUT:/cosigners/:id | PUT | /cosigners/:id | - | src/routes/cosigner.routes.ts | -
-src/routes/errand.routes.ts#POST:/route-estimate | POST | /route-estimate | - | src/routes/errand.routes.ts | -
-src/routes/errand.routes.ts#POST:/quote | POST | /quote | - | src/routes/errand.routes.ts | -
-src/routes/errand.routes.ts#POST:/ | POST | / | - | src/routes/errand.routes.ts | -
-src/routes/errand.routes.ts#GET:/available | GET | /available | - | src/routes/errand.routes.ts | -
-src/routes/errand.routes.ts#GET:/my | GET | /my | - | src/routes/errand.routes.ts | -
-src/routes/errand.routes.ts#GET:/:id/route-preview | GET | /:id/route-preview | - | src/routes/errand.routes.ts | -
-src/routes/errand.routes.ts#PATCH:/:id/accept | PATCH | /:id/accept | - | src/routes/errand.routes.ts | -
-src/routes/errand.routes.ts#PATCH:/:id/pickup | PATCH | /:id/pickup | - | src/routes/errand.routes.ts | -
-src/routes/errand.routes.ts#PATCH:/:id/deliver | PATCH | /:id/deliver | - | src/routes/errand.routes.ts | -
-src/routes/errand.routes.ts#PATCH:/:id/cancel | PATCH | /:id/cancel | - | src/routes/errand.routes.ts | -
-src/routes/metrics.routes.ts#GET:/metrics | GET | /metrics | - | src/routes/metrics.routes.ts | -
-src/routes/metrics.routes.ts#GET:/errands | GET | /errands | - | src/routes/metrics.routes.ts | -
-src/routes/metrics.routes.ts#GET:/riders | GET | /riders | - | src/routes/metrics.routes.ts | -
-src/routes/metrics.routes.ts#GET:/riders-select | GET | /riders-select | - | src/routes/metrics.routes.ts | -
-src/routes/metrics.routes.ts#GET:/motorcycles-select | GET | /motorcycles-select | - | src/routes/metrics.routes.ts | -
-src/routes/metrics.routes.ts#PATCH:/riders/:id/availability | PATCH | /riders/:id/availability | - | src/routes/metrics.routes.ts | -
-src/routes/motorcycle.routes.ts#GET:/ | GET | / | - | src/routes/motorcycle.routes.ts | -
-src/routes/motorcycle.routes.ts#POST:/ | POST | / | - | src/routes/motorcycle.routes.ts | -
-src/routes/motorcycle.routes.ts#PUT:/:id | PUT | /:id | - | src/routes/motorcycle.routes.ts | -
-src/routes/motorcycle.routes.ts#PATCH:/:id/status | PATCH | /:id/status | - | src/routes/motorcycle.routes.ts | -
-src/routes/notification.routes.ts#GET:/ | GET | / | - | src/routes/notification.routes.ts | -
-src/routes/notification.routes.ts#GET:/unread-count | GET | /unread-count | - | src/routes/notification.routes.ts | -
-src/routes/notification.routes.ts#PATCH:/read-all | PATCH | /read-all | - | src/routes/notification.routes.ts | -
-src/routes/notification.routes.ts#PATCH:/:id/read | PATCH | /:id/read | - | src/routes/notification.routes.ts | -
-src/routes/notification.routes.ts#DELETE:/:id | DELETE | /:id | - | src/routes/notification.routes.ts | -
-src/routes/payment.routes.ts#GET:/:contractId/payments | GET | /:contractId/payments | - | src/routes/payment.routes.ts | -
-src/routes/payment.routes.ts#POST:/:contractId/payments | POST | /:contractId/payments | - | src/routes/payment.routes.ts | -
-src/routes/pricing.routes.ts#GET:/ | GET | / | - | src/routes/pricing.routes.ts | -
-src/routes/pricing.routes.ts#POST:/ | POST | / | - | src/routes/pricing.routes.ts | -
-src/routes/pricing.routes.ts#PATCH:/:id/deactivate | PATCH | /:id/deactivate | - | src/routes/pricing.routes.ts | -
-src/routes/rider.routes.ts#POST:/register | POST | /register | - | src/routes/rider.routes.ts | -
-src/routes/rider.routes.ts#PATCH:/me/availability | PATCH | /me/availability | - | src/routes/rider.routes.ts | -
-src/routes/user.routes.ts#POST:/register | POST | /register | - | src/routes/user.routes.ts | -
-
---- react_components
-Name | File | Purpose | Props | Consumes
-Footer | frontend/src/components/layout/Footer.tsx | Provides site-wide navigation and business information. | - | -
-ImageContentHome | frontend/src/components/layout/ImageContentHome.tsx | Promotes the service with branded home-page imagery. | - | -
-MobileBottomNav | frontend/src/components/layout/MobileBottomNav.tsx | Enables mobile users to navigate core app areas. | isActive | useAuth
-TopNav | frontend/src/components/layout/TopNav.tsx | Provides authenticated navigation and account controls. | - | useAuth,useDarkMode
-NotificationBell | frontend/src/components/notifications/NotificationBell.tsx | Signals unread operational updates to users. | - | useNotifications
-NotificationDropdown | frontend/src/components/notifications/NotificationDropdown.tsx | Displays recent notifications for quick user action. | unreadCount,notifications,isLoading,hasError,onClose | -
-NotificationList | frontend/src/components/notifications/NotificationList.tsx | Organizes notifications for review and management. | notifications,isLoading,hasError,onMarkAsRead,onDelete | -
-NotificationListItem | frontend/src/components/notifications/NotificationListItem.tsx | Presents notification details and available actions. | notification,onMarkAsRead,onDelete | -
-NotificationModal | frontend/src/components/notifications/NotificationModal.tsx | Provides focused notification review and interaction. | - | -
-NotificationToast | frontend/src/components/notifications/NotificationToast.tsx | Alerts users to timely events with quick inbox access. | notification,onClose,onOpenInbox | -
-Table | frontend/src/components/shared/components/Table/index.tsx | Presents business records in a consistent, scannable format. | - | -
-RiderRegistrationForm | frontend/src/components/shared/RiderRegistrationForm.tsx | Captures rider details to initiate onboarding. | title,submitLabel,onSuccess | -
-Button | frontend/src/components/ui/Button.tsx | Provides consistent action controls across business workflows. | variant = "primary",children,className = "",...props | -
-Caption | frontend/src/components/ui/Caption.tsx | Displays supporting text that clarifies business content. | children,className = "" | -
-Card | frontend/src/components/ui/Card.tsx | Groups related business content into a clear visual unit. | children,variant = "base",className = "" | -
-Input | frontend/src/components/ui/Input.tsx | Captures validated user data for business workflows. | label,className = "",id,...props | -
-RiderRouteActions | frontend/src/components/ui/RiderRouteActions.tsx | Supports rider route decisions and errand progression. | errand,navigationTarget,mobileMapFirst = false,autoLoadOnMobile = false | useEffect,useState,useErrandActions
-RoutePickerMapbox | frontend/src/components/ui/RoutePickerMapbox.tsx | Helps users select and preview delivery routes. | value,onChange,routePreview = null | useRef,useState
-AuthProvider | frontend/src/context/AuthContext.tsx | Manages user identity and access across the application. | children | -
-AdminWorkspace | frontend/src/pages/admin/AdminWorkspace.tsx | Centralizes administrative operations and oversight. | - | useSearchParams
-CreateCosigner | frontend/src/pages/admin/consigners/CreateCosigner.tsx | Records cosigner details for rider contract support. | name,address,phone,relationship,identity_document | useNavigate,useAuth
-Contracts | frontend/src/pages/admin/contracts/Contracts.tsx | Enables administrators to monitor rider contracts. | - | useContracts
-CreateContract | frontend/src/pages/admin/contracts/CreateContract.tsx | Creates rider contracts with required business terms. | ...prev,[field] | useNavigate,useAuth
-CreatePayment | frontend/src/pages/admin/CreatePayment.tsx | Records contract payments for financial tracking. | amount,payment_date,payment_method,period,notes | useNavigate,useAuth
-AdminErrands | frontend/src/pages/admin/errands/AdminErrands.tsx | Helps administrators oversee errand operations. | - | useAdminErrands
-Metrics | frontend/src/pages/admin/metrics/Metrics.tsx | Displays operational metrics for business decision-making. | - | useMetrics
-CreateMotorcycle | frontend/src/pages/admin/motorcycles/CreateMotorcycle.tsx | Registers motorcycles for fleet management. | ...prev,[field] | useNavigate,useAuth
-Motorcycles | frontend/src/pages/admin/motorcycles/Motorcycles.tsx | Enables administrators to manage the motorcycle fleet. | - | useMotorcycles
-CreateRider | frontend/src/pages/admin/riders/CreateRider.tsx | Registers riders for operational assignment. | - | useNavigate
-Riders | frontend/src/pages/admin/riders/Riders.tsx | Supports administration of rider records and availability. | - | useRiders,useAuth
-CreatePricingRule | frontend/src/pages/admin/rules/CreatePricingRule.tsx | Defines pricing rules for consistent errand quotes. | errand_type,base_rate,rate_per_km,commission_percentage | useNavigate,useAuth
-PricingRules | frontend/src/pages/admin/rules/PricingRules.tsx | Enables administrators to manage active pricing rules. | - | usePricingRules
-Login | frontend/src/pages/auth/Login.tsx | Authenticates users before granting application access. | - | useNavigate,useAuth
-Register | frontend/src/pages/auth/Register.tsx | Creates customer accounts for service access. | name,email,phone,address,password | useNavigate,useAuth
-RegisterRider | frontend/src/pages/auth/RegisterRider.tsx | Starts rider onboarding and account creation. | - | useNavigate
-Dashboard | frontend/src/pages/Dashboard.tsx | Gives users a role-based summary of key activities. | title,href | useAuth
-Home | frontend/src/pages/Home.tsx | Introduces the service and directs users to core actions. | title,description | -
-AvailableErrands | frontend/src/pages/rider/AvailableErrands.tsx | Helps riders discover and accept available errands. | - | useAvailableErrands,useErrandActions
-RiderErrands | frontend/src/pages/rider/RiderErrands.tsx | Lets riders track and manage their assigned errands. | - | useMyErrands,useErrandActions
-RiderHome | frontend/src/pages/rider/RiderHome.tsx | Summarizes rider workload and current errand activity. | - | useMyErrands
-CreateErrand | frontend/src/pages/user/CreateErrand.tsx | Captures delivery requests for pricing and fulfillment. | origin,destination | useNavigate,useErrandActions
-UserMyErrands | frontend/src/pages/user/MyErrands.tsx | Lets customers track and manage their errand requests. | - | useMyErrands,useErrandActions
-
---- react_hooks
-Name | File | Purpose | Returns
-useContracts | frontend/src/hooks/useContracts.ts | Retrieves and refreshes contract data for administrators. | { contracts, loading, error, refresh }
-useDarkMode | frontend/src/hooks/useDarkMode.ts | Controls display theme preferences across the application. | { isDark, toggle }
-useAvailableErrands | frontend/src/hooks/useErrands.ts | Retrieves errands available for rider assignment. | { errands, loading, error, refresh }
-useMyErrands | frontend/src/hooks/useErrands.ts | Retrieves a user's errands for status tracking. | { errands, loading, error, refresh }
-useAdminErrands | frontend/src/hooks/useErrands.ts | Retrieves errand data for administrative oversight. | { errands, loading, error, refresh }
-useErrandActions | frontend/src/hooks/useErrands.ts | Coordinates errand actions across fulfillment workflows. | { errands, loading, error, refresh }
-useMetrics | frontend/src/hooks/useMetrics.ts | Retrieves business metrics and reporting date ranges. | { metrics, loading, error, refresh, getDateRange }
-useMotorcycles | frontend/src/hooks/useMotorcycles.ts | Retrieves and refreshes fleet motorcycle records. | { motorcycles, loading, error, refresh }
-useNotifications | frontend/src/hooks/useNotifications.ts | Retrieves notifications and manages their read status. | UseNotificationsReturn
-usePricingRules | frontend/src/hooks/usePricingRules.ts | Retrieves pricing rules for quote management. | { rules, loading, error, refresh }
-useRiders | frontend/src/hooks/useRiders.ts | Retrieves and refreshes rider records for operations. | { riders, loading, error, refresh }
-
---- relationships
-From | To | Relation | File
-app | auth.routes | imports | src/app.ts
-app | user.routes | imports | src/app.ts
-app | rider.routes | imports | src/app.ts
-app | motorcycle.routes | imports | src/app.ts
-app | contract.routes | imports | src/app.ts
-app | cosigner.routes | imports | src/app.ts
-app | payment.routes | imports | src/app.ts
-app | pricing.routes | imports | src/app.ts
-app | errand.routes | imports | src/app.ts
-app | notification.routes | imports | src/app.ts
-app | metrics.routes | imports | src/app.ts
-app | contract-signature.public.routes | imports | src/app.ts
-app | contract-signature.admin.routes | imports | src/app.ts
-app | errorHandler.middleware | imports | src/app.ts
-auth.schemas | base.schemas | imports | src/atoms/schemas/auth.schemas.ts
-contractSignature.schemas | contractSignature | imports | src/atoms/schemas/contractSignature.schemas.ts
-errand.schemas | base.schemas | imports | src/atoms/schemas/errand.schemas.ts
-motorcycle.schemas | base.schemas | imports | src/atoms/schemas/motorcycle.schemas.ts
-rider.schemas | base.schemas | imports | src/atoms/schemas/rider.schemas.ts
-user.schemas | base.schemas | imports | src/atoms/schemas/user.schemas.ts
-schemas | user.schemas | imports | src/atoms/schemas.ts
-contractSignature | errors | imports | src/domains/contractSignature.ts
-index | App | imports | src/index.ts
-index | database | imports | src/index.ts
-index | logger | imports | src/index.ts
-index | scheduler | imports | src/index.ts
-index | AuthMolecule | imports | src/index.ts
-index | UserMolecule | imports | src/index.ts
-index | RiderMolecule | imports | src/index.ts
-index | MotorcycleMolecule | imports | src/index.ts
-index | ContractMolecule | imports | src/index.ts
-index | CosignerMolecule | imports | src/index.ts
-index | PaymentMolecule | imports | src/index.ts
-index | PricingMolecule | imports | src/index.ts
-index | ErrandMolecule | imports | src/index.ts
-index | NotificationMolecule | imports | src/index.ts
-index | InAppNotificationMolecule | imports | src/index.ts
-index | MetricsMolecule | imports | src/index.ts
-index | MapboxRoutingProvider | injects | src/index.ts
-index | DocumentStorageFactory | imports | src/index.ts
-index | ContractSignatureMolecule | imports | src/index.ts
-index | PdfValidator | imports | src/index.ts
-index | TokenService | injects | src/index.ts
-index | ContractAuditService | injects | src/index.ts
-index | ContractEmailService | injects | src/index.ts
-index | ContractEmailWorker | imports | src/index.ts
-index | StorageReconciler | imports | src/index.ts
-index | ContractSignatureScheduler | imports | src/index.ts
-BackupCoordinator | ContractAuditService | injects | src/infrastructure/BackupCoordinator.ts
-ContractAuditService | contractSignature | imports | src/infrastructure/ContractAuditService.ts
-ContractAuditService | errors | imports | src/infrastructure/ContractAuditService.ts
-ContractDocumentRepository | DocumentStorage | imports | src/infrastructure/ContractDocumentRepository.ts
-ContractEmailService | contractSignature | imports | src/infrastructure/ContractEmailService.ts
-ContractEmailWorker | ContractAuditService | injects | src/infrastructure/ContractEmailWorker.ts
-ContractEmailWorker | logger | imports | src/infrastructure/ContractEmailWorker.ts
-database | logger | imports | src/infrastructure/database.ts
-DocumentStorageFactory | ContractDocumentRepository | imports | src/infrastructure/DocumentStorageFactory.ts
-DocumentStorageFactory | DocumentStorage | imports | src/infrastructure/DocumentStorageFactory.ts
-DocumentStorageFactory | S3CompatibleDocumentStorage | imports | src/infrastructure/DocumentStorageFactory.ts
-DocumentStorageFactory | S3ObjectClient | imports | src/infrastructure/DocumentStorageFactory.ts
-DocumentStorageMigration | ContractAuditService | injects | src/infrastructure/DocumentStorageMigration.ts
-DocumentStorageMigration | DocumentStorage | imports | src/infrastructure/DocumentStorageMigration.ts
-DocumentStorageMigration | S3CompatibleDocumentStorage | imports | src/infrastructure/DocumentStorageMigration.ts
-DocumentStorageMigration | StorageReconciler | imports | src/infrastructure/DocumentStorageMigration.ts
-multipartUpload | documentFilename | imports | src/infrastructure/multipartUpload.ts
-PdfValidator | contractSignature | imports | src/infrastructure/PdfValidator.ts
-S3CompatibleDocumentStorage | DocumentStorage | imports | src/infrastructure/S3CompatibleDocumentStorage.ts
-S3ObjectClient | DocumentStorage | imports | src/infrastructure/S3ObjectClient.ts
-scheduler | logger | imports | src/infrastructure/scheduler.ts
-StorageReconciler | ContractAuditService | injects | src/infrastructure/StorageReconciler.ts
-auth.middleware | logger | imports | src/middleware/auth.middleware.ts
-errorHandler.middleware | logger | imports | src/middleware/errorHandler.middleware.ts
-errorHandler.middleware | multipartUpload | imports | src/middleware/errorHandler.middleware.ts
-errorHandler.middleware | ContractDocumentRepository | imports | src/middleware/errorHandler.middleware.ts
-errorHandler.middleware | errors | imports | src/middleware/errorHandler.middleware.ts
-AuthMolecule | password | imports | src/molecules/AuthMolecule.ts
-AuthMolecule | logger | imports | src/molecules/AuthMolecule.ts
-AuthMolecule | IMolecule | imports | src/molecules/AuthMolecule.ts
-ContractMolecule | stateMachines | imports | src/molecules/ContractMolecule.ts
-ContractMolecule | dateUtils | imports | src/molecules/ContractMolecule.ts
-ContractMolecule | errors | imports | src/molecules/ContractMolecule.ts
-ContractSignatureMolecule | DocumentStorage | imports | src/molecules/ContractSignatureMolecule.ts
-ContractSignatureMolecule | contractSignature | imports | src/molecules/ContractSignatureMolecule.ts
-ContractSignatureMolecule | errors | imports | src/molecules/ContractSignatureMolecule.ts
-ContractSignatureMolecule | dateUtils | imports | src/molecules/ContractSignatureMolecule.ts
-ContractSignatureMolecule | documentFilename | imports | src/molecules/ContractSignatureMolecule.ts
-ContractSignatureMolecule | ContractDocumentRepository | imports | src/molecules/ContractSignatureMolecule.ts
-CosignerMolecule | errors | imports | src/molecules/CosignerMolecule.ts
-ErrandMolecule | stateMachines | imports | src/molecules/ErrandMolecule.ts
-ErrandMolecule | tarifa | imports | src/molecules/ErrandMolecule.ts
-ErrandMolecule | dateUtils | imports | src/molecules/ErrandMolecule.ts
-ErrandMolecule | errors | imports | src/molecules/ErrandMolecule.ts
-MotorcycleMolecule | stateMachines | imports | src/molecules/MotorcycleMolecule.ts
-MotorcycleMolecule | dateUtils | imports | src/molecules/MotorcycleMolecule.ts
-MotorcycleMolecule | errors | imports | src/molecules/MotorcycleMolecule.ts
-NotificationMolecule | dateUtils | imports | src/molecules/NotificationMolecule.ts
-PaymentMolecule | dateUtils | imports | src/molecules/PaymentMolecule.ts
-PaymentMolecule | errors | imports | src/molecules/PaymentMolecule.ts
-PricingMolecule | dateUtils | imports | src/molecules/PricingMolecule.ts
-PricingMolecule | errors | imports | src/molecules/PricingMolecule.ts
-RiderMolecule | password | imports | src/molecules/RiderMolecule.ts
-RiderMolecule | errors | imports | src/molecules/RiderMolecule.ts
-UserMolecule | password | imports | src/molecules/UserMolecule.ts
-UserMolecule | errors | imports | src/molecules/UserMolecule.ts
-auth.routes | validate.middleware | imports | src/routes/auth.routes.ts
-auth.routes | auth.schemas | imports | src/routes/auth.routes.ts
-contract-signature.admin.routes | auth.middleware | imports | src/routes/contract-signature.admin.routes.ts
-contract-signature.admin.routes | roleGuard.middleware | imports | src/routes/contract-signature.admin.routes.ts
-contract-signature.admin.routes | validate.middleware | imports | src/routes/contract-signature.admin.routes.ts
-contract-signature.admin.routes | contractSignature.schemas | imports | src/routes/contract-signature.admin.routes.ts
-contract-signature.admin.routes | DocumentStorage | imports | src/routes/contract-signature.admin.routes.ts
-contract-signature.admin.routes | multipartUpload | imports | src/routes/contract-signature.admin.routes.ts
-contract-signature.public.routes | TokenService | imports | src/routes/contract-signature.public.routes.ts
-contract-signature.public.routes | auth.middleware | imports | src/routes/contract-signature.public.routes.ts
-contract-signature.public.routes | multipartUpload | imports | src/routes/contract-signature.public.routes.ts
-contract-signature.public.routes | contractSignature | imports | src/routes/contract-signature.public.routes.ts
-contract-signature.public.routes | errors | imports | src/routes/contract-signature.public.routes.ts
-contract-signature.public.routes | ContractDocumentRepository | imports | src/routes/contract-signature.public.routes.ts
-contract-signature.public.routes | DocumentStorage | imports | src/routes/contract-signature.public.routes.ts
-contract.routes | auth.middleware | imports | src/routes/contract.routes.ts
-contract.routes | roleGuard.middleware | imports | src/routes/contract.routes.ts
-contract.routes | validate.middleware | imports | src/routes/contract.routes.ts
-contract.routes | contract.schemas | imports | src/routes/contract.routes.ts
-cosigner.routes | auth.middleware | imports | src/routes/cosigner.routes.ts
-cosigner.routes | roleGuard.middleware | imports | src/routes/cosigner.routes.ts
-cosigner.routes | validate.middleware | imports | src/routes/cosigner.routes.ts
-cosigner.routes | cosigner.schemas | imports | src/routes/cosigner.routes.ts
-errand.routes | auth.middleware | imports | src/routes/errand.routes.ts
-errand.routes | roleGuard.middleware | imports | src/routes/errand.routes.ts
-errand.routes | validate.middleware | imports | src/routes/errand.routes.ts
-errand.routes | errand.schemas | imports | src/routes/errand.routes.ts
-metrics.routes | MetricsMolecule | imports | src/routes/metrics.routes.ts
-metrics.routes | auth.middleware | imports | src/routes/metrics.routes.ts
-metrics.routes | roleGuard.middleware | imports | src/routes/metrics.routes.ts
-motorcycle.routes | auth.middleware | imports | src/routes/motorcycle.routes.ts
-motorcycle.routes | roleGuard.middleware | imports | src/routes/motorcycle.routes.ts
-motorcycle.routes | validate.middleware | imports | src/routes/motorcycle.routes.ts
-motorcycle.routes | motorcycle.schemas | imports | src/routes/motorcycle.routes.ts
-notification.routes | auth.middleware | imports | src/routes/notification.routes.ts
-payment.routes | auth.middleware | imports | src/routes/payment.routes.ts
-payment.routes | roleGuard.middleware | imports | src/routes/payment.routes.ts
-payment.routes | validate.middleware | imports | src/routes/payment.routes.ts
-payment.routes | payment.schemas | imports | src/routes/payment.routes.ts
-pricing.routes | auth.middleware | imports | src/routes/pricing.routes.ts
-pricing.routes | roleGuard.middleware | imports | src/routes/pricing.routes.ts
-pricing.routes | validate.middleware | imports | src/routes/pricing.routes.ts
-pricing.routes | pricing.schemas | imports | src/routes/pricing.routes.ts
-rider.routes | auth.middleware | imports | src/routes/rider.routes.ts
-rider.routes | roleGuard.middleware | imports | src/routes/rider.routes.ts
-rider.routes | validate.middleware | imports | src/routes/rider.routes.ts
-rider.routes | rider.schemas | imports | src/routes/rider.routes.ts
-user.routes | validate.middleware | imports | src/routes/user.routes.ts
-user.routes | user.schemas | imports | src/routes/user.routes.ts
-migrate-contract-documents-to-s3 | database | imports | src/scripts/migrate-contract-documents-to-s3.ts
-migrate-contract-documents-to-s3 | ContractAuditService | injects | src/scripts/migrate-contract-documents-to-s3.ts
-migrate-contract-documents-to-s3 | ContractDocumentRepository | imports | src/scripts/migrate-contract-documents-to-s3.ts
-migrate-contract-documents-to-s3 | DocumentStorage | imports | src/scripts/migrate-contract-documents-to-s3.ts
-migrate-contract-documents-to-s3 | DocumentStorageFactory | imports | src/scripts/migrate-contract-documents-to-s3.ts
-migrate-contract-documents-to-s3 | DocumentStorageMigration | imports | src/scripts/migrate-contract-documents-to-s3.ts
-seed-demo | database | imports | src/scripts/seed-demo.ts
-seed-demo | password | imports | src/scripts/seed-demo.ts
-seed-dev | database | imports | src/scripts/seed-dev.ts
-seed-dev | password | imports | src/scripts/seed-dev.ts
-App | Footer | imports | frontend/src/App.tsx
-App | MobileBottomNav | imports | frontend/src/App.tsx
-App | TopNav | imports | frontend/src/App.tsx
-App | AuthContext | uses | frontend/src/App.tsx
-App | navigation | imports | frontend/src/App.tsx
-App | Home | imports | frontend/src/App.tsx
-App | Login | imports | frontend/src/App.tsx
-App | Register | imports | frontend/src/App.tsx
-App | RegisterRider | imports | frontend/src/App.tsx
-App | AdminWorkspace | imports | frontend/src/App.tsx
-App | CreateCosigner | imports | frontend/src/App.tsx
-App | CreatePayment | imports | frontend/src/App.tsx
-App | AvailableErrands | imports | frontend/src/App.tsx
-App | RiderErrands | imports | frontend/src/App.tsx
-App | RiderHome | imports | frontend/src/App.tsx
-App | CreateErrand | imports | frontend/src/App.tsx
-App | MyErrands | imports | frontend/src/App.tsx
-MobileBottomNav | AuthContext | uses | frontend/src/components/layout/MobileBottomNav.tsx
-TopNav | AuthContext | uses | frontend/src/components/layout/TopNav.tsx
-TopNav | useDarkMode | uses | frontend/src/components/layout/TopNav.tsx
-TopNav | navigation | imports | frontend/src/components/layout/TopNav.tsx
-TopNav | NotificationBell | imports | frontend/src/components/layout/TopNav.tsx
-NotificationBell | useNotifications | uses | frontend/src/components/notifications/NotificationBell.tsx
-NotificationBell | NotificationList | imports | frontend/src/components/notifications/NotificationBell.tsx
-NotificationBell | NotificationToast | imports | frontend/src/components/notifications/NotificationBell.tsx
-NotificationDropdown | NotificationList | imports | frontend/src/components/notifications/NotificationDropdown.tsx
-NotificationList | NotificationListItem | imports | frontend/src/components/notifications/NotificationList.tsx
-NotificationListItem | dateFormatter | imports | frontend/src/components/notifications/NotificationListItem.tsx
-NotificationModal | NotificationList | imports | frontend/src/components/notifications/NotificationModal.tsx
-RiderRegistrationForm | api | imports | frontend/src/components/shared/RiderRegistrationForm.tsx
-RiderRegistrationForm | Button | imports | frontend/src/components/shared/RiderRegistrationForm.tsx
-RiderRegistrationForm | Input | imports | frontend/src/components/shared/RiderRegistrationForm.tsx
-RiderRouteActions | Button | imports | frontend/src/components/ui/RiderRouteActions.tsx
-RoutePickerMapbox | Button | imports | frontend/src/components/ui/RoutePickerMapbox.tsx
-AuthContext | api | imports | frontend/src/context/AuthContext.tsx
-useContracts | AuthContext | uses | frontend/src/hooks/useContracts.ts
-useContracts | api | imports | frontend/src/hooks/useContracts.ts
-useErrands | AuthContext | uses | frontend/src/hooks/useErrands.ts
-useErrands | api | imports | frontend/src/hooks/useErrands.ts
-useMetrics | AuthContext | uses | frontend/src/hooks/useMetrics.ts
-useMetrics | api | imports | frontend/src/hooks/useMetrics.ts
-useMotorcycles | AuthContext | uses | frontend/src/hooks/useMotorcycles.ts
-useMotorcycles | api | imports | frontend/src/hooks/useMotorcycles.ts
-useNotifications | AuthContext | uses | frontend/src/hooks/useNotifications.ts
-useNotifications | api | imports | frontend/src/hooks/useNotifications.ts
-usePricingRules | AuthContext | uses | frontend/src/hooks/usePricingRules.ts
-usePricingRules | api | imports | frontend/src/hooks/usePricingRules.ts
-useRiders | AuthContext | uses | frontend/src/hooks/useRiders.ts
-useRiders | api | imports | frontend/src/hooks/useRiders.ts
-index | es | imports | frontend/src/i18n/index.ts
-main | App | imports | frontend/src/main.tsx
-AdminWorkspace | Motorcycles | imports | frontend/src/pages/admin/AdminWorkspace.tsx
-AdminWorkspace | Riders | imports | frontend/src/pages/admin/AdminWorkspace.tsx
-AdminWorkspace | Contracts | imports | frontend/src/pages/admin/AdminWorkspace.tsx
-AdminWorkspace | PricingRules | imports | frontend/src/pages/admin/AdminWorkspace.tsx
-AdminWorkspace | AdminErrands | imports | frontend/src/pages/admin/AdminWorkspace.tsx
-AdminWorkspace | Metrics | imports | frontend/src/pages/admin/AdminWorkspace.tsx
-AdminWorkspace | CreateMotorcycle | imports | frontend/src/pages/admin/AdminWorkspace.tsx
-AdminWorkspace | CreateRider | imports | frontend/src/pages/admin/AdminWorkspace.tsx
-AdminWorkspace | CreateContract | imports | frontend/src/pages/admin/AdminWorkspace.tsx
-AdminWorkspace | CreatePricingRule | imports | frontend/src/pages/admin/AdminWorkspace.tsx
-CreateCosigner | AuthContext | uses | frontend/src/pages/admin/consigners/CreateCosigner.tsx
-CreateCosigner | api | imports | frontend/src/pages/admin/consigners/CreateCosigner.tsx
-CreateCosigner | Button | imports | frontend/src/pages/admin/consigners/CreateCosigner.tsx
-CreateCosigner | Input | imports | frontend/src/pages/admin/consigners/CreateCosigner.tsx
-Contracts | useContracts | uses | frontend/src/pages/admin/contracts/Contracts.tsx
-Contracts | Button | imports | frontend/src/pages/admin/contracts/Contracts.tsx
-Contracts | dateFormatter | imports | frontend/src/pages/admin/contracts/Contracts.tsx
-CreateContract | AuthContext | uses | frontend/src/pages/admin/contracts/CreateContract.tsx
-CreateContract | api | imports | frontend/src/pages/admin/contracts/CreateContract.tsx
-CreateContract | Button | imports | frontend/src/pages/admin/contracts/CreateContract.tsx
-CreateContract | Input | imports | frontend/src/pages/admin/contracts/CreateContract.tsx
-CreatePayment | AuthContext | uses | frontend/src/pages/admin/CreatePayment.tsx
-CreatePayment | api | imports | frontend/src/pages/admin/CreatePayment.tsx
-CreatePayment | Button | imports | frontend/src/pages/admin/CreatePayment.tsx
-CreatePayment | Input | imports | frontend/src/pages/admin/CreatePayment.tsx
-AdminErrands | Button | imports | frontend/src/pages/admin/errands/AdminErrands.tsx
-AdminErrands | dateFormatter | imports | frontend/src/pages/admin/errands/AdminErrands.tsx
-Metrics | useMetrics | uses | frontend/src/pages/admin/metrics/Metrics.tsx
-Metrics | Card | imports | frontend/src/pages/admin/metrics/Metrics.tsx
-Metrics | Button | imports | frontend/src/pages/admin/metrics/Metrics.tsx
-Metrics | dateFormatter | imports | frontend/src/pages/admin/metrics/Metrics.tsx
-CreateMotorcycle | AuthContext | uses | frontend/src/pages/admin/motorcycles/CreateMotorcycle.tsx
-CreateMotorcycle | api | imports | frontend/src/pages/admin/motorcycles/CreateMotorcycle.tsx
-CreateMotorcycle | Button | imports | frontend/src/pages/admin/motorcycles/CreateMotorcycle.tsx
-CreateMotorcycle | Input | imports | frontend/src/pages/admin/motorcycles/CreateMotorcycle.tsx
-Motorcycles | useMotorcycles | uses | frontend/src/pages/admin/motorcycles/Motorcycles.tsx
-Motorcycles | Button | imports | frontend/src/pages/admin/motorcycles/Motorcycles.tsx
-Motorcycles | dateFormatter | imports | frontend/src/pages/admin/motorcycles/Motorcycles.tsx
-CreateRider | RiderRegistrationForm | imports | frontend/src/pages/admin/riders/CreateRider.tsx
-Riders | useRiders | uses | frontend/src/pages/admin/riders/Riders.tsx
-Riders | AuthContext | uses | frontend/src/pages/admin/riders/Riders.tsx
-Riders | api | imports | frontend/src/pages/admin/riders/Riders.tsx
-Riders | Button | imports | frontend/src/pages/admin/riders/Riders.tsx
-Riders | dateFormatter | imports | frontend/src/pages/admin/riders/Riders.tsx
-CreatePricingRule | AuthContext | uses | frontend/src/pages/admin/rules/CreatePricingRule.tsx
-CreatePricingRule | api | imports | frontend/src/pages/admin/rules/CreatePricingRule.tsx
-CreatePricingRule | Button | imports | frontend/src/pages/admin/rules/CreatePricingRule.tsx
-CreatePricingRule | Input | imports | frontend/src/pages/admin/rules/CreatePricingRule.tsx
-PricingRules | usePricingRules | uses | frontend/src/pages/admin/rules/PricingRules.tsx
-PricingRules | Card | imports | frontend/src/pages/admin/rules/PricingRules.tsx
-PricingRules | Button | imports | frontend/src/pages/admin/rules/PricingRules.tsx
-PricingRules | dateFormatter | imports | frontend/src/pages/admin/rules/PricingRules.tsx
-Login | AuthContext | uses | frontend/src/pages/auth/Login.tsx
-Login | Button | imports | frontend/src/pages/auth/Login.tsx
-Login | Input | imports | frontend/src/pages/auth/Login.tsx
-Login | navigation | imports | frontend/src/pages/auth/Login.tsx
-Register | AuthContext | uses | frontend/src/pages/auth/Register.tsx
-Register | Button | imports | frontend/src/pages/auth/Register.tsx
-Register | Input | imports | frontend/src/pages/auth/Register.tsx
-RegisterRider | RiderRegistrationForm | imports | frontend/src/pages/auth/RegisterRider.tsx
-Dashboard | AuthContext | uses | frontend/src/pages/Dashboard.tsx
-Dashboard | api | imports | frontend/src/pages/Dashboard.tsx
-Dashboard | Button | imports | frontend/src/pages/Dashboard.tsx
-Home | Button | imports | frontend/src/pages/Home.tsx
-Home | Card | imports | frontend/src/pages/Home.tsx
-Home | ImageContentHome | imports | frontend/src/pages/Home.tsx
-AvailableErrands | Card | imports | frontend/src/pages/rider/AvailableErrands.tsx
-AvailableErrands | Button | imports | frontend/src/pages/rider/AvailableErrands.tsx
-AvailableErrands | RiderRouteActions | imports | frontend/src/pages/rider/AvailableErrands.tsx
-RiderErrands | Card | imports | frontend/src/pages/rider/RiderErrands.tsx
-RiderErrands | Button | imports | frontend/src/pages/rider/RiderErrands.tsx
-RiderErrands | RiderRouteActions | imports | frontend/src/pages/rider/RiderErrands.tsx
-RiderErrands | dateFormatter | imports | frontend/src/pages/rider/RiderErrands.tsx
-RiderHome | AvailableErrands | imports | frontend/src/pages/rider/RiderHome.tsx
-RiderHome | RiderErrands | imports | frontend/src/pages/rider/RiderHome.tsx
-CreateErrand | Button | imports | frontend/src/pages/user/CreateErrand.tsx
-CreateErrand | Card | imports | frontend/src/pages/user/CreateErrand.tsx
-CreateErrand | Input | imports | frontend/src/pages/user/CreateErrand.tsx
-CreateErrand | RoutePickerMapbox | imports | frontend/src/pages/user/CreateErrand.tsx
-MyErrands | Card | imports | frontend/src/pages/user/MyErrands.tsx
-MyErrands | Button | imports | frontend/src/pages/user/MyErrands.tsx
-```
+api | FrontendService | const | frontend/src/services/api.ts | extends Error | -```
