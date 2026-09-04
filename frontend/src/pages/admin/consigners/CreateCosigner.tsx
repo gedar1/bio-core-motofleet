@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../services/api";
 import { Button, Input } from "../../../components/ui";
+import { inputRules } from "../../../validation/inputRules";
 
 export const CreateCosigner: React.FC = () => {
   const { token } = useAuth();
@@ -48,21 +49,27 @@ export const CreateCosigner: React.FC = () => {
         <h2 className="mb-2xl">Registrar Codeudor</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
           <Input
+            {...inputRules.uuid}
             label="ID del Motociclista"
+            name="rider_id"
             value={riderId}
             onChange={(e) => setRiderId(e.target.value)}
             placeholder="UUID del rider"
             required
           />
           <Input
+            {...inputRules.name}
             label="Nombre"
+            name="name"
             value={form.name}
             onChange={handleChange("name")}
             placeholder="Nombre completo"
             required
           />
           <Input
+            {...inputRules.address}
             label="Dirección"
+            name="address"
             value={form.address}
             onChange={handleChange("address")}
             placeholder="Dirección del codeudor"
@@ -70,14 +77,18 @@ export const CreateCosigner: React.FC = () => {
           />
           <div className="grid grid-cols-2 gap-lg">
             <Input
+              {...inputRules.phone}
               label="Teléfono"
+              name="phone"
               value={form.phone}
               onChange={handleChange("phone")}
               placeholder="3001234567"
               required
             />
             <Input
+              {...inputRules.relationship}
               label="Relación"
+              name="relationship"
               value={form.relationship}
               onChange={handleChange("relationship")}
               placeholder="Madre, Hermano..."
@@ -85,7 +96,9 @@ export const CreateCosigner: React.FC = () => {
             />
           </div>
           <Input
+            {...inputRules.identityDocument}
             label="Documento de Identidad"
+            name="identity_document"
             value={form.identity_document}
             onChange={handleChange("identity_document")}
             placeholder="1234567890"

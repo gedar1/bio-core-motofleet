@@ -10,6 +10,7 @@ import {
   type RouteValue,
 } from "../../components/ui";
 import { t } from "../../i18n";
+import { inputRules } from "../../validation/inputRules";
 import type { ErrandQuoteResponse, QuoteErrandRequest } from "../../types/api";
 
 type CreateErrandForm = {
@@ -255,7 +256,9 @@ export const CreateErrand: React.FC = () => {
             </div>
 
             <Input
+              {...inputRules.description}
               label={t.user.description}
+              name="description"
               value={form.description}
               onChange={handleChange("description")}
               placeholder={t.user.descPlaceholder}

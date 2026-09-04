@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
 import { Button, Input } from "../../components/ui";
+import { inputRules } from "../../validation/inputRules";
 
 export const CreatePayment: React.FC = () => {
   const { token } = useAuth();
@@ -56,7 +57,9 @@ export const CreatePayment: React.FC = () => {
         <h2 className="mb-2xl">Registrar Pago de Renta</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
           <Input
+            {...inputRules.uuid}
             label="ID del Contrato"
+            name="contract_id"
             value={contractId}
             onChange={(e) => setContractId(e.target.value)}
             placeholder="UUID del contrato"
@@ -64,7 +67,9 @@ export const CreatePayment: React.FC = () => {
           />
           <div className="grid grid-cols-2 gap-lg">
             <Input
+              {...inputRules.positiveInteger}
               label="Monto ($)"
+              name="amount"
               type="number"
               value={form.amount}
               onChange={handleChange("amount")}
@@ -72,7 +77,9 @@ export const CreatePayment: React.FC = () => {
               required
             />
             <Input
+              {...inputRules.todayOrPastDate()}
               label="Fecha de Pago"
+              name="payment_date"
               type="date"
               value={form.payment_date}
               onChange={handleChange("payment_date")}
@@ -94,7 +101,9 @@ export const CreatePayment: React.FC = () => {
               </select>
             </div>
             <Input
+              {...inputRules.period}
               label="Periodo (AAAA-MM)"
+              name="period"
               value={form.period}
               onChange={handleChange("period")}
               placeholder="2026-08"

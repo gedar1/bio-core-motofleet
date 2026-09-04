@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../services/api";
 import { Button, Input } from "../../../components/ui";
+import { inputRules } from "../../../validation/inputRules";
 
 export const CreateMotorcycle: React.FC = () => {
   const { token } = useAuth();
@@ -52,14 +53,17 @@ export const CreateMotorcycle: React.FC = () => {
         <h2 className="mb-2xl">Registrar Motocicleta</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
           <Input
+            {...inputRules.colombianMotorcyclePlate}
             label="Placa"
+            name="plate"
             value={form.plate}
             onChange={handleChange("plate")}
-            placeholder="ABC123"
+            placeholder="ABC12 o ABC12F"
             required
           />
           <div className="grid grid-cols-2 gap-lg">
             <Input
+              {...inputRules.shortText}
               label="Marca"
               value={form.brand}
               onChange={handleChange("brand")}
@@ -67,6 +71,7 @@ export const CreateMotorcycle: React.FC = () => {
               required
             />
             <Input
+              {...inputRules.shortText}
               label="Modelo"
               value={form.model}
               onChange={handleChange("model")}
@@ -76,6 +81,7 @@ export const CreateMotorcycle: React.FC = () => {
           </div>
           <div className="grid grid-cols-3 gap-lg">
             <Input
+              {...inputRules.motorcycleYear}
               label="Año"
               type="number"
               value={form.year}
@@ -84,6 +90,7 @@ export const CreateMotorcycle: React.FC = () => {
               required
             />
             <Input
+              {...inputRules.color}
               label="Color"
               value={form.color}
               onChange={handleChange("color")}
@@ -91,6 +98,7 @@ export const CreateMotorcycle: React.FC = () => {
               required
             />
             <Input
+              {...inputRules.engineCc}
               label="Cilindraje (cc)"
               type="number"
               value={form.engine_cc}
@@ -101,6 +109,7 @@ export const CreateMotorcycle: React.FC = () => {
           </div>
           <div className="grid grid-cols-2 gap-lg">
             <Input
+              {...inputRules.futureDate()}
               label="Vencimiento SOAT"
               type="date"
               value={form.soat_expiry}
@@ -108,6 +117,7 @@ export const CreateMotorcycle: React.FC = () => {
               required
             />
             <Input
+              {...inputRules.futureDate()}
               label="Vencimiento Tecnomecánica"
               type="date"
               value={form.inspection_expiry}

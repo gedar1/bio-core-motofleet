@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../services/api";
 import { Button, Input } from "../../../components/ui";
+import { inputRules } from "../../../validation/inputRules";
 
 export const CreatePricingRule: React.FC = () => {
   const { token } = useAuth();
@@ -88,31 +89,30 @@ export const CreatePricingRule: React.FC = () => {
             </select>
           </div>
           <Input
+            {...inputRules.positiveInteger}
             label="Tarifa Base (COP)"
+            name="base_rate"
             type="number"
-            min="1"
-            step="1"
             value={form.base_rate}
             onChange={handleChange("base_rate")}
             placeholder="5000"
             required
           />
           <Input
+            {...inputRules.nonNegativeInteger}
             label="Tarifa por Km (COP)"
+            name="rate_per_km"
             type="number"
-            min="0"
-            step="1"
             value={form.rate_per_km}
             onChange={handleChange("rate_per_km")}
             placeholder="1500"
             required
           />
           <Input
+            {...inputRules.commissionPercentage}
             label="Comisión entera (%)"
+            name="commission_percentage"
             type="number"
-            min="1"
-            max="50"
-            step="1"
             value={form.commission_percentage}
             onChange={handleChange("commission_percentage")}
             placeholder="15"

@@ -189,6 +189,77 @@ export const es = {
     crear: "Crear",
   },
 
+  // Error and validation messages
+  errors: {
+    api: {
+      unauthorized:
+        "No pudimos validar tus credenciales. Revisa tu correo y contraseña.",
+      forbidden: "No tienes permisos para realizar esta acción.",
+      notFound: "No encontramos la información solicitada.",
+      validation: "Revisa los datos ingresados.",
+      businessRule:
+        "No se puede completar la operación con los datos actuales.",
+      invalidState: "Esta acción no está disponible en el estado actual.",
+      conflict: "No se pudo guardar porque la información ya existe.",
+      internal: "Ocurrió un error inesperado. Intenta nuevamente.",
+      unknown: "No pudimos completar la solicitud. Intenta nuevamente.",
+    },
+    business: {
+      emailInUse: "Este correo electrónico ya está registrado.",
+      phoneInUse: "Este teléfono ya está registrado.",
+      identityDocumentInUse: "Este documento de identidad ya está registrado.",
+      plateInUse: "Esta placa ya está registrada.",
+      licenseExpired: "La licencia está vencida o vence hoy.",
+      insuranceExpired: "El seguro está vencido o vence hoy.",
+      quoteNotFound: "No encontramos la cotización solicitada.",
+      quoteUsed: "La cotización ya fue utilizada.",
+      quoteExpired: "La cotización ya venció.",
+      routingUnavailable:
+        "No pudimos calcular la ruta. Intenta nuevamente más tarde.",
+    },
+    validation: {
+      email: "Ingresa un correo electrónico válido.",
+      passwordLength: "La contraseña debe tener entre 8 y 72 caracteres.",
+      passwordUppercase:
+        "La contraseña debe incluir al menos una letra mayúscula.",
+      passwordLowercase:
+        "La contraseña debe incluir al menos una letra minúscula.",
+      passwordDigit: "La contraseña debe incluir al menos un número.",
+      passwordPattern:
+        "La contraseña debe incluir mayúscula, minúscula y número.",
+      plate:
+        "La placa debe tener 3 letras, 2 números y una letra opcional al final (ej. ABC12 o EDF26U).",
+      phone: "El teléfono debe tener entre 7 y 15 dígitos.",
+      documentNumber:
+        "El documento debe tener entre 5 y 30 caracteres alfanuméricos.",
+      period: "El período debe tener el formato AAAA-MM.",
+      futureDate: "La fecha debe ser posterior a hoy.",
+      uuid: "Selecciona una opción válida.",
+      invalid: "La información de {field} no es válida.",
+      amountPositive: "El monto debe ser mayor que cero.",
+      paymentDate: "Ingresa una fecha de pago válida.",
+      paymentDatePast: "La fecha de pago no puede ser futura.",
+      paymentMethod: "Selecciona efectivo o transferencia como método de pago.",
+      baseRate: "La tarifa base debe ser un valor entero entre $1 y $999.999.",
+      ratePerKm:
+        "La tarifa por kilómetro debe ser un valor entero entre $0 y $9.999.",
+      commission: "La comisión debe ser un porcentaje entero entre 1% y 50%.",
+      errandType: "Selecciona un tipo de favor válido.",
+      available: "La disponibilidad debe ser válida.",
+    },
+    input: {
+      required: "El campo {field} es obligatorio.",
+      email: "Ingresa un correo electrónico válido.",
+      number: "Ingresa un número válido.",
+      minLength: "{field} debe tener al menos {value} caracteres.",
+      maxLength: "{field} debe tener máximo {value} caracteres.",
+      min: "{field} debe ser mayor o igual a {value}.",
+      max: "{field} debe ser menor o igual a {value}.",
+      pattern: "El formato de {field} no es válido.",
+      invalid: "Ingresa un valor válido.",
+    },
+  },
+
   // Common
   common: {
     loading: "CARGANDO...",
