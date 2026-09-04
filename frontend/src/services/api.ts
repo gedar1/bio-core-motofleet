@@ -5,6 +5,8 @@ import type {
   RouteEstimateResponse,
 } from "../types/api";
 
+import { translateApiError } from "../i18n/errors";
+
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || "/api";
 
@@ -15,13 +17,20 @@ interface RequestOptions {
 }
 
 export class ApiError extends Error {
+  public readonly originalMessage: string;
+  public readonly details?: Record<string, string[]>;
+
   constructor(
     public readonly status: number,
     public readonly code: string,
     message: string,
-    public readonly details?: Record<string, string[]>,
+    details?: unknown,
   ) {
-    super(message);
+    const translated = translateApiError({ code, message, details });
+    super(translated.message);
+    this.name = "ApiError";
+    this.originalMessage = message;
+    this.details = translated.details;
   }
 }
 

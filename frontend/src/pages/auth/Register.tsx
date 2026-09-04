@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Button, Input } from "../../components/ui";
 import { t } from "../../i18n";
+import { inputRules } from "../../validation/inputRules";
 
 export const Register: React.FC = () => {
   const [form, setForm] = useState({
@@ -38,32 +39,42 @@ export const Register: React.FC = () => {
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
           <Input
+            {...inputRules.name}
             label={t.auth.name.toUpperCase()}
+            name="name"
             value={form.name}
             onChange={handleChange("name")}
             required
           />
           <Input
+            {...inputRules.email}
             label={t.auth.email.toUpperCase()}
+            name="email"
             type="email"
             value={form.email}
             onChange={handleChange("email")}
             required
           />
           <Input
+            {...inputRules.phone}
             label={t.auth.phone.toUpperCase()}
+            name="phone"
             value={form.phone}
             onChange={handleChange("phone")}
             required
           />
           <Input
+            {...inputRules.address}
             label={t.auth.address.toUpperCase()}
+            name="address"
             value={form.address}
             onChange={handleChange("address")}
             required
           />
           <Input
+            {...inputRules.password}
             label={t.auth.password.toUpperCase()}
+            name="password"
             type="password"
             value={form.password}
             onChange={handleChange("password")}

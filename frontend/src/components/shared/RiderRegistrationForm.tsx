@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { api } from "../../services/api";
 import { Button, Input } from "../ui";
+import { inputRules } from "../../validation/inputRules";
 
 interface RiderRegistrationFormProps {
   readonly title: string;
@@ -67,7 +68,9 @@ export const RiderRegistrationForm: React.FC<RiderRegistrationFormProps> = ({
         </p>
         <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
           <Input
+            {...inputRules.name}
             label="Nombre"
+            name="name"
             value={form.name}
             onChange={handleChange("name")}
             placeholder="Nombre completo"
@@ -76,7 +79,9 @@ export const RiderRegistrationForm: React.FC<RiderRegistrationFormProps> = ({
           />
           <div className="grid grid-cols-1 gap-lg sm:grid-cols-2">
             <Input
+              {...inputRules.phone}
               label="Teléfono"
+              name="phone"
               value={form.phone}
               onChange={handleChange("phone")}
               placeholder="3001234567"
@@ -84,7 +89,9 @@ export const RiderRegistrationForm: React.FC<RiderRegistrationFormProps> = ({
               required
             />
             <Input
+              {...inputRules.email}
               label="Email"
+              name="email"
               type="email"
               value={form.email}
               onChange={handleChange("email")}
@@ -94,7 +101,9 @@ export const RiderRegistrationForm: React.FC<RiderRegistrationFormProps> = ({
             />
           </div>
           <Input
+            {...inputRules.address}
             label="Dirección"
+            name="address"
             value={form.address}
             onChange={handleChange("address")}
             placeholder="Tu dirección"
@@ -102,7 +111,9 @@ export const RiderRegistrationForm: React.FC<RiderRegistrationFormProps> = ({
             required
           />
           <Input
+            {...inputRules.password}
             label="Contraseña"
+            name="password"
             type="password"
             value={form.password}
             onChange={handleChange("password")}
@@ -132,33 +143,37 @@ export const RiderRegistrationForm: React.FC<RiderRegistrationFormProps> = ({
                 <option value="">— Seleccionar tipo —</option>
                 <option value="CC">CC — Cédula de ciudadanía</option>
                 <option value="CE">CE — Cédula de extranjería</option>
-                <option value="PPT">PPT — Permiso por Protección Temporal</option>
+                <option value="PPT">
+                  PPT — Permiso por Protección Temporal
+                </option>
                 <option value="PASAPORTE">PASAPORTE</option>
               </select>
             </div>
             <Input
+              {...inputRules.documentNumber}
               label="Número de documento"
+              name="document_number"
               value={form.document_number}
               onChange={handleChange("document_number")}
               placeholder="1234567890"
-              minLength={5}
-              maxLength={30}
-              pattern="[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*"
-              autoCapitalize="characters"
               required
             />
           </div>
 
           <div className="grid grid-cols-1 gap-lg sm:grid-cols-2">
             <Input
+              {...inputRules.licenseNumber}
               label="Número de licencia"
+              name="license_number"
               value={form.license_number}
               onChange={handleChange("license_number")}
               placeholder="LIC-12345"
               required
             />
             <Input
+              {...inputRules.futureDate()}
               label="Vencimiento de licencia"
+              name="license_expiry"
               type="date"
               value={form.license_expiry}
               onChange={handleChange("license_expiry")}
@@ -167,14 +182,18 @@ export const RiderRegistrationForm: React.FC<RiderRegistrationFormProps> = ({
           </div>
           <div className="grid grid-cols-1 gap-lg sm:grid-cols-2">
             <Input
+              {...inputRules.licenseNumber}
               label="Número de seguro"
+              name="insurance_number"
               value={form.insurance_number}
               onChange={handleChange("insurance_number")}
               placeholder="SEG-99999"
               required
             />
             <Input
+              {...inputRules.futureDate()}
               label="Vencimiento de seguro"
+              name="insurance_expiry"
               type="date"
               value={form.insurance_expiry}
               onChange={handleChange("insurance_expiry")}
@@ -182,10 +201,10 @@ export const RiderRegistrationForm: React.FC<RiderRegistrationFormProps> = ({
             />
           </div>
           <Input
+            {...inputRules.positiveInteger}
             label="Monto de fianza ($)"
+            name="bond_amount"
             type="number"
-            min="1"
-            step="1"
             value={form.bond_amount}
             onChange={handleChange("bond_amount")}
             placeholder="500000"
@@ -197,14 +216,18 @@ export const RiderRegistrationForm: React.FC<RiderRegistrationFormProps> = ({
 
           <div className="grid grid-cols-1 gap-lg sm:grid-cols-2">
             <Input
+              {...inputRules.shortText}
               label="Nombre del contacto"
+              name="emergency_contact_name"
               value={form.emergency_contact_name}
               onChange={handleChange("emergency_contact_name")}
               placeholder="Nombre del contacto"
               required
             />
             <Input
+              {...inputRules.phone}
               label="Teléfono del contacto"
+              name="emergency_contact_phone"
               value={form.emergency_contact_phone}
               onChange={handleChange("emergency_contact_phone")}
               placeholder="3201112233"
@@ -212,7 +235,9 @@ export const RiderRegistrationForm: React.FC<RiderRegistrationFormProps> = ({
             />
           </div>
 
-          {error && <p className="font-body text-caption text-error">{error}</p>}
+          {error && (
+            <p className="font-body text-caption text-error">{error}</p>
+          )}
           <Button type="submit" className="mt-lg w-full" disabled={loading}>
             {loading ? "Registrando..." : submitLabel}
           </Button>

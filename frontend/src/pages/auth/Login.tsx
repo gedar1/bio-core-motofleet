@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Button, Input } from "../../components/ui";
 import { t } from "../../i18n";
 import { getRoleHomePath } from "../../navigation";
+import { inputRules } from "../../validation/inputRules";
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -29,7 +30,9 @@ export const Login: React.FC = () => {
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
           <Input
+            {...inputRules.email}
             label={t.auth.email.toUpperCase()}
+            name="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -37,7 +40,9 @@ export const Login: React.FC = () => {
             required
           />
           <Input
+            {...inputRules.password}
             label={t.auth.password.toUpperCase()}
+            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../services/api";
 import { Button, Input } from "../../../components/ui";
+import { inputRules } from "../../../validation/inputRules";
 
 interface RiderOption {
   id: string;
@@ -132,6 +133,7 @@ export const CreateContract: React.FC = () => {
           <div className="grid grid-cols-2 gap-lg">
             <Input
               label="Fecha Inicio"
+              name="start_date"
               type="date"
               value={form.start_date}
               onChange={handleChange("start_date")}
@@ -139,6 +141,7 @@ export const CreateContract: React.FC = () => {
             />
             <Input
               label="Fecha Fin"
+              name="end_date"
               type="date"
               value={form.end_date}
               onChange={handleChange("end_date")}
@@ -147,7 +150,9 @@ export const CreateContract: React.FC = () => {
           </div>
           <div className="grid grid-cols-2 gap-lg">
             <Input
+              {...inputRules.positiveInteger}
               label="Monto Mensual ($)"
+              name="monthly_amount"
               type="number"
               value={form.monthly_amount}
               onChange={handleChange("monthly_amount")}
@@ -155,7 +160,9 @@ export const CreateContract: React.FC = () => {
               required
             />
             <Input
+              {...inputRules.paymentDay}
               label="Día de Pago (1-28)"
+              name="payment_day"
               type="number"
               value={form.payment_day}
               onChange={handleChange("payment_day")}
