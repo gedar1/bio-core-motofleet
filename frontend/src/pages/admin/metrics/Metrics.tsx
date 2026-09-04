@@ -22,7 +22,7 @@ export const Metrics: React.FC = () => {
   return (
     <div className="section px-2xl">
       <div className="max-w-[1280px] mx-auto">
-        <div className="flex justify-between items-center mb-2xl">
+        <div className="flex flex-col md:flex-row gap-lg justify-between items-center mb-2xl">
           <h2>{t.admin.metricsTitle}</h2>
           <div className="flex gap-md">
             <Button

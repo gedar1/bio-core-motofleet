@@ -16,13 +16,16 @@ export { default as note_pencil } from "./note-pencil.svg";
 export { default as plus } from "./plus.svg";
 export { default as trash_2 } from "./trash-2.svg";
 export { default as x } from "./x.svg";
-export { default as x_light } from "./x-light.svg";
+export { default as x_light } from "./x_light.svg";
+export { default as menuLight } from "./menuLight.svg";
+export { default as menuDark } from "./menuDark.svg";
 
 // Chart & Analytics
 export { default as chart_bar } from "./chart-bar.svg";
 
 // User & Auth
-export { default as person_simple_bike } from "./person-simple-bike.svg";
+export { default as person_simple_bike } from "./person_simple_bike.svg";
+export { default as biking_person_light } from "./biking_person_light.svg";
 export { default as signIn } from "./signIn.svg";
 export { default as signOut } from "./signOut.svg";
 
@@ -42,10 +45,15 @@ export { default as sunLight } from "./sunLight.svg";
 
 // Domain-specific icons
 export { default as motorcycle } from "./motorcycle.svg";
+export { default as motorbikeDark } from "./motorbikeDark.svg";
+export { default as motorbikeLight } from "./motorbikeLight.svg";
 export { default as image } from "./image.svg";
-export { default as package_icon } from "./package.svg";
+export { default as package_dark } from "./package_dark.svg";
+export { default as package_light } from "./package_light.svg";
 export { default as phone } from "./phone.svg";
 export { default as wallet } from "./wallet.svg";
+export { default as wallet_minimal } from "./wallet_minimal.svg";
+export { default as wallet_minimal_dark } from "./wallet_minimal_dark.svg";
 
 // Logo
 export { default as logo_fvr_v1_svg } from "./logo-fvr-v1.svg";
