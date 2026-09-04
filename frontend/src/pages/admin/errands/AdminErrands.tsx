@@ -113,9 +113,10 @@ export const AdminErrands: React.FC = () => {
   return (
     <div className="section lg:px-2xl px-md">
       <div className="max-w-[1280px] mx-auto">
-        <div className="flex justify-between items-center mb-2xl">
+        <div className="flex flex-col md:flex-row gap-lg md:gap-0 justify-between items-center mb-2xl">
           <h3>{t.admin.errandsTitle}</h3>
-          <div className="flex gap-md">
+
+          <div className="flex flex-col md:flex-row gap-md">
             <Button
               type="button"
               variant={period === "all" ? "primary" : "secondary"}
@@ -123,27 +124,29 @@ export const AdminErrands: React.FC = () => {
             >
               Todos
             </Button>
-            <Button
-              type="button"
-              variant={period === "daily" ? "primary" : "secondary"}
-              onClick={() => handlePeriodChange("daily")}
-            >
-              Hoy
-            </Button>
-            <Button
-              type="button"
-              variant={period === "weekly" ? "primary" : "secondary"}
-              onClick={() => handlePeriodChange("weekly")}
-            >
-              Semana
-            </Button>
-            <Button
-              type="button"
-              variant={period === "monthly" ? "primary" : "secondary"}
-              onClick={() => handlePeriodChange("monthly")}
-            >
-              Mes
-            </Button>
+            <div className="flex gap-md">
+              <Button
+                type="button"
+                variant={period === "daily" ? "primary" : "secondary"}
+                onClick={() => handlePeriodChange("daily")}
+              >
+                Hoy
+              </Button>
+              <Button
+                type="button"
+                variant={period === "weekly" ? "primary" : "secondary"}
+                onClick={() => handlePeriodChange("weekly")}
+              >
+                Semana
+              </Button>
+              <Button
+                type="button"
+                variant={period === "monthly" ? "primary" : "secondary"}
+                onClick={() => handlePeriodChange("monthly")}
+              >
+                Mes
+              </Button>
+            </div>
           </div>
         </div>
         {errands.length === 0 ? (
