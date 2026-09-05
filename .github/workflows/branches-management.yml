@@ -1,0 +1,39 @@
+name: Enforce PR source branch
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - pre-prod
+      - main
+
+jobs:
+  check_source:
+    name: check-pr-source
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR source branch
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.ref }}"
+          HEAD="${{ github.event.pull_request.head.ref }}"
+          echo "Base branch: $BASE"
+          echo "Head branch: $HEAD"
+
+          if [ "$BASE" = "pre-prod" ]; then
+            # permitir develop o develop/* (ajusta si quieres sólo exactamente 'develop')
+            if [[ "$HEAD" != develop* ]]; then
+              echo "ERROR: PR hacia pre-prod debe venir desde 'develop' (o prefijo develop/). Recibido: $HEAD"
+              exit 1
+            fi
+          fi
+
+          if [ "$BASE" = "main" ]; then
+            # permitir pre-prod o pre-prod/* (ajusta si quieres sólo exactamente 'pre-prod')
+            if [[ "$HEAD" != pre-prod* ]]; then
+              echo "ERROR: PR hacia main debe venir desde 'pre-prod' (o prefijo pre-prod/). Recibido: $HEAD"
+              exit 1
+            fi
+          fi
+
+          echo "Source branch permitido."
