@@ -121,7 +121,7 @@ export const NotificationBell: React.FC = () => {
                 {unreadCount} sin leer
               </p>
             </div>
-            <div className="flex gap-2 items-center shrink-0">
+            <div className="flex gap-md items-center shrink-0">
               <button
                 type="button"
                 onClick={() => void markAllAsRead()}
