@@ -221,7 +221,8 @@ export function listAllRiders(
 ): Array<Record<string, unknown>> {
   return db
     .prepare(
-      `SELECT id, name, phone, email, address, document_type, license_number,
+      `SELECT id, name, phone, email, address, document_type,
+              document_number AS documentNumber, license_number,
               license_expiry, insurance_number, insurance_expiry, bond_amount,
               status, available, created_at
        FROM riders ORDER BY created_at DESC`,

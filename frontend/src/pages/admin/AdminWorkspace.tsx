@@ -15,7 +15,7 @@ import { CreatePricingRule } from "./rules/CreatePricingRule";
 import chartBarIcon from "../../assets/icons/chart-bar.svg?raw";
 import motorcycleIcon from "../../assets/icons/motorbikeLight.svg?raw";
 import personSimpleBikeIcon from "../../assets/icons/person_simple_bike.svg?raw";
-import calendarDotsIcon from "../../assets/icons/calendar-dots.svg?raw";
+import calendarDotsIcon from "../../assets/icons/receipt-text-dark.svg?raw";
 import walletIcon from "../../assets/icons/wallet_minimal.svg?raw";
 import packageIcon from "../../assets/icons/package_light.svg?raw";
 import caretLeftIcon from "../../assets/icons/caret-left.svg?raw";
@@ -324,7 +324,7 @@ export const AdminWorkspace: React.FC = () => {
           </span>
         </div>
 
-        <div className="px-md py-xl sm:px-2xl">
+        <div className="  ">
           <div className="mx-auto min-h-[400px] max-w-[1200px] rounded-lg bg-surface">
             {renderContent()}
           </div>

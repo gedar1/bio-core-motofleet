@@ -13,6 +13,8 @@ export interface Motorcycle {
   status: string;
   created_at: string;
   updated_at: string;
+  soat_expiry: string;
+  inspection_expiry: string;
 }
 
 export const useMotorcycles = () => {
