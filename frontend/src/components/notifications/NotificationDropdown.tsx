@@ -34,12 +34,12 @@ export const NotificationDropdown: React.FC<
       >
         <header className="sticky top-0 flex items-center justify-between gap-3 border-b border-hairline-soft bg-canvas p-md shrink-0">
           <div>
-            <h2 className="text-body font-semibold text-ink">
-              Notificaciones
-            </h2>
-            <p className="text-body-sm text-ink-muted">{unreadCount} sin leer</p>
+            <h2 className="text-body font-semibold text-ink">Notificaciones</h2>
+            <p className="text-body-sm text-ink-muted">
+              {unreadCount} sin leer
+            </p>
           </div>
-          <div className="flex gap-2 items-center shrink-0">
+          <div className="flex gap-md items-center shrink-0">
             <button
               type="button"
               onClick={() => void onMarkAllAsRead()}

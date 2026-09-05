@@ -36,11 +36,19 @@ export const Riders: React.FC = () => {
       ),
     },
     {
-      id: "contact",
-      header: "Contacto",
+      id: "email",
+      header: "Email",
       render: (rider) => (
         <div className="font-body text-body-sm text-slate">
           <p>{rider.email}</p>
+        </div>
+      ),
+    },
+    {
+      id: "phone",
+      header: "Phone",
+      render: (rider) => (
+        <div className="font-body text-body-sm text-slate">
           <p>{rider.phone}</p>
         </div>
       ),
@@ -48,7 +56,10 @@ export const Riders: React.FC = () => {
     {
       id: "document",
       header: "Documento",
-      render: (rider) => rider.document_type ?? "Pendiente de registro",
+      render: (rider) =>
+        rider.documentNumber
+          ? `${rider.document_type ? `${rider.document_type}: ` : ""}${rider.documentNumber}`
+          : (rider.document_type ?? "Pendiente de registro"),
     },
     {
       id: "license",

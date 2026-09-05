@@ -9,6 +9,7 @@ export interface Rider {
   email: string;
   address: string;
   document_type: "CC" | "CE" | "PPT" | "PASAPORTE" | null;
+  documentNumber: string | null;
   license_number: string;
   license_expiry: string;
   status: string;
