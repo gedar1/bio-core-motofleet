@@ -7,6 +7,7 @@ import { Table, type TableColumn } from "../../../components/shared";
 import { Button } from "../../../components/ui";
 import { t, translateStatus } from "../../../i18n";
 import { formatDateColombia } from "../../../utils/dateFormatter";
+import { Icon } from "@/components/shared/components/Icon";
 
 export const Riders: React.FC = () => {
   const { riders, loading, refresh } = useRiders();
@@ -113,6 +114,18 @@ export const Riders: React.FC = () => {
       header: "Actualizado",
       render: (rider) => (
         <span className="caption">{formatDateColombia(rider.updated_at)}</span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Acciones",
+      render: (rider) => (
+        <Link
+          to={`/admin?tab=riders&mode=edit&id=${rider.id}`}
+          className="whitespace-nowrap font-body text-body-sm-medium text-primary hover:underline"
+        >
+          <Icon name="squarePen" size={18} />
+        </Link>
       ),
     },
   ];

@@ -16,6 +16,67 @@ interface RequestOptions {
   token?: string | null;
 }
 
+export interface AdminRiderDetails {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  document_type: string | null;
+  document_number: string | null;
+  license_number: string;
+  license_expiry: string;
+  insurance_number: string;
+  insurance_expiry: string;
+  bond_amount: number;
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
+  status: string;
+  available: number | boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminMotorcycleDetails {
+  id: string;
+  plate: string;
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  engine_cc: number;
+  soat_expiry: string;
+  inspection_expiry: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminContractDetails {
+  id: string;
+  rider_id: string;
+  motorcycle_id: string;
+  start_date: string;
+  end_date: string;
+  monthly_amount: number;
+  payment_day: number;
+  status: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminPricingRuleDetails {
+  id: string;
+  errand_type: string;
+  base_rate: number;
+  rate_per_km: number;
+  commission_percentage: number;
+  active: number | boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export class ApiError extends Error {
   public readonly originalMessage: string;
   public readonly details?: Record<string, string[]>;
@@ -183,16 +244,70 @@ export const api = {
     return this.request("/motorcycles", { token });
   },
 
+  getMotorcycle(token: string, motorcycleId: string) {
+    return this.request<AdminMotorcycleDetails>(
+      `/motorcycles/${motorcycleId}`,
+      { token },
+    );
+  },
+
   createMotorcycle(token: string, data: Record<string, unknown>) {
     return this.request("/motorcycles", { method: "POST", body: data, token });
+  },
+
+  updateMotorcycle(
+    token: string,
+    motorcycleId: string,
+    data: Record<string, unknown>,
+  ) {
+    return this.request<AdminMotorcycleDetails>(
+      `/motorcycles/${motorcycleId}`,
+      { method: "PUT", body: data, token },
+    );
   },
 
   getContracts(token: string) {
     return this.request("/contracts", { token });
   },
 
+  getContract(token: string, contractId: string) {
+    return this.request<AdminContractDetails>(`/contracts/${contractId}`, {
+      token,
+    });
+  },
+
+  updateContract(
+    token: string,
+    contractId: string,
+    data: Record<string, unknown>,
+  ) {
+    return this.request<AdminContractDetails>(`/contracts/${contractId}`, {
+      method: "PATCH",
+      body: data,
+      token,
+    });
+  },
+
   getPricingRules(token: string) {
     return this.request("/pricing-rules", { token });
+  },
+
+  getPricingRule(token: string, ruleId: string) {
+    return this.request<AdminPricingRuleDetails>(`/pricing-rules/${ruleId}`, {
+      token,
+    });
+  },
+
+  updatePricingRule(
+    token: string,
+    ruleId: string,
+    data: Record<string, unknown>,
+  ) {
+    return this.request<AdminPricingRuleDetails>(`/pricing-rules/${ruleId}`, {
+      method: "PATCH",
+      body: data,
+      token,
+    });
   },
 
   getMetrics(token: string, startDate?: string, endDate?: string) {
@@ -223,6 +338,20 @@ export const api = {
 
   getRiders(token: string) {
     return this.request("/admin/riders", { token });
+  },
+
+  getRider(token: string, riderId: string) {
+    return this.request<AdminRiderDetails>(`/admin/riders/${riderId}`, {
+      token,
+    });
+  },
+
+  updateRider(token: string, riderId: string, data: Record<string, unknown>) {
+    return this.request<AdminRiderDetails>(`/admin/riders/${riderId}`, {
+      method: "PATCH",
+      body: data,
+      token,
+    });
   },
 
   getRidersForSelect(token: string) {

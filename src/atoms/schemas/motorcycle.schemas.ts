@@ -28,3 +28,15 @@ export const createMotorcycleSchema = z.object({
 });
 
 export type CreateMotorcycleInput = z.infer<typeof createMotorcycleSchema>;
+
+export const updateMotorcycleSchema = createMotorcycleSchema
+  .pick({
+    color: true,
+    engine_cc: true,
+    soat_expiry: true,
+    inspection_expiry: true,
+  })
+  .partial()
+  .strict();
+
+export type UpdateMotorcycleInput = z.infer<typeof updateMotorcycleSchema>;

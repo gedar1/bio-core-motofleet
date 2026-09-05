@@ -3,7 +3,10 @@ import type { ContractMolecule } from "../molecules/ContractMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createContractSchema } from "../atoms/schemas/contract.schemas.js";
+import {
+  createContractSchema,
+  updateContractSchema,
+} from "../atoms/schemas/contract.schemas.js";
 import type { ContractState } from "../atoms/stateMachines.js";
 
 /**
@@ -40,6 +43,41 @@ export function createContractRoutes(
       try {
         const contract = contractMolecule.create(req.body);
         res.status(201).json(contract);
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
+
+  // GET /api/contracts/:id — contract details for editing
+  router.get("/:id", (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const contract = contractMolecule.getById(req.params.id as string);
+      if (!contract) {
+        res.status(404).json({
+          status: 404,
+          code: "NOT_FOUND",
+          message: "Contract not found",
+        });
+        return;
+      }
+      res.status(200).json(contract);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // PATCH /api/contracts/:id — update editable contract fields
+  router.patch(
+    "/:id",
+    validate(updateContractSchema),
+    (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const contract = contractMolecule.update(
+          req.params.id as string,
+          req.body,
+        );
+        res.status(200).json(contract);
       } catch (error) {
         next(error);
       }

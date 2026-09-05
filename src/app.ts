@@ -97,7 +97,10 @@ export function createApp(
   app.use("/api/motorcycles", createMotorcycleRoutes(molecules.motorcycles));
   app.use("/api/contracts", createContractRoutes(molecules.contracts));
   app.use("/api/pricing-rules", createPricingRoutes(molecules.pricing));
-  app.use("/api/admin", createMetricsRoutes(molecules.metrics, db!));
+  app.use(
+    "/api/admin",
+    createMetricsRoutes(molecules.metrics, db!, molecules.riders),
+  );
 
   // --- Cosigner routes (mounted at specific paths) ---
   app.use("/api/riders", createCosignerRoutes(molecules.cosigners));

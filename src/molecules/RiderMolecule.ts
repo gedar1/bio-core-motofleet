@@ -4,7 +4,11 @@ import type { RiderDocumentType } from "../atoms/schemas/rider.schemas.js";
 import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule } from "./IMolecule.js";
 import { hashPassword } from "../atoms/password.js";
-import { ConflictError, ValidationError } from "../domains/errors.js";
+import {
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+} from "../domains/errors.js";
 
 /** Data required to register a new rider (motorcyclist). */
 export interface CreateRiderInput {
@@ -22,6 +26,20 @@ export interface CreateRiderInput {
   bond_amount: number;
   emergency_contact_name: string;
   emergency_contact_phone: string;
+}
+
+export interface UpdateRiderInput {
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  license_number?: string;
+  license_expiry?: string;
+  insurance_number?: string;
+  insurance_expiry?: string;
+  bond_amount?: number;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
 }
 
 /** Rider record as stored in the database. */
@@ -157,6 +175,72 @@ export class RiderMolecule implements IMolecule {
     }
 
     this.logger.info("Rider registered", { riderId: id, email: data.email });
+    return this.getById(id) as Rider;
+  }
+
+  update(id: string, data: UpdateRiderInput): Rider {
+    const existing = this.getById(id);
+    if (!existing) {
+      throw new NotFoundError("Rider", id);
+    }
+
+    if (data.email !== undefined) {
+      const emailInUsers = this.db
+        .prepare("SELECT id FROM users WHERE email = ?")
+        .get(data.email) as { id: string } | undefined;
+      const emailInRiders = this.db
+        .prepare("SELECT id FROM riders WHERE email = ? AND id != ?")
+        .get(data.email, id) as { id: string } | undefined;
+      if (emailInUsers || emailInRiders) {
+        throw new ConflictError("Email is already in use");
+      }
+    }
+
+    if (data.phone !== undefined) {
+      const phoneInUsers = this.db
+        .prepare("SELECT id FROM users WHERE phone = ?")
+        .get(data.phone) as { id: string } | undefined;
+      const phoneInRiders = this.db
+        .prepare("SELECT id FROM riders WHERE phone = ? AND id != ?")
+        .get(data.phone, id) as { id: string } | undefined;
+      if (phoneInUsers || phoneInRiders) {
+        throw new ConflictError("Phone is already in use");
+      }
+    }
+
+    const fields: string[] = [];
+    const values: unknown[] = [];
+    const editableFields: Array<keyof UpdateRiderInput> = [
+      "name",
+      "phone",
+      "email",
+      "address",
+      "license_number",
+      "license_expiry",
+      "insurance_number",
+      "insurance_expiry",
+      "bond_amount",
+      "emergency_contact_name",
+      "emergency_contact_phone",
+    ];
+
+    for (const field of editableFields) {
+      const value = data[field];
+      if (value !== undefined) {
+        fields.push(`${field} = ?`);
+        values.push(value);
+      }
+    }
+
+    if (fields.length === 0) return existing;
+
+    fields.push("updated_at = datetime('now')");
+    values.push(id);
+    this.db
+      .prepare(`UPDATE riders SET ${fields.join(", ")} WHERE id = ?`)
+      .run(...values);
+
+    this.logger.info("Rider updated", { riderId: id });
     return this.getById(id) as Rider;
   }
 

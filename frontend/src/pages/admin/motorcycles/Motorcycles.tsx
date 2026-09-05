@@ -6,6 +6,7 @@ import { Table, type TableColumn } from "../../../components/shared";
 import { Button } from "../../../components/ui";
 import { t, translateStatus } from "../../../i18n";
 import { formatDateColombia } from "../../../utils/dateFormatter";
+import { Icon } from "@/components/shared/components/Icon";
 
 const statusBadgeClass: Record<string, string> = {
   available: "badge-orange",
@@ -78,6 +79,18 @@ const columns: readonly TableColumn<Motorcycle>[] = [
       <span className="caption">
         {formatDateColombia(motorcycle.updated_at)}
       </span>
+    ),
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    render: (motorcycle) => (
+      <Link
+        to={`/admin?tab=motorcycles&mode=edit&id=${motorcycle.id}`}
+        className="whitespace-nowrap font-body text-body-sm-medium text-primary hover:underline"
+      >
+        <Icon name="squarePen" size={18} />
+      </Link>
     ),
   },
 ];
