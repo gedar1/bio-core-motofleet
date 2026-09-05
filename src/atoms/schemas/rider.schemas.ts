@@ -61,3 +61,10 @@ export const createRiderSchema = z.object({
 });
 
 export type CreateRiderInput = z.infer<typeof createRiderSchema>;
+
+export const updateRiderSchema = createRiderSchema
+  .omit({ password: true, document_type: true, document_number: true })
+  .partial()
+  .strict();
+
+export type UpdateRiderInput = z.infer<typeof updateRiderSchema>;

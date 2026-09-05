@@ -9,6 +9,7 @@ import {
   formatDateColombia,
   formatDateShort,
 } from "../../../utils/dateFormatter";
+import { Icon } from "@/components/shared/components/Icon";
 
 const contractColumns: readonly TableColumn<Contract>[] = [
   {
@@ -57,6 +58,18 @@ const contractColumns: readonly TableColumn<Contract>[] = [
     header: "Actualizado",
     render: (contract) => (
       <span className="caption">{formatDateColombia(contract.updated_at)}</span>
+    ),
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    render: (contract) => (
+      <Link
+        to={`/admin?tab=contracts&mode=edit&id=${contract.id}`}
+        className="whitespace-nowrap font-body text-body-sm-medium text-primary hover:underline"
+      >
+        <Icon name="squarePen" size={18} />
+      </Link>
     ),
   },
 ];

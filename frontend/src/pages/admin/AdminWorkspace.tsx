@@ -11,72 +11,34 @@ import { CreateMotorcycle } from "./motorcycles/CreateMotorcycle";
 import { CreateRider } from "./riders/CreateRider";
 import { CreateContract } from "./contracts/CreateContract";
 import { CreatePricingRule } from "./rules/CreatePricingRule";
-
-import chartBarIcon from "../../assets/icons/chart-bar.svg?raw";
-import motorcycleIcon from "../../assets/icons/motorbikeLight.svg?raw";
-import personSimpleBikeIcon from "../../assets/icons/person_simple_bike.svg?raw";
-import calendarDotsIcon from "../../assets/icons/receipt-text-dark.svg?raw";
-import walletIcon from "../../assets/icons/wallet_minimal.svg?raw";
-import packageIcon from "../../assets/icons/package_light.svg?raw";
-import caretLeftIcon from "../../assets/icons/caret-left.svg?raw";
-import menuIcon from "../../assets/icons/menuLight.svg?raw";
-import closeIcon from "../../assets/icons/x.svg?raw";
+import { EditRider } from "./riders/EditRider";
+import { EditMotorcycle } from "./motorcycles/EditMotorcycle";
+import { EditContract } from "./contracts/EditContract";
+import { EditPricingRule } from "./rules/EditPricingRule";
+import { Icon, type IconName } from "@/components/shared/components/Icon";
 
 interface NavItemConfig {
   id: string;
   label: string;
-  icon: string;
+  icon: IconName;
 }
 
 const navItems: NavItemConfig[] = [
-  { id: "overview", label: "Resumen", icon: chartBarIcon },
-  { id: "motorcycles", label: "Motocicletas", icon: motorcycleIcon },
-  { id: "riders", label: "Riders", icon: personSimpleBikeIcon },
-  { id: "contracts", label: "Contratos", icon: calendarDotsIcon },
-  { id: "pricing", label: "Tarifas", icon: walletIcon },
-  { id: "errands", label: "Mandados", icon: packageIcon },
+  { id: "overview", label: "Resumen", icon: "chartBar" },
+  { id: "motorcycles", label: "Motocicletas", icon: "motorcycle" },
+  { id: "riders", label: "Riders", icon: "personSimpleBike" },
+  { id: "contracts", label: "Contratos", icon: "calendarDots" },
+  { id: "pricing", label: "Tarifas", icon: "wallet" },
+  { id: "errands", label: "Mandados", icon: "package" },
 ];
 
-/**
- * Normalizes a raw SVG string so its color follows `currentColor` and it
- * renders at an explicit pixel size. Fixed fills/strokes (black, white,
- * off-white) are swapped for `currentColor`, and the intrinsic width/height
- * are replaced with the requested size so it never falls back to the (often
- * large) viewBox dimensions.
- */
-const normalizeSvg = (raw: string, size: number): string =>
-  raw
-    .replace(/(fill|stroke)="#[0-9a-fA-F]{3,8}"/g, '$1="currentColor"')
-    .replace(/\swidth="[^"]*"/, "")
-    .replace(/\sheight="[^"]*"/, "")
-    .replace(/<svg /, `<svg width="${size}" height="${size}" `);
-
-/**
- * Renders an inline SVG whose color is inherited from `currentColor`.
- * This makes every icon adapt automatically to the theme (dark/light) and to
- * the container's state (e.g. active item on a colored background), using a
- * single SVG file per icon.
- */
-interface IconProps {
-  svg: string;
-  size?: number;
-  className?: string;
-}
-
-const Icon: React.FC<IconProps> = ({ svg, size = 20, className = "" }) => (
-  <span
-    aria-hidden="true"
-    className={`inline-flex shrink-0 items-center justify-center ${className}`}
-    dangerouslySetInnerHTML={{ __html: normalizeSvg(svg, size) }}
-  />
-);
-
-const IconCaretLeft: React.FC = () => <Icon svg={caretLeftIcon} size={16} />;
+const IconCaretLeft: React.FC = () => <Icon name="caretLeft" size={16} />;
 
 export const AdminWorkspace: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "overview";
   const mode = searchParams.get("mode");
+  const editId = searchParams.get("id");
   const [isMobileNavOpen, setMobileNavOpen] = React.useState(false);
 
   const activeItem =
@@ -99,6 +61,74 @@ export const AdminWorkspace: React.FC = () => {
   };
 
   const renderContent = () => {
+    // Edit mode forms
+    if (mode === "edit") {
+      if (!editId) {
+        return (
+          <p className="section px-md text-error">
+            No se especificó el registro que se desea editar.
+          </p>
+        );
+      }
+
+      switch (activeTab) {
+        case "motorcycles":
+          return (
+            <div>
+              <button
+                onClick={goBack}
+                type="button"
+                className="flex items-center gap-xs mb-lg text-ink hover:text-primary transition-colors"
+              >
+                <IconCaretLeft /> Volver a Motocicletas
+              </button>
+              <EditMotorcycle motorcycleId={editId} />
+            </div>
+          );
+        case "riders":
+          return (
+            <div>
+              <button
+                type="button"
+                onClick={goBack}
+                className="flex items-center gap-xs mb-lg text-ink hover:text-primary transition-colors"
+              >
+                <IconCaretLeft /> Volver a Riders
+              </button>
+              <EditRider riderId={editId} />
+            </div>
+          );
+        case "contracts":
+          return (
+            <div>
+              <button
+                type="button"
+                onClick={goBack}
+                className="flex items-center gap-xs mb-lg text-ink hover:text-primary transition-colors"
+              >
+                <IconCaretLeft /> Volver a Contratos
+              </button>
+              <EditContract contractId={editId} />
+            </div>
+          );
+        case "pricing":
+          return (
+            <div>
+              <button
+                type="button"
+                onClick={goBack}
+                className="flex items-center gap-xs mb-lg text-ink hover:text-primary transition-colors"
+              >
+                <IconCaretLeft /> Volver a Tarifas
+              </button>
+              <EditPricingRule ruleId={editId} />
+            </div>
+          );
+        default:
+          return <Metrics />;
+      }
+    }
+
     // Create mode forms
     if (mode === "create") {
       switch (activeTab) {
@@ -217,7 +247,7 @@ export const AdminWorkspace: React.FC = () => {
               }
             `}
           >
-            <Icon svg={item.icon} size={32} />
+            <Icon name={item.icon} size={32} />
           </button>
           {/* Tooltip */}
           <span
@@ -249,7 +279,7 @@ export const AdminWorkspace: React.FC = () => {
             }
           `}
         >
-          <Icon svg={item.icon} size={24} />
+          <Icon name={item.icon} size={24} />
           <span className="truncate">{item.label}</span>
         </button>
       );
@@ -296,7 +326,7 @@ export const AdminWorkspace: React.FC = () => {
             aria-label="Cerrar menú"
             className="flex h-9 w-9 items-center justify-center rounded-md text-ink"
           >
-            <Icon svg={closeIcon} size={24} />
+            <Icon name="close" size={24} />
           </button>
         </div>
         <nav
@@ -317,7 +347,7 @@ export const AdminWorkspace: React.FC = () => {
             aria-label="Abrir menú de secciones"
             className="flex h-9 w-9 items-center justify-center rounded-md text-ink"
           >
-            <Icon svg={menuIcon} size={18} />
+            <Icon name="menu" size={18} />
           </button>
           <span className="text-body-md-medium text-ink">
             {activeItem.label}

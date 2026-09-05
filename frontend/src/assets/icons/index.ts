@@ -54,7 +54,10 @@ export { default as phone } from "./phone.svg";
 export { default as wallet } from "./wallet.svg";
 export { default as wallet_minimal } from "./wallet_minimal.svg";
 export { default as wallet_minimal_dark } from "./wallet_minimal_dark.svg";
+export { default as square_pen } from "./square-pen.svg";
 
 // Logo
 export { default as logo_fvr_v1_svg } from "./logo-fvr-v1.svg";
 export { default as logo_fvr_v1_png } from "./logo-fvr-v1.png";
+
+export { rawIcons, type IconName } from "./raw";

@@ -23,6 +23,13 @@ export interface CreateContractInput {
   notes?: string;
 }
 
+export interface UpdateContractInput {
+  end_date?: string;
+  monthly_amount?: number;
+  payment_day?: number;
+  notes?: string | null;
+}
+
 export interface RentalContract {
   id: string;
   rider_id: string;
@@ -162,6 +169,55 @@ export class ContractMolecule implements IMolecule {
     });
 
     return this.getById(id) as RentalContract;
+  }
+
+  update(contractId: string, data: UpdateContractInput): RentalContract {
+    const contract = this.getById(contractId);
+    if (!contract) {
+      throw new NotFoundError("Contract", contractId);
+    }
+
+    if (contract.status !== "active") {
+      throw new BusinessRuleViolation("Only active contracts can be edited");
+    }
+
+    if (data.end_date !== undefined) {
+      const endDate = new Date(data.end_date);
+      const startDate = new Date(contract.start_date);
+      if (isNaN(endDate.getTime()) || endDate <= startDate) {
+        throw new ValidationError("end_date must be after start_date");
+      }
+    }
+
+    const fields: string[] = [];
+    const values: unknown[] = [];
+    if (data.end_date !== undefined) {
+      fields.push("end_date = ?");
+      values.push(data.end_date);
+    }
+    if (data.monthly_amount !== undefined) {
+      fields.push("monthly_amount = ?");
+      values.push(data.monthly_amount);
+    }
+    if (data.payment_day !== undefined) {
+      fields.push("payment_day = ?");
+      values.push(data.payment_day);
+    }
+    if (data.notes !== undefined) {
+      fields.push("notes = ?");
+      values.push(data.notes);
+    }
+
+    if (fields.length === 0) return contract;
+
+    fields.push("updated_at = ?");
+    values.push(getCurrentUtcTimestamp(), contractId);
+    this.db
+      .prepare(`UPDATE rental_contracts SET ${fields.join(", ")} WHERE id = ?`)
+      .run(...values);
+
+    this.logger.info("Contract updated", { contractId });
+    return this.getById(contractId) as RentalContract;
   }
 
   cancel(contractId: string): RentalContract {

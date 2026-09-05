@@ -3,7 +3,10 @@ import type { MotorcycleMolecule } from "../molecules/MotorcycleMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createMotorcycleSchema } from "../atoms/schemas/motorcycle.schemas.js";
+import {
+  createMotorcycleSchema,
+  updateMotorcycleSchema,
+} from "../atoms/schemas/motorcycle.schemas.js";
 import type { MotorcycleState } from "../atoms/stateMachines.js";
 
 /**
@@ -48,18 +51,40 @@ export function createMotorcycleRoutes(
     },
   );
 
-  // PUT /api/motorcycles/:id — update motorcycle fields
-  router.put("/:id", (req: Request, res: Response, next: NextFunction) => {
+  // GET /api/motorcycles/:id — motorcycle details for editing
+  router.get("/:id", (req: Request, res: Response, next: NextFunction) => {
     try {
-      const motorcycle = motorcycleMolecule.update(
-        req.params.id as string,
-        req.body,
-      );
+      const motorcycle = motorcycleMolecule.getById(req.params.id as string);
+      if (!motorcycle) {
+        res.status(404).json({
+          status: 404,
+          code: "NOT_FOUND",
+          message: "Motorcycle not found",
+        });
+        return;
+      }
       res.status(200).json(motorcycle);
     } catch (error) {
       next(error);
     }
   });
+
+  // PUT /api/motorcycles/:id — update editable motorcycle fields
+  router.put(
+    "/:id",
+    validate(updateMotorcycleSchema),
+    (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const motorcycle = motorcycleMolecule.update(
+          req.params.id as string,
+          req.body,
+        );
+        res.status(200).json(motorcycle);
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
 
   // PATCH /api/motorcycles/:id/status — change motorcycle state
   router.patch(

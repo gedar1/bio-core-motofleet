@@ -4,6 +4,7 @@ import { usePricingRules } from "../../../hooks";
 import { Card, Button } from "../../../components/ui";
 import { t, translateStatus } from "../../../i18n";
 import { formatDateColombia } from "../../../utils/dateFormatter";
+import { Icon } from "@/components/shared/components/Icon";
 
 const formatCop = (amount: number) =>
   new Intl.NumberFormat("es-CO", {
@@ -48,11 +49,19 @@ export const PricingRules: React.FC = () => {
                       {formatDateColombia(r.updated_at)}
                     </p>
                   </div>
-                  <span
-                    className={`caption ${r.active ? "text-success" : "text-muted"}`}
-                  >
-                    {r.active ? t.admin.active : t.admin.inactive}
-                  </span>
+                  <div className="flex items-start gap-lg">
+                    <span
+                      className={`caption ${r.active ? "text-success" : "text-muted"}`}
+                    >
+                      {r.active ? t.admin.active : t.admin.inactive}
+                    </span>
+                    <Link
+                      to={`/admin?tab=pricing&mode=edit&id=${r.id}`}
+                      className="whitespace-nowrap font-body text-body-sm-medium text-primary hover:underline"
+                    >
+                      <Icon name="squarePen" size={18} />
+                    </Link>
+                  </div>
                 </div>
               </Card>
             ))}
