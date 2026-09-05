@@ -20,7 +20,7 @@ export const PricingRules: React.FC = () => {
 
   return (
     <div className="section lg:px-2xl px-md">
-      <div className="max-w-[1280px] mx-auto">
+      <div className="w-full">
         <div className="flex justify-between items-center mb-2xl">
           <h3>{t.admin.pricingTitle}</h3>
           <Link to="/admin/pricing/create">
