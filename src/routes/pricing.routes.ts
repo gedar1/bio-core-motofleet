@@ -3,7 +3,10 @@ import type { PricingMolecule } from "../molecules/PricingMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-import { createPricingRuleSchema } from "../atoms/schemas/pricing.schemas.js";
+import {
+  createPricingRuleSchema,
+  updatePricingRuleSchema,
+} from "../atoms/schemas/pricing.schemas.js";
 
 /**
  * Creates pricing rule routes. All endpoints require admin role.
@@ -32,6 +35,40 @@ export function createPricingRoutes(pricingMolecule: PricingMolecule): Router {
       try {
         const rule = pricingMolecule.create(req.body);
         res.status(201).json(rule);
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
+
+  // GET /api/pricing-rules/:id — pricing rule details for editing
+  router.get("/:id", (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const rule = pricingMolecule
+        .list()
+        .find((item) => item.id === (req.params.id as string));
+      if (!rule) {
+        res.status(404).json({
+          status: 404,
+          code: "NOT_FOUND",
+          message: "Pricing rule not found",
+        });
+        return;
+      }
+      res.status(200).json(rule);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // PATCH /api/pricing-rules/:id — update pricing values
+  router.patch(
+    "/:id",
+    validate(updatePricingRuleSchema),
+    (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const rule = pricingMolecule.update(req.params.id as string, req.body);
+        res.status(200).json(rule);
       } catch (error) {
         next(error);
       }

@@ -112,6 +112,79 @@ export class PricingMolecule implements IMolecule {
       .get(id) as PricingRule;
   }
 
+  update(
+    ruleId: string,
+    data: {
+      base_rate?: number;
+      rate_per_km?: number;
+      commission_percentage?: number;
+    },
+  ): PricingRule {
+    const rule = this.db
+      .prepare("SELECT * FROM pricing_rules WHERE id = ?")
+      .get(ruleId) as PricingRule | undefined;
+    if (!rule) {
+      throw new NotFoundError("Pricing rule", ruleId);
+    }
+
+    if (
+      data.base_rate !== undefined &&
+      (!Number.isSafeInteger(data.base_rate) ||
+        data.base_rate < 1 ||
+        data.base_rate > 999_999)
+    ) {
+      throw new ValidationError(
+        "Base rate must be an integer COP amount between 1 and 999,999",
+      );
+    }
+    if (
+      data.rate_per_km !== undefined &&
+      (!Number.isSafeInteger(data.rate_per_km) ||
+        data.rate_per_km < 0 ||
+        data.rate_per_km > 9_999)
+    ) {
+      throw new ValidationError(
+        "Rate per km must be an integer COP amount between 0 and 9,999",
+      );
+    }
+    if (
+      data.commission_percentage !== undefined &&
+      (!Number.isSafeInteger(data.commission_percentage) ||
+        data.commission_percentage < 1 ||
+        data.commission_percentage > 50)
+    ) {
+      throw new ValidationError(
+        "Commission must be a whole percentage between 1% and 50%",
+      );
+    }
+
+    const fields: string[] = [];
+    const values: unknown[] = [];
+    for (const field of [
+      "base_rate",
+      "rate_per_km",
+      "commission_percentage",
+    ] as const) {
+      const value = data[field];
+      if (value !== undefined) {
+        fields.push(`${field} = ?`);
+        values.push(value);
+      }
+    }
+    if (fields.length === 0) return rule;
+
+    fields.push("updated_at = ?");
+    values.push(getCurrentUtcTimestamp(), ruleId);
+    this.db
+      .prepare(`UPDATE pricing_rules SET ${fields.join(", ")} WHERE id = ?`)
+      .run(...values);
+
+    this.logger.info("Pricing rule updated", { ruleId });
+    return this.db
+      .prepare("SELECT * FROM pricing_rules WHERE id = ?")
+      .get(ruleId) as PricingRule;
+  }
+
   deactivate(ruleId: string): PricingRule {
     const rule = this.db
       .prepare("SELECT * FROM pricing_rules WHERE id = ?")

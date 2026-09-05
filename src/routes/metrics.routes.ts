@@ -5,8 +5,11 @@ import {
   listMotorcyclesForSelection,
   listRidersForSelection,
 } from "../molecules/MetricsMolecule.js";
+import type { RiderMolecule } from "../molecules/RiderMolecule.js";
+import { updateRiderSchema } from "../atoms/schemas/rider.schemas.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleGuard } from "../middleware/roleGuard.middleware.js";
+import { validate } from "../middleware/validate.middleware.js";
 
 /**
  * Creates admin metrics routes. All endpoints require admin role.
@@ -19,6 +22,7 @@ import { roleGuard } from "../middleware/roleGuard.middleware.js";
 export function createMetricsRoutes(
   metricsMolecule: MetricsMolecule,
   db: import("better-sqlite3").Database,
+  riderMolecule: RiderMolecule,
 ): Router {
   const router = Router();
 
@@ -95,6 +99,41 @@ export function createMetricsRoutes(
     }
   });
 
+  // GET /api/admin/riders/:id — admin rider details for editing
+  router.get(
+    "/riders/:id",
+    (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const rider = riderMolecule.getById(req.params.id as string);
+        if (!rider) {
+          res.status(404).json({
+            status: 404,
+            code: "NOT_FOUND",
+            message: "Rider not found",
+          });
+          return;
+        }
+        res.status(200).json(rider);
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
+
+  // PATCH /api/admin/riders/:id — update editable rider profile fields
+  router.patch(
+    "/riders/:id",
+    validate(updateRiderSchema),
+    (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const rider = riderMolecule.update(req.params.id as string, req.body);
+        res.status(200).json(rider);
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
+
   // GET /api/admin/riders-select — riders for dropdown (id, name, phone, status)
   router.get(
     "/riders-select",
@@ -129,13 +168,11 @@ export function createMetricsRoutes(
         const riderId = req.params.id as string;
         const { available } = req.body;
         if (typeof available !== "boolean") {
-          res
-            .status(400)
-            .json({
-              status: 400,
-              code: "VALIDATION_ERROR",
-              message: "Field 'available' must be boolean",
-            });
+          res.status(400).json({
+            status: 400,
+            code: "VALIDATION_ERROR",
+            message: "Field 'available' must be boolean",
+          });
           return;
         }
         db.prepare(
