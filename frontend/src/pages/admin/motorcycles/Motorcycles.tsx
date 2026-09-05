@@ -28,7 +28,7 @@ const columns: readonly TableColumn<Motorcycle>[] = [
     id: "motorcycle",
     header: "Motocicleta",
     render: (motorcycle) => (
-      <div>
+      <div className="flex justify-start items-center gap-xs">
         <p className="font-body text-body-md font-medium text-ink">
           {motorcycle.brand} {motorcycle.model}
         </p>
@@ -41,7 +41,17 @@ const columns: readonly TableColumn<Motorcycle>[] = [
   {
     id: "engine-cc",
     header: "Cilindraje",
-    render: (motorcycle) => `${motorcycle.engine_cc} CC`,
+    render: (motorcycle) => `${motorcycle.engine_cc} `,
+  },
+  {
+    id: "soat_expiry",
+    header: "Soat",
+    render: (motorcycle) => motorcycle.soat_expiry,
+  },
+  {
+    id: "inspection_expiry",
+    header: "Tecnomecanica",
+    render: (motorcycle) => motorcycle.inspection_expiry,
   },
   {
     id: "status",

@@ -61,7 +61,7 @@ export const Table = <T,>({
         {columns.map((column) => (
           <td
             key={column.id}
-            className={`px-xl py-md font-body text-body-md text-ink text-nowrap ${column.className ?? ""}`}
+            className={`px-xl py-xs font-body text-body-sm text-ink text-nowrap ${column.className ?? ""}`}
           >
             {column.render(row)}
           </td>
@@ -84,7 +84,7 @@ export const Table = <T,>({
               <th
                 key={column.id}
                 scope="col"
-                className={`px-xl py-md font-body text-body-sm-medium text-nowrap text-ink ${column.className ?? ""}`}
+                className={`px-xl py-xs font-body text-body-sm-medium text-nowrap text-ink ${column.className ?? ""}`}
               >
                 {column.header}
               </th>

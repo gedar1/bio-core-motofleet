@@ -37,6 +37,7 @@ interface CreateNotificationInput {
 
 type NotificationRow = Omit<InAppNotification, "data"> & {
   data_json: string;
+  deleted_at: string | null;
 };
 
 /** Persists and serves in-app notifications independently from SMTP delivery. */
@@ -100,7 +101,7 @@ export class InAppNotificationMolecule implements IMolecule {
     const rows = this.db
       .prepare(
         `SELECT * FROM notifications
-         WHERE recipient_id = ? AND recipient_role = ?
+         WHERE recipient_id = ? AND recipient_role = ? AND deleted_at IS NULL
          ORDER BY created_at DESC
          LIMIT ?`,
       )
@@ -116,7 +117,8 @@ export class InAppNotificationMolecule implements IMolecule {
     const row = this.db
       .prepare(
         `SELECT COUNT(*) AS count FROM notifications
-         WHERE recipient_id = ? AND recipient_role = ? AND read_at IS NULL`,
+         WHERE recipient_id = ? AND recipient_role = ?
+           AND read_at IS NULL AND deleted_at IS NULL`,
       )
       .get(recipientId, recipientRole) as { count: number };
     return row.count;
@@ -131,7 +133,8 @@ export class InAppNotificationMolecule implements IMolecule {
     const result = this.db
       .prepare(
         `UPDATE notifications SET read_at = COALESCE(read_at, ?)
-         WHERE id = ? AND recipient_id = ? AND recipient_role = ?`,
+         WHERE id = ? AND recipient_id = ? AND recipient_role = ?
+           AND deleted_at IS NULL`,
       )
       .run(now, notificationId, recipientId, recipientRole);
 
@@ -147,7 +150,8 @@ export class InAppNotificationMolecule implements IMolecule {
     return this.db
       .prepare(
         `UPDATE notifications SET read_at = ?
-         WHERE recipient_id = ? AND recipient_role = ? AND read_at IS NULL`,
+         WHERE recipient_id = ? AND recipient_role = ?
+           AND read_at IS NULL AND deleted_at IS NULL`,
       )
       .run(now, recipientId, recipientRole).changes;
   }
@@ -157,12 +161,16 @@ export class InAppNotificationMolecule implements IMolecule {
     recipientId: string,
     recipientRole: NotificationRecipientRole,
   ): boolean {
+    const deletedAt = new Date().toISOString();
     return (
       this.db
         .prepare(
-          "DELETE FROM notifications WHERE id = ? AND recipient_id = ? AND recipient_role = ?",
+          `UPDATE notifications SET deleted_at = ?
+           WHERE id = ? AND recipient_id = ? AND recipient_role = ?
+             AND deleted_at IS NULL`,
         )
-        .run(notificationId, recipientId, recipientRole).changes === 1
+        .run(deletedAt, notificationId, recipientId, recipientRole).changes ===
+      1
     );
   }
 
@@ -393,7 +401,9 @@ export class InAppNotificationMolecule implements IMolecule {
 
   private getById(notificationId: string): InAppNotification | null {
     const row = this.db
-      .prepare("SELECT * FROM notifications WHERE id = ?")
+      .prepare(
+        "SELECT * FROM notifications WHERE id = ? AND deleted_at IS NULL",
+      )
       .get(notificationId) as NotificationRow | undefined;
     return row ? this.toNotification(row) : null;
   }
@@ -405,7 +415,9 @@ export class InAppNotificationMolecule implements IMolecule {
   ): InAppNotification | null {
     const row = this.db
       .prepare(
-        "SELECT * FROM notifications WHERE id = ? AND recipient_id = ? AND recipient_role = ?",
+        `SELECT * FROM notifications
+         WHERE id = ? AND recipient_id = ? AND recipient_role = ?
+           AND deleted_at IS NULL`,
       )
       .get(notificationId, recipientId, recipientRole) as
       | NotificationRow
@@ -422,7 +434,11 @@ export class InAppNotificationMolecule implements IMolecule {
         notificationId: row.id,
       });
     }
-    const { data_json: _dataJson, ...notification } = row;
+    const {
+      data_json: _dataJson,
+      deleted_at: _deletedAt,
+      ...notification
+    } = row;
     return { ...notification, data };
   }
 }
