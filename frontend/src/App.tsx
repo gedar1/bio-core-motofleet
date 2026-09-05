@@ -198,7 +198,7 @@ const App: React.FC = () => (
   <AuthProvider>
     <div className="flex min-h-screen flex-col bg-canvas">
       <TopNav />
-      <main className="flex-1 pb-[calc(64px+env(safe-area-inset-bottom))] pt-[64px] lg:pb-0">
+      <main className="w-full flex-1 pb-[calc(64px+env(safe-area-inset-bottom))] pt-[64px] lg:pb-0">
         <AppRoutes />
       </main>
       <Footer />

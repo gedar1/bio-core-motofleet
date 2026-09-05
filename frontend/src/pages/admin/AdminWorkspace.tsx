@@ -256,7 +256,7 @@ export const AdminWorkspace: React.FC = () => {
     });
 
   return (
-    <div className="flex min-h-[calc(100vh-64px)]">
+    <div className="flex w-full min-h-[calc(100vh-64px)]">
       {/* Sidebar - desktop (compact, icon-only with tooltips) */}
       <aside className="hidden lg:flex lg:w-[68px] lg:shrink-0 lg:flex-col border-r border-hairline-soft bg-canvas">
         <nav
@@ -308,7 +308,7 @@ export const AdminWorkspace: React.FC = () => {
       </div>
 
       {/* Main content */}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 w-full flex-1">
         {/* Mobile top bar with hamburger */}
         <div className="flex items-center gap-sm border-b border-hairline-soft px-md py-sm lg:hidden">
           <button
@@ -324,8 +324,8 @@ export const AdminWorkspace: React.FC = () => {
           </span>
         </div>
 
-        <div className="  ">
-          <div className="mx-auto min-h-[400px] max-w-[1200px] rounded-lg bg-surface">
+        <div className="w-full">
+          <div className="w-full min-h-[400px] rounded-lg bg-surface">
             {renderContent()}
           </div>
         </div>

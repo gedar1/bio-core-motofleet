@@ -81,11 +81,25 @@ export const Riders: React.FC = () => {
     {
       id: "availability",
       header: "Disponibilidad",
-      render: (rider) => (
-        <span className="caption">
-          {rider.available ? "✅ Disponible" : "⏸️ No disponible"}
-        </span>
-      ),
+      render: (rider) => {
+        const isAvailable = Boolean(rider.available);
+        const action = isAvailable ? "Desactivar" : "Activar";
+
+        return (
+          <label className="inline-flex cursor-pointer items-center gap-sm">
+            <input
+              type="checkbox"
+              checked={isAvailable}
+              onChange={() => void handleToggle(rider.id, rider.available)}
+              className="h-4 w-4 cursor-pointer accent-primary"
+              aria-label={`${action} disponibilidad de ${rider.name}`}
+            />
+            <span className="caption">
+              {isAvailable ? "Disponible" : "No disponible"}
+            </span>
+          </label>
+        );
+      },
     },
     {
       id: "created_at",
@@ -101,21 +115,6 @@ export const Riders: React.FC = () => {
         <span className="caption">{formatDateColombia(rider.updated_at)}</span>
       ),
     },
-    {
-      id: "actions",
-      header: "Acciones",
-      render: (rider) => (
-        <Button
-          type="button"
-          variant={rider.available ? "secondary" : "primary"}
-          onClick={() => handleToggle(rider.id, rider.available)}
-        >
-          {rider.available
-            ? "Desactivar disponibilidad"
-            : "Activar disponibilidad"}
-        </Button>
-      ),
-    },
   ];
 
   if (loading)
@@ -123,7 +122,7 @@ export const Riders: React.FC = () => {
 
   return (
     <div className="section lg:px-2xl px-md">
-      <div className="max-w-[1280px] mx-auto">
+      <div className="w-full">
         <div className="flex justify-between items-center mb-2xl">
           <h3>Motociclistas</h3>
           <Link to="/admin/riders/create">
