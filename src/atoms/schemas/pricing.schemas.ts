@@ -27,3 +27,10 @@ export const createPricingRuleSchema = z.object({
 });
 
 export type CreatePricingRuleInput = z.infer<typeof createPricingRuleSchema>;
+
+export const updatePricingRuleSchema = createPricingRuleSchema
+  .omit({ errand_type: true })
+  .partial()
+  .strict();
+
+export type UpdatePricingRuleInput = z.infer<typeof updatePricingRuleSchema>;

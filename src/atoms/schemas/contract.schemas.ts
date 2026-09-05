@@ -26,3 +26,19 @@ export const createContractSchema = z
   });
 
 export type CreateContractInput = z.infer<typeof createContractSchema>;
+
+export const updateContractSchema = z
+  .object({
+    end_date: z
+      .string()
+      .refine((val) => !isNaN(new Date(val).getTime()), {
+        message: "end_date must be a valid date",
+      })
+      .optional(),
+    monthly_amount: z.number().positive().optional(),
+    payment_day: z.number().int().min(1).max(28).optional(),
+    notes: z.string().max(1000).nullable().optional(),
+  })
+  .strict();
+
+export type UpdateContractInput = z.infer<typeof updateContractSchema>;
