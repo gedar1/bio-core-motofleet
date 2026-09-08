@@ -252,7 +252,7 @@ export const RiderErrands: React.FC = () => {
                           : undefined
                     }
                   />
-                  <div className="order-2 z-10 -mt-md flex flex-col gap-md rounded-t-xl bg-canvas px-xl py-2xl shadow-card lg:order-1 lg:mt-0 lg:flex-row lg:items-start lg:justify-between lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
+                  <div className="order-2 z-10 mt-md flex flex-col gap-md rounded-t-xl bg-canvas px-xl py-2xl shadow-card lg:order-1 lg:mt-0 lg:flex-row lg:items-start lg:justify-between lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
                     <div>
                       <p className="caption">
                         {translateStatus(e.type)} · {translateStatus(e.status)}
@@ -312,7 +312,7 @@ export const RiderErrands: React.FC = () => {
         <h2 className="px-xl mb-lg lg:mb-2xl lg:px-0">Historial</h2>
 
         {/* Range filter */}
-        <div className="mb-lg flex gap-sm px-xl lg:px-0">
+        <div className="mb-lg flex justify-between gap-sm px-xl lg:px-0">
           {(["today", "week", "all"] as const).map((r) => (
             <button
               key={r}
