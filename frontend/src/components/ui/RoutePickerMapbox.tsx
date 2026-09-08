@@ -13,8 +13,12 @@ import { Button } from "./Button";
 
 export interface RouteLocation {
   readonly address: string;
+  /** Exact coordinates selected by the user or returned by the geocoder. */
   readonly latitude: number;
   readonly longitude: number;
+  /** Optional road-access coordinates used for routing and quote consistency. */
+  readonly routableLatitude?: number;
+  readonly routableLongitude?: number;
 }
 
 export interface RouteValue {
@@ -70,6 +74,12 @@ const routeLayer = {
   },
 };
 
+const hasSeparateRoutablePoint = (location: RouteLocation): boolean =>
+  location.routableLatitude !== undefined &&
+  location.routableLongitude !== undefined &&
+  (location.routableLatitude !== location.latitude ||
+    location.routableLongitude !== location.longitude);
+
 export const RoutePickerMapbox = ({
   value,
   onChange,
@@ -100,6 +110,8 @@ export const RoutePickerMapbox = ({
       address: fallbackAddress,
       latitude,
       longitude,
+      routableLatitude: latitude,
+      routableLongitude: longitude,
     });
     setMessage("Buscando la dirección del punto seleccionado...");
 
@@ -118,7 +130,13 @@ export const RoutePickerMapbox = ({
         feature?.name;
 
       if (address) {
-        selectLocation(kind, { address, latitude, longitude });
+        selectLocation(kind, {
+          address,
+          latitude,
+          longitude,
+          routableLatitude: latitude,
+          routableLongitude: longitude,
+        });
       }
     } catch {
       setMessage(
@@ -128,19 +146,36 @@ export const RoutePickerMapbox = ({
   };
 
   const handleRetrieve = (kind: PointKind) => (feature: GeocoderFeature) => {
-    const coordinates =
-      feature.properties.coordinates.routable_points?.[0] ??
-      feature.properties.coordinates;
+    const exactCoordinates = feature.properties.coordinates;
+    const routablePoint = exactCoordinates.routable_points?.[0];
+    const usesDifferentRoutablePoint =
+      routablePoint !== undefined &&
+      (routablePoint.latitude !== exactCoordinates.latitude ||
+        routablePoint.longitude !== exactCoordinates.longitude);
+
     selectLocation(kind, {
       address: feature.properties.full_address,
-      latitude: coordinates.latitude,
-      longitude: coordinates.longitude,
+      latitude: exactCoordinates.latitude,
+      longitude: exactCoordinates.longitude,
+      routableLatitude: routablePoint?.latitude ?? exactCoordinates.latitude,
+      routableLongitude: routablePoint?.longitude ?? exactCoordinates.longitude,
     });
+    setMessage(
+      usesDifferentRoutablePoint
+        ? "Dirección encontrada. La ruta usará el acceso vial más cercano; puedes ajustar el pin."
+        : "Dirección seleccionada. Puedes ajustar el pin si es necesario.",
+    );
     mapRef.current?.flyTo({
-      center: [coordinates.longitude, coordinates.latitude],
-      zoom: 16,
+      center: [exactCoordinates.longitude, exactCoordinates.latitude],
+      zoom: 17,
       duration: 800,
     });
+  };
+
+  const handleSuggestError = () => {
+    setMessage(
+      "No fue posible cargar coincidencias. Revisa la dirección o inténtalo de nuevo.",
+    );
   };
 
   const useCurrentLocation = () => {
@@ -158,6 +193,8 @@ export const RoutePickerMapbox = ({
           address: "Ubicación actual",
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
+          routableLatitude: position.coords.latitude,
+          routableLongitude: position.coords.longitude,
         });
         mapRef.current?.flyTo({
           center: [position.coords.longitude, position.coords.latitude],
@@ -200,7 +237,7 @@ export const RoutePickerMapbox = ({
 
   return (
     <fieldset className="w-full flex flex-col gap-sm">
-      <legend className="flex justify-between w-full items-center pt-xs pb-md  font-body text-body-md-medium text-ink">
+      <legend className="flex flex-col justify-center w-full items-center  pb-md  font-body text-body-md-medium text-ink">
         Ruta
         <Button
           type="button"
@@ -208,7 +245,7 @@ export const RoutePickerMapbox = ({
           onClick={useCurrentLocation}
           disabled={locating}
         >
-          {locating ? "Ubicando..." : "Usar mi ubicación actual como origen"}
+          {locating ? "Ubicando..." : "Usar ubicación actual como origen"}
         </Button>
       </legend>
       <div className="route-picker-mapbox">
@@ -222,11 +259,15 @@ export const RoutePickerMapbox = ({
               options={{
                 country: "CO",
                 language: "es",
+                types: "address,street",
+                autocomplete: true,
+                limit: 5,
                 proximity: { lng: -75.5812, lat: 6.2442 },
               }}
               placeholder="Busca el punto de recogida"
               marker={false}
               onRetrieve={handleRetrieve("origin")}
+              onSuggestError={handleSuggestError}
             />
           </div>
           <div
@@ -238,11 +279,15 @@ export const RoutePickerMapbox = ({
               options={{
                 country: "CO",
                 language: "es",
+                types: "address,street",
+                autocomplete: true,
+                limit: 5,
                 proximity: { lng: -75.5812, lat: 6.2442 },
               }}
               placeholder="Busca el destino"
               marker={false}
               onRetrieve={handleRetrieve("destination")}
+              onSuggestError={handleSuggestError}
             />
           </div>
         </div>
@@ -291,21 +336,32 @@ export const RoutePickerMapbox = ({
         </Map>
       </div>
       <p className="caption p-xs border-sunshine-800 border-solid border m-xs rounded-md">
-        Busca el origen y el destino arriba. Toca el mapa o arrastra los pines
-        para ajustar cada punto.
+        Selecciona una sugerencia, toca el mapa o arrastra los pines para
+        ajustar cada punto. El marcador muestra la ubicación seleccionada; si
+        existe un acceso vial, la ruta lo usará para calcular el recorrido.
       </p>
       {value.origin && (
         <p className="font-body text-body-sm text-ink p-xs">
           <strong>Origen:</strong> {value.origin.address}
+          {hasSeparateRoutablePoint(value.origin) && (
+            <span className="caption block text-muted">
+              La ruta partirá del acceso vial más cercano.
+            </span>
+          )}
         </p>
       )}
       {value.destination && (
         <p className="font-body text-body-sm text-ink p-xs">
           <strong>Destino:</strong> {value.destination.address}
+          {hasSeparateRoutablePoint(value.destination) && (
+            <span className="caption block text-muted">
+              La ruta llegará al acceso vial más cercano.
+            </span>
+          )}
         </p>
       )}
       {routePreview && (
-        <p className="font-body text-body-sm-medium text-primary">
+        <p className="font-body text-body-sm-medium text-primary p-xs">
           Ruta estimada: {routePreview.distanceKm.toFixed(1)} km ·{" "}
           {Math.ceil(routePreview.durationMinutes)} min aprox.
         </p>

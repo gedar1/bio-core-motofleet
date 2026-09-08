@@ -6,6 +6,7 @@ import {
   Card,
   Input,
   RoutePickerMapbox,
+  type RouteLocation,
   type RoutePreview,
   type RouteValue,
 } from "../../components/ui";
@@ -23,6 +24,11 @@ const formatCop = new Intl.NumberFormat("es-CO", {
   style: "currency",
   currency: "COP",
   maximumFractionDigits: 0,
+});
+
+const toRoutingCoordinates = (location: RouteLocation) => ({
+  latitude: location.routableLatitude ?? location.latitude,
+  longitude: location.routableLongitude ?? location.longitude,
 });
 
 export const CreateErrand: React.FC = () => {
@@ -74,7 +80,13 @@ export const CreateErrand: React.FC = () => {
     setRoutePreview(null);
     setQuotePreview(null);
     setRouteEstimateError(null);
-    quote({ type: form.type, origin, destination })
+    const originCoordinates = toRoutingCoordinates(origin);
+    const destinationCoordinates = toRoutingCoordinates(destination);
+    quote({
+      type: form.type,
+      origin: originCoordinates,
+      destination: destinationCoordinates,
+    })
       .then((nextQuote) => {
         if (current) {
           setRoutePreview(nextQuote);
@@ -98,8 +110,12 @@ export const CreateErrand: React.FC = () => {
     quoteRefreshKey,
     route.destination?.latitude,
     route.destination?.longitude,
+    route.destination?.routableLatitude,
+    route.destination?.routableLongitude,
     route.origin?.latitude,
     route.origin?.longitude,
+    route.origin?.routableLatitude,
+    route.origin?.routableLongitude,
   ]);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -129,14 +145,16 @@ export const CreateErrand: React.FC = () => {
 
     setLoading(true);
     try {
+      const originCoordinates = toRoutingCoordinates(route.origin);
+      const destinationCoordinates = toRoutingCoordinates(route.destination);
       const errand = (await create({
         ...form,
         origin_address: route.origin.address,
-        origin_lat: route.origin.latitude,
-        origin_lng: route.origin.longitude,
+        origin_lat: originCoordinates.latitude,
+        origin_lng: originCoordinates.longitude,
         destination_address: route.destination.address,
-        destination_lat: route.destination.latitude,
-        destination_lng: route.destination.longitude,
+        destination_lat: destinationCoordinates.latitude,
+        destination_lng: destinationCoordinates.longitude,
         quote_id: quotePreview.quoteId,
       })) as { pin?: string };
       if (errand.pin) {
@@ -161,7 +179,7 @@ export const CreateErrand: React.FC = () => {
   // Show PIN confirmation after creation
   if (createdPin) {
     return (
-      <div className="section-mobile md:section px-2xl">
+      <div className="section-mobile md:section px-lg">
         <div className="max-w-[500px] mx-auto">
           <Card className="p-2xl text-center">
             <div className="mb-xl">
@@ -214,11 +232,14 @@ export const CreateErrand: React.FC = () => {
   }
 
   return (
-    <div className="section-mobile md:section px-2xl">
-      <div className="mx-auto max-w-[600px] lg:max-w-[600px]">
+    <div className="section-mobile md:section px-lg">
+      <div className="mx-auto w-full max-w-[1200px]">
         <h2 className="hidden mb-2xl lg:block">{t.user.createErrandTitle}</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-0 lg:gap-lg">
-          <div className="order-1 w-full lg:order-2">
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full flex-col gap-0 lg:grid lg:grid-cols-[minmax(320px,0.8fr)_minmax(0,1.5fr)] lg:items-start lg:gap-xl"
+        >
+          <div className="order-1 relative left-1/2 w-screen -translate-x-1/2 lg:order-2 lg:left-auto lg:w-full lg:translate-x-0">
             <RoutePickerMapbox
               value={route}
               onChange={setRoute}
@@ -231,7 +252,7 @@ export const CreateErrand: React.FC = () => {
             )}
           </div>
 
-          <section className="order-2 z-10 -mt-md flex flex-col gap-lg rounded-t-xl bg-canvas px-xl py-2xl shadow-card lg:order-1 lg:mt-0 lg:rounded-lg lg:border lg:border-hairline-soft">
+          <section className="order-2 z-10 mt-md flex min-w-0 flex-col gap-lg rounded-t-xl bg-canvas md:px-xl py-2xl lg:order-1 lg:mt-0 lg:rounded-lg lg:border lg:border-hairline-soft">
             <div>
               <h2 className="mb-xs lg:hidden">{t.user.createErrandTitle}</h2>
               <p className="caption lg:hidden">

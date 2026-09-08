@@ -2,14 +2,12 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { t } from "../../i18n";
-import packageIcon from "../../assets/icons/package_light.svg";
-import notePencilIcon from "../../assets/icons/note-pencil.svg";
-import personSimpleBikeIcon from "../../assets/icons/person_simple_bike.svg";
+import { Icon, type IconName } from "@/components/shared/components/Icon";
 
 interface NavigationItem {
   readonly to: string;
   readonly label: string;
-  readonly icon: string;
+  readonly icon: IconName;
 }
 
 export const MobileBottomNav: React.FC = () => {
@@ -25,29 +23,29 @@ export const MobileBottomNav: React.FC = () => {
           {
             to: "/user/create-errand",
             label: t.nav.requestErrand,
-            icon: notePencilIcon,
+            icon: "note_pencil",
           },
           {
             to: "/user/errands",
             label: t.nav.myErrands,
-            icon: packageIcon,
+            icon: "package",
           },
         ]
       : [
           {
             to: "/rider",
             label: t.nav.activeRoute,
-            icon: personSimpleBikeIcon,
+            icon: "personSimpleBike",
           },
           {
             to: "/rider/available",
             label: t.nav.availableErrands,
-            icon: packageIcon,
+            icon: "package",
           },
           {
             to: "/rider/errands",
             label: t.nav.riderHistory,
-            icon: notePencilIcon,
+            icon: "note_pencil",
           },
         ];
 
@@ -69,12 +67,13 @@ export const MobileBottomNav: React.FC = () => {
               }`
             }
           >
-            <img
+            {/* <img
               src={item.icon}
               alt=""
               aria-hidden="true"
               className="h-5 w-5"
-            />
+            /> */}
+            <Icon name={item.icon} size={18} />
             <span>{item.label}</span>
           </NavLink>
         ))}
