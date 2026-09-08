@@ -227,7 +227,7 @@ export const RiderRouteActions = ({
               )}
             </Map>
           </div>
-          <div className="flex flex-col gap-sm sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-sm px-xs sm:flex-row sm:items-center">
             <p className="font-body text-body-sm-medium text-primary">
               Ruta Mapbox: {routePreview.distanceKm.toFixed(1)} km ·{" "}
               {Math.ceil(routePreview.durationMinutes)} min aprox.
@@ -244,7 +244,7 @@ export const RiderRouteActions = ({
         </>
       )}
       {navigationTarget && (
-        <div className="flex flex-col gap-sm sm:flex-row sm:flex-wrap">
+        <div className="flex flex-col px-xs gap-sm sm:flex-row sm:flex-wrap">
           <Button
             type="button"
             variant="dark"

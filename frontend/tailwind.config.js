@@ -12,6 +12,7 @@ export default {
       "surface-alt": "rgb(var(--color-surface-alt) / <alpha-value>)",
       ink: "rgb(var(--color-ink) / <alpha-value>)",
       "ink-soft": "rgb(var(--color-ink-soft) / <alpha-value>)",
+      "ink-muted": "rgb(var(--color-ink-muted) / <alpha-value>)",
       muted: "rgb(var(--color-muted) / <alpha-value>)",
       hairline: "rgb(var(--color-hairline) / <alpha-value>)",
       "hairline-soft": "rgb(var(--color-hairline-soft) / <alpha-value>)",
