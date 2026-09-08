@@ -8,6 +8,7 @@ import packageIcon from "./package_light.svg?raw";
 import personSimpleBike from "./person_simple_bike.svg?raw";
 import squarePen from "./square-pen.svg?raw";
 import wallet from "./wallet_minimal.svg?raw";
+import note_pencil from "./note-pencil.svg?raw";
 
 export const rawIcons = {
   calendarDots,
@@ -20,6 +21,7 @@ export const rawIcons = {
   personSimpleBike,
   squarePen,
   wallet,
+  note_pencil,
 } as const;
 
 export type IconName = keyof typeof rawIcons;

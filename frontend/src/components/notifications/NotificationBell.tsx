@@ -79,7 +79,7 @@ export const NotificationBell: React.FC = () => {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="relative w-[36px] h-[36px] flex items-center justify-center rounded-md border border-hairline text-ink transition-colors"
+        className="relative w-[36px] h-[36px] flex items-center justify-center text-ink transition-colors"
         aria-label="Abrir notificaciones"
         aria-expanded={isOpen}
       >
