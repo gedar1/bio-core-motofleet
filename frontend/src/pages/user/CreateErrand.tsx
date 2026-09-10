@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useErrandActions } from "../../hooks";
 import {
@@ -68,7 +68,12 @@ export const CreateErrand: React.FC = () => {
     let current = true;
     const { origin, destination } = route;
 
-    if (!origin || !destination) {
+    if (
+      !origin ||
+      !destination ||
+      !origin.confirmed ||
+      !destination.confirmed
+    ) {
       setRoutePreview(null);
       setQuotePreview(null);
       setRouteEstimateError(null);
@@ -112,10 +117,12 @@ export const CreateErrand: React.FC = () => {
     route.destination?.longitude,
     route.destination?.routableLatitude,
     route.destination?.routableLongitude,
+    route.destination?.confirmed,
     route.origin?.latitude,
     route.origin?.longitude,
     route.origin?.routableLatitude,
     route.origin?.routableLongitude,
+    route.origin?.confirmed,
   ]);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -125,6 +132,13 @@ export const CreateErrand: React.FC = () => {
     if (!route.origin || !route.destination) {
       setError(
         "Selecciona el origen y el destino en el mapa antes de continuar.",
+      );
+      return;
+    }
+
+    if (!route.origin.confirmed || !route.destination.confirmed) {
+      setError(
+        "Confirma el punto de recogida y el punto de entrega antes de continuar.",
       );
       return;
     }
@@ -150,11 +164,27 @@ export const CreateErrand: React.FC = () => {
       const errand = (await create({
         ...form,
         origin_address: route.origin.address,
+        origin_address_input: route.origin.inputAddress,
+        origin_address_resolved: route.origin.resolvedAddress,
         origin_lat: originCoordinates.latitude,
         origin_lng: originCoordinates.longitude,
+        origin_exact_lat: route.origin.latitude,
+        origin_exact_lng: route.origin.longitude,
+        origin_routable_lat: originCoordinates.latitude,
+        origin_routable_lng: originCoordinates.longitude,
+        origin_instructions: route.origin.instructions ?? null,
+        origin_confirmed: route.origin.confirmed,
         destination_address: route.destination.address,
+        destination_address_input: route.destination.inputAddress,
+        destination_address_resolved: route.destination.resolvedAddress,
         destination_lat: destinationCoordinates.latitude,
         destination_lng: destinationCoordinates.longitude,
+        destination_exact_lat: route.destination.latitude,
+        destination_exact_lng: route.destination.longitude,
+        destination_routable_lat: destinationCoordinates.latitude,
+        destination_routable_lng: destinationCoordinates.longitude,
+        destination_instructions: route.destination.instructions ?? null,
+        destination_confirmed: route.destination.confirmed,
         quote_id: quotePreview.quoteId,
       })) as { pin?: string };
       if (errand.pin) {
@@ -239,7 +269,14 @@ export const CreateErrand: React.FC = () => {
           onSubmit={handleSubmit}
           className="flex w-full flex-col gap-0 lg:grid lg:grid-cols-[minmax(320px,0.8fr)_minmax(0,1.5fr)] lg:items-start lg:gap-xl"
         >
-          <div className="order-1 relative left-1/2 w-screen -translate-x-1/2 lg:order-2 lg:left-auto lg:w-full lg:translate-x-0">
+          <div className="order-1 py-2xl lg:hidden">
+            <h2 className="mb-xs">{t.user.createErrandTitle}</h2>
+            <p className="caption">
+              Selecciona origen y destino directamente en el mapa.
+            </p>
+          </div>
+
+          <div className="order-1 z-20 relative left-1/2 w-screen -translate-x-1/2 lg:order-2 lg:left-auto lg:w-full lg:translate-x-0">
             <RoutePickerMapbox
               value={route}
               onChange={setRoute}
@@ -253,12 +290,6 @@ export const CreateErrand: React.FC = () => {
           </div>
 
           <section className="order-2 z-10 mt-md flex min-w-0 flex-col gap-lg rounded-t-xl bg-canvas md:px-xl py-2xl lg:order-1 lg:mt-0 lg:rounded-lg lg:border lg:border-hairline-soft">
-            <div>
-              <h2 className="mb-xs lg:hidden">{t.user.createErrandTitle}</h2>
-              <p className="caption lg:hidden">
-                Selecciona origen y destino directamente en el mapa.
-              </p>
-            </div>
             <div className="w-full">
               <label className="block mb-xs font-body text-body-sm-medium text-ink">
                 {t.user.type}
