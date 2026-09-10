@@ -41,9 +41,24 @@ export const UserMyErrands: React.FC = () => {
                     <p className="font-body text-body-md text-ink mt-xs">
                       {e.description}
                     </p>
-                    <p className="font-body text-body-sm text-slate mt-xs">
-                      {e.origin_address} → {e.destination_address}
-                    </p>
+                    <div className="font-body text-body-sm text-slate mt-xs">
+                      <p>
+                        <strong>Recogida:</strong> {e.origin_address}
+                      </p>
+                      {e.origin_instructions && (
+                        <p className="caption text-muted mt-xxs">
+                          Instrucciones: {e.origin_instructions}
+                        </p>
+                      )}
+                      <p className="mt-xxs">
+                        <strong>Entrega:</strong> {e.destination_address}
+                      </p>
+                      {e.destination_instructions && (
+                        <p className="caption text-muted mt-xxs">
+                          Instrucciones: {e.destination_instructions}
+                        </p>
+                      )}
+                    </div>
                     <p className="caption mt-sm">
                       {translateStatus(e.payment_method)} · ${e.fare}
                     </p>

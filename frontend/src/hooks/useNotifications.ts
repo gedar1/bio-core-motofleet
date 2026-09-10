@@ -30,9 +30,13 @@ export const useNotifications = (): UseNotificationsReturn => {
 
   const hasLoadedInitialNotificationsRef = useRef(false);
   const seenNotificationIdsRef = useRef(new Set<string>());
+  const deletedNotificationIdsRef = useRef(new Set<string>());
+  const requestVersionRef = useRef(0);
 
   const loadNotifications = useCallback(async () => {
     if (!token) return;
+
+    const requestVersion = requestVersionRef.current;
 
     try {
       const [items, unread] = await Promise.all([
@@ -40,8 +44,16 @@ export const useNotifications = (): UseNotificationsReturn => {
         api.getUnreadNotificationCount(token),
       ]);
 
+      // Do not let a response that started before a mutation overwrite it.
+      if (requestVersion !== requestVersionRef.current) return;
+
+      const visibleItems = items.filter(
+        (notification) =>
+          !deletedNotificationIdsRef.current.has(notification.id),
+      );
+
       if (hasLoadedInitialNotificationsRef.current) {
-        const newNotifications = items.filter(
+        const newNotifications = visibleItems.filter(
           (notification) =>
             !seenNotificationIdsRef.current.has(notification.id),
         );
@@ -57,20 +69,31 @@ export const useNotifications = (): UseNotificationsReturn => {
           seenNotificationIdsRef.current.add(notification.id);
         });
       } else {
-        items.forEach((notification) => {
+        visibleItems.forEach((notification) => {
           seenNotificationIdsRef.current.add(notification.id);
         });
         hasLoadedInitialNotificationsRef.current = true;
       }
 
-      setNotifications(items);
+      setNotifications(visibleItems);
       setUnreadCount(unread.count);
       setHasError(false);
     } catch {
-      setHasError(true);
+      if (requestVersion === requestVersionRef.current) {
+        setHasError(true);
+      }
     } finally {
-      setIsLoading(false);
+      if (requestVersion === requestVersionRef.current) {
+        setIsLoading(false);
+      }
     }
+  }, [token]);
+
+  useEffect(() => {
+    deletedNotificationIdsRef.current.clear();
+    seenNotificationIdsRef.current.clear();
+    hasLoadedInitialNotificationsRef.current = false;
+    requestVersionRef.current += 1;
   }, [token]);
 
   useEffect(() => {
@@ -116,9 +139,18 @@ export const useNotifications = (): UseNotificationsReturn => {
 
   const deleteNotification = useCallback(
     async (notification: InAppNotification) => {
-      if (!token) return;
+      if (!token || deletedNotificationIdsRef.current.has(notification.id)) {
+        return;
+      }
+
+      // Hide it from any in-flight polling response immediately.
+      deletedNotificationIdsRef.current.add(notification.id);
+      requestVersionRef.current += 1;
+
       try {
         await api.deleteNotification(token, notification.id);
+        // Invalidate reads that started while DELETE was in flight.
+        requestVersionRef.current += 1;
         setNotifications((current) =>
           current.filter((item) => item.id !== notification.id),
         );
@@ -129,10 +161,13 @@ export const useNotifications = (): UseNotificationsReturn => {
           setToastNotification(null);
         }
       } catch {
+        deletedNotificationIdsRef.current.delete(notification.id);
+        requestVersionRef.current += 1;
         setHasError(true);
+        void loadNotifications();
       }
     },
-    [token, toastNotification],
+    [token, toastNotification, loadNotifications],
   );
 
   const clearToast = useCallback(() => {
