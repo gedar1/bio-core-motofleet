@@ -1,22 +1,8 @@
-export type PointKind = "origin" | "destination";
+import type { PointKind, RouteLocation, RouteValue, SearchBoxRetrieveFeature } from "./RoutePickerMapbox.types";
 
-/** Address and pin data for one route endpoint. */
-export interface RoutePickerLocation {
-  readonly address: string;
-  readonly inputAddress: string;
-  readonly resolvedAddress: string | null;
-  readonly latitude: number;
-  readonly longitude: number;
-  readonly routableLatitude?: number;
-  readonly routableLongitude?: number;
-  readonly instructions?: string;
-  readonly confirmed: boolean;
-}
-
-export interface RoutePickerValue {
-  readonly origin: RoutePickerLocation | null;
-  readonly destination: RoutePickerLocation | null;
-}
+export type { PointKind } from "./RoutePickerMapbox.types";
+export type RoutePickerLocation = RouteLocation;
+export type RoutePickerValue = RouteValue;
 
 export type Stage = "capture-origin" | "capture-destination" | "map";
 
@@ -24,30 +10,31 @@ export type Stage = "capture-origin" | "capture-destination" | "map";
  * Determines capture visibility exclusively from whether the route endpoints
  * have been selected. Pin confirmation is intentionally not part of this flow.
  */
-export const getStage = (value: RoutePickerValue): Stage => {
+export const getStage = (value: RouteValue): Stage => {
   if (!value.origin) return "capture-origin";
   if (!value.destination) return "capture-destination";
   return "map";
 };
 
-export const shouldShowDestinationSearch = (value: RoutePickerValue): boolean =>
+export const shouldShowDestinationSearch = (value: RouteValue): boolean =>
   getStage(value) !== "capture-origin";
 
-export const shouldShowMap = (value: RoutePickerValue): boolean =>
+export const shouldShowMap = (value: RouteValue): boolean =>
   getStage(value) === "map";
 
 export type OverlayMode = "confirm" | "edit";
 
 export const getOverlayMode = (
   kind: PointKind,
-  value: RoutePickerValue,
+  value: RouteValue,
 ): OverlayMode => (value[kind]?.confirmed ? "edit" : "confirm");
 
-const MAP_SELECTION_FALLBACK_ADDRESS: Record<PointKind, string> = {
+/** Placeholder text used when a point is chosen by tapping the map/marker instead of typing. */
+export const MAP_SELECTION_FALLBACK_ADDRESS: Record<PointKind, string> = {
   origin: "Punto de recogida seleccionado",
   destination: "Punto de entrega seleccionado",
 };
-const CURRENT_LOCATION_ADDRESS = "Ubicación actual";
+export const CURRENT_LOCATION_ADDRESS = "Ubicación actual";
 
 /** True when the address text wasn't typed by the user (map tap or GPS). */
 export const isPlaceholderAddress = (kind: PointKind, address: string): boolean =>
@@ -55,9 +42,7 @@ export const isPlaceholderAddress = (kind: PointKind, address: string): boolean 
   address === CURRENT_LOCATION_ADDRESS;
 
 /** Keeps the existing typed-address versus resolved-address comparison intact. */
-export const hasAddressDiscrepancy = (
-  location: RoutePickerLocation,
-): boolean =>
+export const hasAddressDiscrepancy = (location: RouteLocation): boolean =>
   location.resolvedAddress !== null &&
   location.inputAddress.trim().toLowerCase() !==
     location.resolvedAddress.trim().toLowerCase();
@@ -68,7 +53,7 @@ export const hasAddressDiscrepancy = (
  */
 export const resolveDisplayAddress = (
   kind: PointKind,
-  location: RoutePickerLocation,
+  location: RouteLocation,
 ): string =>
   isPlaceholderAddress(kind, location.inputAddress)
     ? (location.resolvedAddress ?? location.inputAddress)
@@ -93,7 +78,7 @@ export const extractHouseNumber = (address: string): string | null => {
  * both typed and resolved addresses contain different house/door numbers.
  */
 export const getDiscrepancySeverity = (
-  location: RoutePickerLocation,
+  location: RouteLocation,
 ): DiscrepancySeverity => {
   if (!hasAddressDiscrepancy(location)) return "none";
 
@@ -110,7 +95,7 @@ export const getDiscrepancySeverity = (
 /** Shows the required pending-pin confirmation affordance unless its overlay is open. */
 export const isAffordanceVisible = (
   kind: PointKind,
-  value: RoutePickerValue,
+  value: RouteValue,
   activeOverlayKind: PointKind | null,
 ): boolean => {
   const location = value[kind];
@@ -120,9 +105,50 @@ export const isAffordanceVisible = (
 /** Shows the lower-urgency confirmed-pin edit hint unless its overlay is open. */
 export const isEditHintVisible = (
   kind: PointKind,
-  value: RoutePickerValue,
+  value: RouteValue,
   activeOverlayKind: PointKind | null,
 ): boolean => {
   const location = value[kind];
   return !!location && location.confirmed && activeOverlayKind !== kind;
 };
+
+export const hasSeparateRoutablePoint = (location: RouteLocation): boolean =>
+  location.routableLatitude !== undefined &&
+  location.routableLongitude !== undefined &&
+  (location.routableLatitude !== location.latitude ||
+    location.routableLongitude !== location.longitude);
+
+const COLOMBIAN_ADDRESS_CONTEXT_PATTERN =
+  /colombia|medell[ií]n|bogot[aá]|cali|barranquilla|cartagena|pereira|manizales|bucaramanga/i;
+
+export const normalizeColombianAddressQuery = (query: string): string => {
+  const normalized = query
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/\b(?:cra|cr|kra|k)\.?\s*/gi, "Carrera ")
+    .replace(/\b(?:cl|calle)\.?\s*/gi, "Calle ")
+    .replace(/\b(?:av|avda|avenida)\.?\s*/gi, "Avenida ")
+    .replace(/\s*#\s*/g, " # ")
+    .replace(/\s*-\s*/g, "-");
+
+  if (!normalized || COLOMBIAN_ADDRESS_CONTEXT_PATTERN.test(normalized)) {
+    return normalized;
+  }
+
+  return `${normalized}, Colombia`;
+};
+
+/** Preserves POI names because SearchBox does not include them in full_address. */
+export const getSelectedSearchBoxLabel = (
+  feature: SearchBoxRetrieveFeature,
+): string => {
+  const { feature_type, full_address, name, name_preferred } =
+    feature.properties;
+
+  return feature_type === "poi"
+    ? `${name_preferred || name}, ${full_address}`
+    : full_address;
+};
+
+export const getPointLabel = (kind: PointKind): string =>
+  kind === "origin" ? "recogida" : "entrega";
