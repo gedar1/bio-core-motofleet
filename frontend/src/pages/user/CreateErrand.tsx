@@ -2,29 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useErrandActions } from "../../hooks";
 import {
-  Button,
-  Card,
-  Input,
   RoutePickerMapbox,
   type RouteLocation,
   type RoutePreview,
   type RouteValue,
 } from "../../components/ui";
 import { t } from "../../i18n";
-import { inputRules } from "../../validation/inputRules";
-import type { ErrandQuoteResponse, QuoteErrandRequest } from "../../types/api";
-
-type CreateErrandForm = {
-  type: QuoteErrandRequest["type"];
-  description: string;
-  payment_method: "cash" | "transfer";
-};
-
-const formatCop = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
+import type { ErrandQuoteResponse } from "../../types/api";
+import { CreateErrandFormPanel } from "./createErrand/CreateErrandFormPanel";
+import { CreateErrandSuccess } from "./createErrand/CreateErrandSuccess";
+import type { CreateErrandForm } from "./createErrand/types";
 
 const toRoutingCoordinates = (location: RouteLocation) => ({
   latitude: location.routableLatitude ?? location.latitude,
@@ -206,58 +193,12 @@ export const CreateErrand: React.FC = () => {
     submitLabel = "Aprobar costo y crear favor";
   }
 
-  // Show PIN confirmation after creation
   if (createdPin) {
     return (
-      <div className="section-mobile md:section px-lg">
-        <div className="max-w-[500px] mx-auto">
-          <Card className="p-2xl text-center">
-            <div className="mb-xl">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success-light mb-md">
-                <span className="text-3xl">✓</span>
-              </div>
-              <h2 className="text-heading-2 text-ink mb-sm">
-                ¡Favor creado exitosamente!
-              </h2>
-              <p className="font-body text-body-md text-slate">
-                Tu solicitud ha sido publicada. Un rider la tomará pronto.
-              </p>
-            </div>
-
-            <div className="p-lg bg-primary-50 rounded-lg border-2 border-primary-300 mb-xl">
-              <p className="caption text-primary-700 mb-xs">
-                🔐 PIN de verificación
-              </p>
-              <p className="text-heading-1 text-primary font-bold tracking-widest">
-                {createdPin}
-              </p>
-              <p className="text-xs text-muted mt-sm">
-                Comparte este código con la persona que recibirá el paquete
-              </p>
-            </div>
-
-            <div className="p-md bg-cream rounded-md mb-xl text-left">
-              <p className="caption text-ink font-semibold mb-xs">
-                ¿Para qué sirve el PIN?
-              </p>
-              <ul className="text-xs text-slate space-y-xs">
-                <li>• El rider te pedirá el PIN al recoger el paquete</li>
-                <li>
-                  • El destinatario debe conocer el PIN para recibir el paquete
-                </li>
-                <li>• Comparte el PIN solo con personas de confianza</li>
-              </ul>
-            </div>
-
-            <Button
-              onClick={() => navigate("/user/errands")}
-              className="w-full"
-            >
-              Ver mis favores
-            </Button>
-          </Card>
-        </div>
-      </div>
+      <CreateErrandSuccess
+        pin={createdPin}
+        onViewErrands={() => navigate("/user/errands")}
+      />
     );
   }
 
@@ -289,86 +230,17 @@ export const CreateErrand: React.FC = () => {
             )}
           </div>
 
-          <section className="order-2 z-10 mt-md flex min-w-0 flex-col gap-lg rounded-t-xl bg-canvas md:px-xl py-2xl lg:order-1 lg:mt-0 lg:rounded-lg lg:border lg:border-hairline-soft">
-            <div className="w-full">
-              <label className="block mb-xs font-body text-body-sm-medium text-ink">
-                {t.user.type}
-              </label>
-              <select
-                value={form.type}
-                onChange={handleChange("type")}
-                className="input-field"
-              >
-                <option value="object_transport">
-                  {t.user.objectTransport}
-                </option>
-                <option value="purchase">{t.user.purchase}</option>
-                <option value="errand">{t.user.errand}</option>
-              </select>
-            </div>
-
-            <Input
-              {...inputRules.description}
-              label={t.user.description}
-              name="description"
-              value={form.description}
-              onChange={handleChange("description")}
-              placeholder={t.user.descPlaceholder}
-              required
-            />
-
-            <div className="w-full">
-              <label className="block mb-xs font-body text-body-sm-medium text-ink">
-                {t.user.paymentMethod}
-              </label>
-              <select
-                value={form.payment_method}
-                onChange={handleChange("payment_method")}
-                className="input-field"
-              >
-                <option value="cash">{t.user.cash}</option>
-                <option value="transfer">{t.user.transfer}</option>
-              </select>
-            </div>
-
-            {quotePreview ? (
-              <div className="rounded-md border border-primary bg-cream px-md py-md">
-                <p className="font-body text-body-sm-medium text-ink">
-                  Valor total del favor
-                </p>
-                <p className="font-body text-heading-3 text-primary">
-                  {formatCop.format(quotePreview.fareCop)}
-                </p>
-                <p className="caption">
-                  Esta cotización se aplicará al crear el favor y vence a las{" "}
-                  {new Date(quotePreview.expiresAt).toLocaleTimeString(
-                    "es-CO",
-                    {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    },
-                  )}
-                  .
-                </p>
-              </div>
-            ) : (
-              route.origin &&
-              route.destination && (
-                <p className="caption">Calculando el valor de tu favor...</p>
-              )
-            )}
-
-            {error && (
-              <p className="font-body text-caption text-error">{error}</p>
-            )}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading || !quotePreview}
-            >
-              {submitLabel}
-            </Button>
-          </section>
+          <CreateErrandFormPanel
+            form={form}
+            route={route}
+            quotePreview={quotePreview}
+            error={error}
+            loading={loading}
+            submitLabel={submitLabel}
+            onTypeChange={handleChange("type")}
+            onDescriptionChange={handleChange("description")}
+            onPaymentMethodChange={handleChange("payment_method")}
+          />
         </form>
       </div>
     </div>
