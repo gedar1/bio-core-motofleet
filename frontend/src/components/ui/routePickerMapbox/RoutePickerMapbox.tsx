@@ -6,12 +6,15 @@ import Map, {
   type MapRef,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
+import "./routePickerMapbox.css";
 import {
+  classifyAddressResolution,
   CURRENT_LOCATION_ADDRESS,
   getOverlayMode,
   getPointLabel,
   getStage,
   getSelectedSearchBoxLabel,
+  isAddressResolutionPending,
   MAP_SELECTION_FALLBACK_ADDRESS,
   resolveDisplayAddress,
   shouldShowMap,
@@ -29,6 +32,7 @@ import { RouteMapMarker } from "./components/RouteMapMarker";
 import { RoutePickerHelpButton } from "./components/RoutePickerHelpButton";
 import { RoutePointOverlay } from "./components/RoutePointOverlay";
 import { RoutePointSearch } from "./components/RoutePointSearch";
+import { Icon } from "@/components/shared/components/Icon";
 
 export type {
   RouteLocation,
@@ -73,6 +77,11 @@ export const RoutePickerMapbox = ({
 }: RoutePickerMapboxProps) => {
   const mapRef = useRef<MapRef>(null);
   const legendRef = useRef<HTMLLegendElement>(null);
+  const valueRef = useRef(value);
+  const reverseGeocodingRequestRef = useRef<Record<PointKind, number>>({
+    origin: 0,
+    destination: 0,
+  });
   const [activeOverlayKind, setActiveOverlayKind] = useState<PointKind | null>(
     null,
   );
@@ -96,11 +105,20 @@ export const RoutePickerMapbox = ({
     shouldSuppressMarkerClick,
     suppressMarkerClickAfterDrag,
   } = useMarkerClickSuppression();
-  const { focusPendingCounterpart, onMapLoad } = useRouteMapCamera({
+  const {
+    fitConfirmedRoute,
+    focusPendingCounterpart,
+    onMapLoad,
+    resetConfirmedRouteFit,
+  } = useRouteMapCamera({
     mapRef,
     value,
   });
   const mapboxAccessToken = MAPBOX_PUBLIC_TOKEN ?? "";
+
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
 
   useEffect(
     () => () => {
@@ -149,7 +167,9 @@ export const RoutePickerMapbox = ({
   }, [value.origin?.confirmed, value.destination?.confirmed]);
 
   const selectLocation = (kind: PointKind, location: RouteLocation) => {
-    onChange({ ...value, [kind]: location });
+    const nextValue = { ...valueRef.current, [kind]: location };
+    valueRef.current = nextValue;
+    onChange(nextValue);
     setSearchValues((previous) => ({
       ...previous,
       [kind]: location.inputAddress,
@@ -157,15 +177,27 @@ export const RoutePickerMapbox = ({
     setMessage(null);
   };
 
+  const invalidateReverseGeocoding = (kind: PointKind) => {
+    reverseGeocodingRequestRef.current[kind] += 1;
+  };
+
   const clearLocation = (kind: PointKind) => {
-    onChange({ ...value, [kind]: null });
+    invalidateReverseGeocoding(kind);
+    const nextValue = { ...valueRef.current, [kind]: null };
+    valueRef.current = nextValue;
+    onChange(nextValue);
     setSearchValues((previous) => ({ ...previous, [kind]: "" }));
     setIsSearchExpanded(true);
     setMessage(null);
   };
 
   const resetRoute = () => {
-    onChange({ origin: null, destination: null });
+    invalidateReverseGeocoding("origin");
+    invalidateReverseGeocoding("destination");
+    resetConfirmedRouteFit();
+    const nextValue = { origin: null, destination: null };
+    valueRef.current = nextValue;
+    onChange(nextValue);
     setSearchValues({ origin: "", destination: "" });
     setIsSearchExpanded(true);
     setMessage(null);
@@ -180,7 +212,10 @@ export const RoutePickerMapbox = ({
       nextValue.trim() !== currentLocation.inputAddress &&
       nextValue.trim() !== currentLocation.address
     ) {
-      onChange({ ...value, [kind]: null });
+      invalidateReverseGeocoding(kind);
+      const nextRouteValue = { ...valueRef.current, [kind]: null };
+      valueRef.current = nextRouteValue;
+      onChange(nextRouteValue);
     }
   };
 
@@ -191,30 +226,32 @@ export const RoutePickerMapbox = ({
   const updateInstructions = (kind: PointKind, instructions: string) => {
     const location = value[kind];
     if (!location) return;
-    onChange({
-      ...value,
+    const nextValue = {
+      ...valueRef.current,
       [kind]: { ...location, instructions },
-    });
+    };
+    valueRef.current = nextValue;
+    onChange(nextValue);
   };
 
   const confirmLocation = (kind: PointKind) => {
     const location = value[kind];
-    if (!location) return;
+    if (!location || isAddressResolutionPending(kind, location)) return;
 
-    // The user's own text is the source of truth for the address shown to
-    // the rider, unless the point came from a map tap or GPS (no text
-    // typed), in which case the geocoder's resolved address is a better
-    // label than a generic placeholder.
+    // A materially different pin address replaces the rider's operational
+    // label. inputAddress remains unchanged for audit and rider context.
     const confirmedAddress = resolveDisplayAddress(kind, location);
     const confirmedLocation = {
       ...location,
       address: confirmedAddress,
       confirmed: true,
     };
-    onChange({ ...value, [kind]: confirmedLocation });
+    const nextValue = { ...valueRef.current, [kind]: confirmedLocation };
+    valueRef.current = nextValue;
+    onChange(nextValue);
     setSearchValues((previous) => ({
       ...previous,
-      [kind]: confirmedAddress,
+      [kind]: confirmedLocation.inputAddress,
     }));
     showConfirmationToast(
       kind === "origin"
@@ -222,7 +259,9 @@ export const RoutePickerMapbox = ({
         : "Punto de entrega confirmado",
     );
 
-    focusPendingCounterpart(kind);
+    if (!fitConfirmedRoute(nextValue, kind)) {
+      focusPendingCounterpart(kind);
+    }
 
     closeOverlay();
   };
@@ -232,13 +271,16 @@ export const RoutePickerMapbox = ({
     latitude: number,
     longitude: number,
   ) => {
-    const previousLocation = value[kind];
+    const previousLocation = valueRef.current[kind];
     const inputAddress =
       searchValues[kind].trim() ||
       previousLocation?.inputAddress ||
       MAP_SELECTION_FALLBACK_ADDRESS[kind];
+    const referenceKind = previousLocation?.referenceKind ?? "address";
+    const requestId = reverseGeocodingRequestRef.current[kind] + 1;
+    reverseGeocodingRequestRef.current[kind] = requestId;
 
-    selectLocation(kind, {
+    const pendingLocation: RouteLocation = {
       address: inputAddress,
       inputAddress,
       resolvedAddress: null,
@@ -247,16 +289,32 @@ export const RoutePickerMapbox = ({
       routableLatitude: latitude,
       routableLongitude: longitude,
       instructions: previousLocation?.instructions,
+      referenceKind,
+      addressResolution: "pending",
       confirmed: false,
-    });
+    };
+    selectLocation(kind, pendingLocation);
+
+    const markUnresolved = () => {
+      if (reverseGeocodingRequestRef.current[kind] !== requestId) return;
+      selectLocation(kind, {
+        ...pendingLocation,
+        addressResolution: "unresolved",
+      });
+    };
 
     try {
       const response = await fetch(
         `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${longitude}&latitude=${latitude}&country=CO&language=es&access_token=${encodeURIComponent(mapboxAccessToken)}`,
       );
-      if (!response.ok) return;
+      if (reverseGeocodingRequestRef.current[kind] !== requestId) return;
+      if (!response.ok) {
+        markUnresolved();
+        return;
+      }
 
       const result = (await response.json()) as ReverseGeocodingResponse;
+      if (reverseGeocodingRequestRef.current[kind] !== requestId) return;
       const feature = result.features?.[0];
       const resolvedAddress =
         feature?.properties?.full_address ??
@@ -265,23 +323,28 @@ export const RoutePickerMapbox = ({
         feature?.name ??
         null;
 
-      if (resolvedAddress) {
-        selectLocation(kind, {
-          address: resolvedAddress,
+      if (!resolvedAddress) {
+        markUnresolved();
+        return;
+      }
+
+      const resolvedLocation: RouteLocation = {
+        ...pendingLocation,
+        resolvedAddress,
+        addressResolution: classifyAddressResolution(kind, {
           inputAddress,
           resolvedAddress,
-          latitude,
-          longitude,
-          routableLatitude: latitude,
-          routableLongitude: longitude,
-          instructions: previousLocation?.instructions,
-          confirmed: false,
-        });
-      }
+          referenceKind,
+        }),
+      };
+      selectLocation(kind, resolvedLocation);
     } catch {
-      setMessage(
-        `Punto de ${getPointLabel(kind)} seleccionado. No fue posible obtener la dirección; revisa el pin y confírmalo.`,
-      );
+      markUnresolved();
+      if (reverseGeocodingRequestRef.current[kind] === requestId) {
+        setMessage(
+          `Punto de ${getPointLabel(kind)} seleccionado. No fue posible obtener la dirección; revisa el pin y confírmalo.`,
+        );
+      }
     }
   };
 
@@ -295,6 +358,7 @@ export const RoutePickerMapbox = ({
         return;
       }
 
+      invalidateReverseGeocoding(kind);
       const { latitude, longitude } = feature.properties.coordinates;
       const routablePoint = feature.properties.coordinates.routable_points?.[0];
       const usesDifferentRoutablePoint =
@@ -302,21 +366,27 @@ export const RoutePickerMapbox = ({
         (routablePoint.latitude !== latitude ||
           routablePoint.longitude !== longitude);
       const isPointOfInterest = feature.properties.feature_type === "poi";
+      const referenceKind = isPointOfInterest ? "poi" : "address";
       const resolvedAddress = getSelectedSearchBoxLabel(feature);
       const inputAddress = isPointOfInterest
         ? resolvedAddress
         : searchValues[kind].trim() || resolvedAddress;
-
-      selectLocation(kind, {
-        address: resolvedAddress,
+      const locationBase = {
+        address: inputAddress,
         inputAddress,
         resolvedAddress,
         latitude,
         longitude,
         routableLatitude: routablePoint?.latitude ?? latitude,
         routableLongitude: routablePoint?.longitude ?? longitude,
-        instructions: value[kind]?.instructions,
+        instructions: valueRef.current[kind]?.instructions,
+        referenceKind,
         confirmed: false,
+      } as const;
+
+      selectLocation(kind, {
+        ...locationBase,
+        addressResolution: classifyAddressResolution(kind, locationBase),
       });
       setMessage(
         usesDifferentRoutablePoint
@@ -341,6 +411,7 @@ export const RoutePickerMapbox = ({
     setMessage("Obteniendo tu ubicación...");
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        invalidateReverseGeocoding("origin");
         setLocating(false);
         const address = CURRENT_LOCATION_ADDRESS;
         selectLocation("origin", {
@@ -351,7 +422,9 @@ export const RoutePickerMapbox = ({
           longitude: position.coords.longitude,
           routableLatitude: position.coords.latitude,
           routableLongitude: position.coords.longitude,
-          instructions: value.origin?.instructions,
+          instructions: valueRef.current.origin?.instructions,
+          referenceKind: "address",
+          addressResolution: "pin_only",
           confirmed: false,
         });
         mapRef.current?.flyTo({
@@ -411,6 +484,10 @@ export const RoutePickerMapbox = ({
   }
 
   const stage = getStage(value);
+  const activeOverlayMode =
+    activeOverlayKind && value[activeOverlayKind]
+      ? getOverlayMode(activeOverlayKind, value)
+      : null;
 
   return (
     <fieldset className="w-full flex flex-col gap-sm">
@@ -431,7 +508,7 @@ export const RoutePickerMapbox = ({
               className="route-picker-mapbox-reset-button"
               onClick={resetRoute}
             >
-              Reiniciar puntos
+              <Icon name="refresh_ccw_dot" size={30} />
             </button>
           )}
         </span>
@@ -449,7 +526,13 @@ export const RoutePickerMapbox = ({
         )}
       </legend>
       {shouldShowMap(value) ? (
-        <div className="route-picker-mapbox">
+        <div
+          className={`route-picker-mapbox${
+            activeOverlayMode === "edit"
+              ? " route-picker-mapbox--edit-open"
+              : ""
+          }`}
+        >
           <div className="route-picker-mapbox-search">
             {isSearchExpanded ? (
               <>
@@ -524,24 +607,26 @@ export const RoutePickerMapbox = ({
               </Source>
             )}
           </Map>
-          {activeOverlayKind && value[activeOverlayKind] && (
-            <RoutePointOverlay
-              kind={activeOverlayKind}
-              mode={getOverlayMode(activeOverlayKind, value)}
-              location={value[activeOverlayKind]}
-              accessToken={mapboxAccessToken}
-              searchValue={searchValues[activeOverlayKind]}
-              onSearchChange={handleSearchChange(activeOverlayKind)}
-              onSearchClear={handleSearchClear(activeOverlayKind)}
-              onRetrieve={handleRetrieve(activeOverlayKind)}
-              onSuggestError={handleSuggestError}
-              onInstructionsChange={(instructions) =>
-                updateInstructions(activeOverlayKind, instructions)
-              }
-              onConfirm={() => confirmLocation(activeOverlayKind)}
-              onClose={closeOverlay}
-            />
-          )}
+          {activeOverlayKind &&
+            value[activeOverlayKind] &&
+            activeOverlayMode && (
+              <RoutePointOverlay
+                kind={activeOverlayKind}
+                mode={activeOverlayMode}
+                location={value[activeOverlayKind]}
+                accessToken={mapboxAccessToken}
+                searchValue={searchValues[activeOverlayKind]}
+                onSearchChange={handleSearchChange(activeOverlayKind)}
+                onSearchClear={handleSearchClear(activeOverlayKind)}
+                onRetrieve={handleRetrieve(activeOverlayKind)}
+                onSuggestError={handleSuggestError}
+                onInstructionsChange={(instructions) =>
+                  updateInstructions(activeOverlayKind, instructions)
+                }
+                onConfirm={() => confirmLocation(activeOverlayKind)}
+                onClose={closeOverlay}
+              />
+            )}
           {confirmationToast && (
             <p
               className="route-picker-mapbox-toast"

@@ -2,18 +2,17 @@ import { useEffect, useRef } from "react";
 import { SearchBox } from "@mapbox/search-js-react";
 import { Button } from "../../Button";
 import {
-  getDiscrepancySeverity,
+  getAddressResolution,
   getPointLabel,
-  hasAddressDiscrepancy,
   hasSeparateRoutablePoint,
+  isAddressResolutionPending,
   normalizeColombianAddressQuery,
   resolveDisplayAddress,
 } from "../RoutePickerMapbox.helpers";
-import type {
-  OverlayMode,
-} from "../RoutePickerMapbox.helpers";
+import type { OverlayMode } from "../RoutePickerMapbox.helpers";
 import type {
   PointKind,
+  RouteAddressResolution,
   RouteLocation,
   SearchBoxRetrieveResponse,
 } from "../RoutePickerMapbox.types";
@@ -27,34 +26,69 @@ const SEARCH_BOX_OPTIONS = {
   proximity: { lng: -75.5812, lat: 6.2442 },
 } as const;
 
-const DiscrepancyNotice = ({ location }: { readonly location: RouteLocation }) => {
-  if (!hasAddressDiscrepancy(location)) return null;
+const ResolutionNotice = ({
+  location,
+  resolution,
+}: {
+  readonly kind: PointKind;
+  readonly location: RouteLocation;
+  readonly resolution: RouteAddressResolution;
+}) => {
+  if (resolution === "pending") {
+    return (
+      <p className="route-picker-mapbox-discrepancy-minor">
+        Verificando la ubicación exacta del pin…
+      </p>
+    );
+  }
 
-  const isHouseNumberMismatch =
-    getDiscrepancySeverity(location) === "house_number_mismatch";
+  if (resolution === "significant") {
+    return (
+      <div className="route-picker-mapbox-discrepancy-high">
+        <p className="m-0">
+          ⚠ La dirección indicada por el usuario no coincide con la ubicación
+          del pin.
+        </p>
+        <p className="m-0 mt-xxs">
+          <strong>Dirección indicada por el usuario:</strong>{" "}
+          {location.inputAddress}
+        </p>
+        <p className="m-0 mt-xxs">
+          <strong>Ubicación confirmada en el mapa:</strong>{" "}
+          {location.resolvedAddress}
+        </p>
+        <p className="m-0">
+          ⚠ La dirección digitada por el usuario sera la que vera el rider. Esta
+          ubicacion se usa como guia para llegar al punto.
+        </p>
+      </div>
+    );
+  }
 
-  return (
-    <p
-      className={
-        isHouseNumberMismatch
-          ? "route-picker-mapbox-discrepancy-high"
-          : "route-picker-mapbox-discrepancy-minor"
-      }
-    >
-      {isHouseNumberMismatch ? (
-        <>
-          ⚠ El número de la dirección no coincide: escribiste{" "}
-          <strong>{location.inputAddress}</strong>, pero Mapbox ubicó{" "}
-          <strong>{location.resolvedAddress}</strong>. Verifica el pin
-          cuidadosamente antes de confirmar.
-        </>
-      ) : (
-        <>
-          Mapbox ubicó tu búsqueda en: <strong>{location.resolvedAddress}</strong>.
-        </>
-      )}
-    </p>
-  );
+  if (resolution === "minor" || resolution === "poi") {
+    return (
+      <p className="route-picker-mapbox-discrepancy-minor">
+        {resolution === "poi"
+          ? "Conservaremos el lugar indicado por el usuario"
+          : "Conservaremos la dirección indicada por el usuario"}
+        , pero el rider debe seguir el pin exacto
+        {location.resolvedAddress ? `: ${location.resolvedAddress}.` : "."}
+      </p>
+    );
+  }
+
+  if (resolution === "pin_only" || resolution === "unresolved") {
+    return (
+      <p className="route-picker-mapbox-discrepancy-minor">
+        {resolution === "unresolved"
+          ? "No fue posible validar una dirección para el pin."
+          : "Este punto fue seleccionado directamente en el mapa."}{" "}
+        El rider debe seguir el pin exacto.
+      </p>
+    );
+  }
+
+  return null;
 };
 
 interface RoutePointOverlayProps {
@@ -89,6 +123,8 @@ export const RoutePointOverlay = ({
 }: RoutePointOverlayProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const headingId = `route-picker-overlay-heading-${kind}`;
+  const addressResolution = getAddressResolution(kind, location);
+  const isResolutionPending = isAddressResolutionPending(kind, location);
 
   useEffect(() => {
     containerRef.current
@@ -99,7 +135,9 @@ export const RoutePointOverlay = ({
   return (
     <div
       ref={containerRef}
-      className="route-picker-mapbox-overlay"
+      className={`route-picker-mapbox-overlay${
+        mode === "edit" ? " route-picker-mapbox-overlay--edit" : ""
+      }`}
       role="region"
       aria-labelledby={headingId}
       aria-live="polite"
@@ -110,7 +148,7 @@ export const RoutePointOverlay = ({
         bottom: 0,
         left: 0,
         maxHeight: "60%",
-        overflowY: "auto",
+        overflowY: mode === "edit" ? "visible" : "auto",
         pointerEvents: "auto",
       }}
       onKeyDown={(event) => {
@@ -150,7 +188,11 @@ export const RoutePointOverlay = ({
           <p className="font-body text-body-sm-medium text-ink">
             {resolveDisplayAddress(kind, location)}
           </p>
-          <DiscrepancyNotice location={location} />
+          <ResolutionNotice
+            kind={kind}
+            location={location}
+            resolution={addressResolution}
+          />
           {hasSeparateRoutablePoint(location) && (
             <p className="caption text-muted">
               La ruta {kind === "origin" ? "partirá" : "llegará"} del acceso
@@ -172,8 +214,13 @@ export const RoutePointOverlay = ({
             type="button"
             className="w-full sm:w-auto"
             onClick={onConfirm}
+            disabled={isResolutionPending}
           >
-            Confirmar punto de {getPointLabel(kind)}
+            {isResolutionPending
+              ? "Verificando ubicación del pin..."
+              : addressResolution === "significant"
+                ? "Confirmar ubicación del pin"
+                : `Confirmar punto de ${getPointLabel(kind)}`}
           </Button>
         </>
       )}

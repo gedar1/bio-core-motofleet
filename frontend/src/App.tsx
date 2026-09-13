@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Footer, MobileBottomNav, TopNav } from "./components/layout";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { getRoleHomePath } from "./navigation";
@@ -194,17 +194,29 @@ const AppRoutes: React.FC = () => (
   </Routes>
 );
 
-const App: React.FC = () => (
-  <AuthProvider>
-    <div className="flex min-h-screen flex-col bg-canvas">
-      <TopNav />
-      <main className="w-full flex-1 pb-[calc(64px+env(safe-area-inset-bottom))] pt-[64px] lg:pb-0">
-        <AppRoutes />
-      </main>
-      <Footer />
-      <MobileBottomNav />
-    </div>
-  </AuthProvider>
-);
+const INTERNAL_ROUTE_PREFIXES = ["/admin", "/user", "/rider", "/dashboard"];
+
+const isInternalRoute = (pathname: string): boolean =>
+  INTERNAL_ROUTE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+
+const App: React.FC = () => {
+  const { pathname } = useLocation();
+  const shouldShowFooter = !isInternalRoute(pathname);
+
+  return (
+    <AuthProvider>
+      <div className="flex min-h-screen flex-col bg-canvas">
+        <TopNav />
+        <main className="w-full flex-1 pb-[calc(64px+env(safe-area-inset-bottom))] pt-[64px] lg:pb-0">
+          <AppRoutes />
+        </main>
+        {shouldShowFooter && <Footer />}
+        <MobileBottomNav />
+      </div>
+    </AuthProvider>
+  );
+};
 
 export default App;
