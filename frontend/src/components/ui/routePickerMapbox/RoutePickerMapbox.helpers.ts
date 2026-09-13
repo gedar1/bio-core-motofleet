@@ -1,4 +1,10 @@
-import type { PointKind, RouteLocation, RouteValue, SearchBoxRetrieveFeature } from "./RoutePickerMapbox.types";
+import type {
+  PointKind,
+  RouteAddressResolution,
+  RouteLocation,
+  RouteValue,
+  SearchBoxRetrieveFeature,
+} from "./RoutePickerMapbox.types";
 
 export type { PointKind } from "./RoutePickerMapbox.types";
 export type RoutePickerLocation = RouteLocation;
@@ -37,35 +43,34 @@ export const MAP_SELECTION_FALLBACK_ADDRESS: Record<PointKind, string> = {
 export const CURRENT_LOCATION_ADDRESS = "Ubicación actual";
 
 /** True when the address text wasn't typed by the user (map tap or GPS). */
-export const isPlaceholderAddress = (kind: PointKind, address: string): boolean =>
+export const isPlaceholderAddress = (
+  kind: PointKind,
+  address: string,
+): boolean =>
   address === MAP_SELECTION_FALLBACK_ADDRESS[kind] ||
   address === CURRENT_LOCATION_ADDRESS;
 
-/** Keeps the existing typed-address versus resolved-address comparison intact. */
-export const hasAddressDiscrepancy = (location: RouteLocation): boolean =>
-  location.resolvedAddress !== null &&
-  location.inputAddress.trim().toLowerCase() !==
-    location.resolvedAddress.trim().toLowerCase();
+const normalizeAddress = (address: string): string =>
+  address
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\b(?:cra|cr|kra|k)\.?\s*/g, "carrera ")
+    .replace(/\b(?:cl|calle)\.?\s*/g, "calle ")
+    .replace(/\b(?:av|avda|avenida)\.?\s*/g, "avenida ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-/**
- * Applies the single source-of-truth rule used at confirmation and in previews:
- * typed address first; resolved address only for map/GPS placeholder text.
- */
-export const resolveDisplayAddress = (
-  kind: PointKind,
-  location: RouteLocation,
-): string =>
-  isPlaceholderAddress(kind, location.inputAddress)
-    ? (location.resolvedAddress ?? location.inputAddress)
-    : location.inputAddress;
-
-export type DiscrepancySeverity =
-  | "none"
-  | "minor"
-  | "house_number_mismatch";
-
+const STREET_PATTERN =
+  /\b(carrera|calle|avenida|diagonal|transversal)\s*(\d+[a-z]?(?:\s*[a-z])?)/i;
 const HOUSE_NUMBER_PATTERN =
   /#\s*([0-9]+[a-z]?(?:\s*[a-z])?\s*-\s*[0-9]+[a-z]?)/i;
+
+/** Extracts a normalized Colombian street type-and-number segment when present. */
+export const extractStreetReference = (address: string): string | null => {
+  const match = STREET_PATTERN.exec(normalizeAddress(address));
+  return match ? `${match[1]} ${match[2].replace(/\s+/g, "")}` : null;
+};
 
 /** Extracts a normalized Colombian # block-door-number segment when present. */
 export const extractHouseNumber = (address: string): string | null => {
@@ -73,23 +78,83 @@ export const extractHouseNumber = (address: string): string | null => {
   return match ? match[1].replace(/\s+/g, "").toLowerCase() : null;
 };
 
-/**
- * Retains the existing discrepancy detector as its gate, escalating only when
- * both typed and resolved addresses contain different house/door numbers.
- */
-export const getDiscrepancySeverity = (
+/** Classifies a written reference against the exact pin's resolved address. */
+export const classifyAddressResolution = (
+  kind: PointKind,
+  location: Pick<
+    RouteLocation,
+    "inputAddress" | "resolvedAddress" | "referenceKind"
+  >,
+): RouteAddressResolution => {
+  const { inputAddress, resolvedAddress, referenceKind = "address" } = location;
+
+  if (!resolvedAddress) {
+    return isPlaceholderAddress(kind, inputAddress) ? "pin_only" : "unresolved";
+  }
+
+  if (referenceKind === "poi") return "poi";
+  if (isPlaceholderAddress(kind, inputAddress)) return "pin_only";
+  if (normalizeAddress(inputAddress) === normalizeAddress(resolvedAddress)) {
+    return "exact";
+  }
+
+  const inputStreet = extractStreetReference(inputAddress);
+  const resolvedStreet = extractStreetReference(resolvedAddress);
+  const inputHouseNumber = extractHouseNumber(inputAddress);
+  const resolvedHouseNumber = extractHouseNumber(resolvedAddress);
+
+  // Mapbox commonly appends city/context to an otherwise identical address.
+  if (
+    inputStreet &&
+    resolvedStreet &&
+    inputStreet === resolvedStreet &&
+    inputHouseNumber &&
+    resolvedHouseNumber &&
+    inputHouseNumber === resolvedHouseNumber
+  ) {
+    return "exact";
+  }
+
+  if (
+    (inputStreet && resolvedStreet && inputStreet !== resolvedStreet) ||
+    (inputHouseNumber &&
+      resolvedHouseNumber &&
+      inputHouseNumber !== resolvedHouseNumber)
+  ) {
+    return "significant";
+  }
+
+  return "minor";
+};
+
+/** Returns the current classification, including the temporary reverse-geocode state. */
+export const getAddressResolution = (
+  kind: PointKind,
   location: RouteLocation,
-): DiscrepancySeverity => {
-  if (!hasAddressDiscrepancy(location)) return "none";
+): RouteAddressResolution =>
+  location.addressResolution ?? classifyAddressResolution(kind, location);
 
-  const typedNumber = extractHouseNumber(location.inputAddress);
-  const resolvedNumber = location.resolvedAddress
-    ? extractHouseNumber(location.resolvedAddress)
-    : null;
+export const isAddressResolutionPending = (
+  kind: PointKind,
+  location: RouteLocation,
+): boolean => getAddressResolution(kind, location) === "pending";
 
-  return typedNumber && resolvedNumber && typedNumber !== resolvedNumber
-    ? "house_number_mismatch"
-    : "minor";
+/**
+ * Uses the pin's resolved address when the user intentionally placed it at a
+ * materially different street/number. The written reference remains in
+ * inputAddress for audit and rider context.
+ */
+export const resolveDisplayAddress = (
+  kind: PointKind,
+  location: RouteLocation,
+): string => {
+  const resolution = getAddressResolution(kind, location);
+
+  if (resolution === "significant" || resolution === "pin_only") {
+    return location.resolvedAddress ?? location.inputAddress;
+  }
+
+  return location.inputAddress || location.resolvedAddress || location.address;
 };
 
 /** Shows the required pending-pin confirmation affordance unless its overlay is open. */

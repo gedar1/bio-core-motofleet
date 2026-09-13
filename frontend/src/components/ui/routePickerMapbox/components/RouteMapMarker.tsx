@@ -1,6 +1,6 @@
 import { Marker } from "react-map-gl/mapbox";
 import {
-  getDiscrepancySeverity,
+  getAddressResolution,
   isAffordanceVisible,
   isEditHintVisible,
 } from "../RoutePickerMapbox.helpers";
@@ -66,8 +66,7 @@ export const RouteMapMarker = ({
   onDragEnd,
   onClick,
 }: RouteMapMarkerProps) => {
-  const isWarning =
-    getDiscrepancySeverity(location) === "house_number_mismatch";
+  const isWarning = getAddressResolution(kind, location) === "significant";
 
   return (
     <Marker

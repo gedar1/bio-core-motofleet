@@ -4,6 +4,17 @@ import type { RouteEstimateResponse } from "../../../types/api";
 
 export type PointKind = "origin" | "destination";
 
+export type RouteAddressResolution =
+  | "exact"
+  | "minor"
+  | "significant"
+  | "poi"
+  | "pin_only"
+  | "unresolved"
+  | "pending";
+
+export type RouteAddressReferenceKind = "address" | "poi";
+
 /** Address and pin data for one route endpoint. */
 export interface RouteLocation {
   /** Address label confirmed by the user and shown to the rider. */
@@ -20,6 +31,10 @@ export interface RouteLocation {
   readonly routableLongitude?: number;
   /** Instructions for the rider at this point. */
   readonly instructions?: string;
+  /** The source of the human-readable reference. */
+  readonly referenceKind?: RouteAddressReferenceKind;
+  /** Resolution of the written reference against the exact pin. */
+  readonly addressResolution?: RouteAddressResolution;
   /** The user explicitly confirmed this point. */
   readonly confirmed: boolean;
 }
@@ -40,4 +55,5 @@ export interface RoutePickerMapboxProps {
 export type SearchBoxRetrieveResponse = Parameters<
   NonNullable<ComponentProps<typeof SearchBox>["onRetrieve"]>
 >[0];
-export type SearchBoxRetrieveFeature = SearchBoxRetrieveResponse["features"][number];
+export type SearchBoxRetrieveFeature =
+  SearchBoxRetrieveResponse["features"][number];

@@ -1,4 +1,4 @@
-import { useCallback, type RefObject } from "react";
+import { useCallback, useRef, type RefObject } from "react";
 import type { MapRef } from "react-map-gl/mapbox";
 import type { PointKind, RouteValue } from "../RoutePickerMapbox.types";
 
@@ -12,27 +12,66 @@ interface UseRouteMapCameraParams {
   readonly value: RouteValue;
 }
 
-/** Coordinates initial route framing and the next pending point after confirmation. */
+/** Coordinates initial framing, pending-point focus, and final route framing. */
 export const useRouteMapCamera = ({
   mapRef,
   value,
 }: UseRouteMapCameraParams) => {
-  const onMapLoad = useCallback((): void => {
-    const { origin, destination } = value;
-    if (!origin || !destination) return;
+  const hasFittedConfirmedRouteRef = useRef(false);
 
-    mapRef.current?.fitBounds(
-      [
-        [origin.longitude, origin.latitude],
-        [destination.longitude, destination.latitude],
-      ],
-      {
-        padding: ROUTE_FIT_PADDING,
-        maxZoom: ROUTE_FIT_MAX_ZOOM,
-        duration: ROUTE_FIT_DURATION_MS,
-      },
-    );
-  }, [mapRef, value.destination, value.origin]);
+  const fitRoute = useCallback(
+    (route: RouteValue): void => {
+      const { origin, destination } = route;
+      if (!origin || !destination) return;
+
+      mapRef.current?.fitBounds(
+        [
+          [origin.longitude, origin.latitude],
+          [destination.longitude, destination.latitude],
+        ],
+        {
+          padding: ROUTE_FIT_PADDING,
+          maxZoom: ROUTE_FIT_MAX_ZOOM,
+          duration: ROUTE_FIT_DURATION_MS,
+        },
+      );
+    },
+    [mapRef],
+  );
+
+  const onMapLoad = useCallback((): void => {
+    fitRoute(value);
+  }, [fitRoute, value]);
+
+  const fitConfirmedRoute = useCallback(
+    (nextValue: RouteValue, confirmedKind: PointKind): boolean => {
+      const counterpartKind: PointKind =
+        confirmedKind === "origin" ? "destination" : "origin";
+      const locationBeforeConfirmation = value[confirmedKind];
+      const counterpartBeforeConfirmation = value[counterpartKind];
+
+      if (
+        hasFittedConfirmedRouteRef.current ||
+        !locationBeforeConfirmation ||
+        locationBeforeConfirmation.confirmed ||
+        !counterpartBeforeConfirmation?.confirmed ||
+        !nextValue.origin?.confirmed ||
+        !nextValue.destination?.confirmed ||
+        !mapRef.current
+      ) {
+        return false;
+      }
+
+      hasFittedConfirmedRouteRef.current = true;
+      fitRoute(nextValue);
+      return true;
+    },
+    [fitRoute, mapRef, value],
+  );
+
+  const resetConfirmedRouteFit = useCallback((): void => {
+    hasFittedConfirmedRouteRef.current = false;
+  }, []);
 
   const focusPendingCounterpart = useCallback(
     (confirmedKind: PointKind): void => {
@@ -52,5 +91,10 @@ export const useRouteMapCamera = ({
     [mapRef, value],
   );
 
-  return { focusPendingCounterpart, onMapLoad };
+  return {
+    fitConfirmedRoute,
+    focusPendingCounterpart,
+    onMapLoad,
+    resetConfirmedRouteFit,
+  };
 };
