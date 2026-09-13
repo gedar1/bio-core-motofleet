@@ -167,7 +167,7 @@ html.dark {
   }
 
   .badge-requested {
-    @apply inline-flex items-center  text-on-dark text-caption-bold rounded-full px-sm py-[2px];
+    @apply inline-flex items-center text-on-dark text-caption-bold rounded-full px-sm py-[2px];
     background-color: #ffa902;
   }
 
@@ -182,7 +182,7 @@ html.dark {
   }
 
   .badge-delivered {
-    @apply inline-flex items-center  bg-success text-on-dark text-caption-bold rounded-full px-sm py-[2px];
+    @apply inline-flex items-center bg-success text-on-dark text-caption-bold rounded-full px-sm py-[2px];
   }
 
   .badge-cancelled {
@@ -193,7 +193,7 @@ html.dark {
   .input-field {
     @apply w-full bg-canvas border border-hairline-strong
            text-ink font-body text-body-md rounded-md
-            px-md h-[44px]
+           px-md h-[44px]
            placeholder:text-muted
            focus:border-primary focus:border-2 focus:outline-none
            transition-colors duration-150;
@@ -420,65 +420,7 @@ html.dark {
   .section {
     @apply py-section;
   }
-  .section-mobile {
+  /* .section-mobile {
     @apply pb-section pt-sm;
-  }
-}
-
-/* Mobile-first Mapbox workspaces for user and rider operational flows. */
-.route-picker-mapbox {
-  position: relative;
-  order: -1;
-  height: min(68svh, 620px);
-  min-height: 420px;
-  width: 100%;
-  overflow: hidden;
-  border: 1px solid rgb(var(--color-hairline-strong));
-  border-radius: 0;
-  background: rgb(var(--color-surface));
-}
-
-.route-picker-mapbox-search {
-  position: absolute;
-  z-index: 2;
-  top: 0.75rem;
-  right: 4rem;
-  left: 0.75rem;
-  display: grid;
-  gap: 0.5rem;
-}
-
-.route-picker-mapbox-search-field,
-.route-picker-mapbox-search .button {
-  pointer-events: auto;
-}
-
-.route-picker-mapbox .mapboxgl-ctrl-logo,
-.route-picker-mapbox .mapboxgl-ctrl-attrib {
-  display: block;
-}
-
-.rider-route-map {
-  height: min(68svh, 620px);
-  min-height: 420px;
-  width: 100%;
-  overflow: hidden;
-  border: 1px solid rgb(var(--color-hairline-strong));
-  border-radius: 0;
-  background: rgb(var(--color-surface));
-}
-
-@media (min-width: 1024px) {
-  .route-picker-mapbox {
-    order: initial;
-    height: 560px;
-    min-height: 0;
-    border-radius: 0.375rem;
-  }
-
-  .rider-route-map {
-    height: 480px;
-    min-height: 0;
-    border-radius: 0.375rem;
-  }
+  } */
 }

@@ -6,10 +6,11 @@ import Map, {
   Source,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { Errand } from "../../hooks/useErrands";
-import type { RouteEstimateResponse } from "../../types/api";
-import { useErrandActions } from "../../hooks";
-import { Button } from "./Button";
+import "./index.module.css";
+import type { Errand } from "../../../hooks/useErrands";
+import type { RouteEstimateResponse } from "../../../types/api";
+import { useErrandActions } from "../../../hooks";
+import { Button } from "../Button";
 
 interface RiderRouteActionsProps {
   readonly errand: Errand;
@@ -45,6 +46,10 @@ const getNavigationUrl = (
   return `https://waze.com/ul?ll=${encodeURIComponent(coordinates)}&navigate=yes`;
 };
 
+const sameAddress = (left: string | null, right: string | null): boolean =>
+  (left ?? "").trim().toLocaleLowerCase("es-CO") ===
+  (right ?? "").trim().toLocaleLowerCase("es-CO");
+
 export const RiderRouteActions = ({
   errand,
   navigationTarget,
@@ -58,10 +63,12 @@ export const RiderRouteActions = ({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const originLatitude = errand.origin_lat;
-  const originLongitude = errand.origin_lng;
-  const destinationLatitude = errand.destination_lat;
-  const destinationLongitude = errand.destination_lng;
+  const originLatitude = errand.origin_routable_lat ?? errand.origin_lat;
+  const originLongitude = errand.origin_routable_lng ?? errand.origin_lng;
+  const destinationLatitude =
+    errand.destination_routable_lat ?? errand.destination_lat;
+  const destinationLongitude =
+    errand.destination_routable_lng ?? errand.destination_lng;
   const hasCoordinates =
     originLatitude != null &&
     originLongitude != null &&
@@ -127,6 +134,12 @@ export const RiderRouteActions = ({
     latitude: destinationLatitude,
     longitude: destinationLongitude,
   };
+  const originExactLatitude = errand.origin_exact_lat ?? origin.latitude;
+  const originExactLongitude = errand.origin_exact_lng ?? origin.longitude;
+  const destinationExactLatitude =
+    errand.destination_exact_lat ?? destination.latitude;
+  const destinationExactLongitude =
+    errand.destination_exact_lng ?? destination.longitude;
 
   const loadRoute = async () => {
     if (routePreview) {
@@ -153,7 +166,24 @@ export const RiderRouteActions = ({
     navigationTarget === "origin"
       ? errand.origin_address
       : errand.destination_address;
+  const targetInputAddress =
+    navigationTarget === "origin"
+      ? errand.origin_address_input
+      : errand.destination_address_input;
+  const targetResolvedAddress =
+    navigationTarget === "origin"
+      ? errand.origin_address_resolved
+      : errand.destination_address_resolved;
+  const targetInstructions =
+    navigationTarget === "origin"
+      ? errand.origin_instructions
+      : errand.destination_instructions;
   const targetLabel = navigationTarget === "origin" ? "recogida" : "entrega";
+  const hasWrittenReference = !sameAddress(targetInputAddress, targetAddress);
+  const hasSeparatePinAddress = !sameAddress(
+    targetResolvedAddress,
+    targetAddress,
+  );
 
   const copyLocation = async () => {
     const mapUrl = `https://www.google.com/maps?q=${target.latitude},${target.longitude}`;
@@ -216,6 +246,22 @@ export const RiderRouteActions = ({
                 latitude={destination.latitude}
                 color="#fa520f"
               />
+              {(originExactLatitude !== origin.latitude ||
+                originExactLongitude !== origin.longitude) && (
+                <Marker
+                  longitude={originExactLongitude}
+                  latitude={originExactLatitude}
+                  color="#7abf45"
+                />
+              )}
+              {(destinationExactLatitude !== destination.latitude ||
+                destinationExactLongitude !== destination.longitude) && (
+                <Marker
+                  longitude={destinationExactLongitude}
+                  latitude={destinationExactLatitude}
+                  color="#ff9b71"
+                />
+              )}
               {routeData && (
                 <Source
                   id="rider-estimated-route-source"
@@ -281,6 +327,37 @@ export const RiderRouteActions = ({
           >
             Copiar ubicación
           </Button>
+        </div>
+      )}
+      {navigationTarget && (
+        <div className="mx-xs rounded-md border border-primary-200 bg-primary-50 p-sm">
+          <p className="font-body text-body-sm-medium text-ink">
+            {targetLabel === "recogida"
+              ? "Punto de recogida"
+              : "Punto de entrega"}
+            : {targetAddress}
+          </p>
+          {hasWrittenReference && targetInputAddress && (
+            <p className="caption mt-xxs text-ink">
+              <strong>Dirección indicada por el usuario:</strong>{" "}
+              {targetInputAddress}
+            </p>
+          )}
+          {(hasWrittenReference || hasSeparatePinAddress) &&
+            targetResolvedAddress && (
+              <p className="caption mt-xxs text-ink">
+                <strong>Ubicación confirmada en el mapa:</strong>{" "}
+                {targetResolvedAddress}. Sigue el pin exacto en el mapa.
+              </p>
+            )}
+          <p className="caption text-muted">
+            La navegación usa el acceso vial; el pin exacto aparece en el mapa.
+          </p>
+          {targetInstructions && (
+            <p className="caption mt-xxs text-ink">
+              <strong>Instrucciones:</strong> {targetInstructions}
+            </p>
+          )}
         </div>
       )}
       {message && <p className="caption">{message}</p>}

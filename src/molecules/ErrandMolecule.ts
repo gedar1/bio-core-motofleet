@@ -32,12 +32,34 @@ function generatePin(): string {
 export interface CreateErrandInput {
   type: ErrandType;
   description: string;
+  /** Confirmed human-readable label shown to the rider. */
   origin_address: string;
+  /** Text originally entered by the user, if available. */
+  origin_address_input?: string;
+  /** Address returned by the geocoder, if available. */
+  origin_address_resolved?: string | null;
+  /** Legacy route coordinates; these remain the routable coordinates. */
   origin_lat: number;
   origin_lng: number;
+  /** Exact pin confirmed by the user. */
+  origin_exact_lat?: number;
+  origin_exact_lng?: number;
+  /** Road-access point used for routing and navigation. */
+  origin_routable_lat?: number;
+  origin_routable_lng?: number;
+  origin_instructions?: string | null;
+  origin_confirmed?: boolean;
   destination_address: string;
+  destination_address_input?: string;
+  destination_address_resolved?: string | null;
   destination_lat: number;
   destination_lng: number;
+  destination_exact_lat?: number;
+  destination_exact_lng?: number;
+  destination_routable_lat?: number;
+  destination_routable_lng?: number;
+  destination_instructions?: string | null;
+  destination_confirmed?: boolean;
   quote_id: string;
   payment_method: "cash" | "transfer";
 }
@@ -64,11 +86,27 @@ export interface Errand {
   type: ErrandType;
   description: string;
   origin_address: string;
+  origin_address_input: string | null;
+  origin_address_resolved: string | null;
   origin_lat: number | null;
   origin_lng: number | null;
+  origin_exact_lat: number | null;
+  origin_exact_lng: number | null;
+  origin_routable_lat: number | null;
+  origin_routable_lng: number | null;
+  origin_instructions: string | null;
+  origin_confirmed: number;
   destination_address: string;
+  destination_address_input: string | null;
+  destination_address_resolved: string | null;
   destination_lat: number | null;
   destination_lng: number | null;
+  destination_exact_lat: number | null;
+  destination_exact_lng: number | null;
+  destination_routable_lat: number | null;
+  destination_routable_lng: number | null;
+  destination_instructions: string | null;
+  destination_confirmed: number;
   estimated_distance: number | null;
   fare: number;
   platform_commission: number;
@@ -129,6 +167,37 @@ export class ErrandMolecule implements IMolecule {
         "Origin and destination addresses are required",
       );
     }
+    if (
+      data.origin_confirmed === false ||
+      data.destination_confirmed === false
+    ) {
+      throw new ValidationError("Pickup and delivery points must be confirmed");
+    }
+
+    const originAddress = data.origin_address.trim();
+    const destinationAddress = data.destination_address.trim();
+    const originAddressInput =
+      data.origin_address_input?.trim() || originAddress;
+    const destinationAddressInput =
+      data.destination_address_input?.trim() || destinationAddress;
+    const originAddressResolved = data.origin_address_resolved?.trim() || null;
+    const destinationAddressResolved =
+      data.destination_address_resolved?.trim() || null;
+    const originExactLat = data.origin_exact_lat ?? data.origin_lat;
+    const originExactLng = data.origin_exact_lng ?? data.origin_lng;
+    const destinationExactLat =
+      data.destination_exact_lat ?? data.destination_lat;
+    const destinationExactLng =
+      data.destination_exact_lng ?? data.destination_lng;
+    const originRoutableLat = data.origin_routable_lat ?? data.origin_lat;
+    const originRoutableLng = data.origin_routable_lng ?? data.origin_lng;
+    const destinationRoutableLat =
+      data.destination_routable_lat ?? data.destination_lat;
+    const destinationRoutableLng =
+      data.destination_routable_lng ?? data.destination_lng;
+    const originInstructions = data.origin_instructions?.trim() || null;
+    const destinationInstructions =
+      data.destination_instructions?.trim() || null;
 
     const id = uuidv4();
     const pin = generatePin();
@@ -170,10 +239,10 @@ export class ErrandMolecule implements IMolecule {
       }
       if (
         quote.errand_type !== data.type ||
-        quote.origin_lat !== data.origin_lat ||
-        quote.origin_lng !== data.origin_lng ||
-        quote.destination_lat !== data.destination_lat ||
-        quote.destination_lng !== data.destination_lng
+        quote.origin_lat !== originRoutableLat ||
+        quote.origin_lng !== originRoutableLng ||
+        quote.destination_lat !== destinationRoutableLat ||
+        quote.destination_lng !== destinationRoutableLng
       ) {
         throw new ConflictError(
           "Quote does not match the selected route or errand type",
@@ -191,38 +260,71 @@ export class ErrandMolecule implements IMolecule {
 
       this.db
         .prepare(
-          `INSERT INTO errands (id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, estimated_distance_km, estimated_duration_minutes, routing_provider, routing_profile, route_calculated_at, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, pin, requested_at, created_at, updated_at)
-           VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested', ?, ?, ?, ?, ?)`,
+          `INSERT INTO errands (
+             id, user_id, rider_id, type, description,
+             origin_address, origin_address_input, origin_address_resolved,
+             origin_lat, origin_lng, origin_exact_lat, origin_exact_lng,
+             origin_routable_lat, origin_routable_lng, origin_instructions,
+             origin_confirmed,
+             destination_address, destination_address_input, destination_address_resolved,
+             destination_lat, destination_lng, destination_exact_lat, destination_exact_lng,
+             destination_routable_lat, destination_routable_lng, destination_instructions,
+             destination_confirmed,
+             estimated_distance, estimated_distance_km, estimated_duration_minutes,
+             routing_provider, routing_profile, route_calculated_at,
+             fare, platform_commission, rider_earnings,
+             fare_cop, platform_commission_cop, rider_earnings_cop,
+             status, payment_method, pin, requested_at, created_at, updated_at
+           )
+           VALUES (
+             @id, @userId, NULL, @type, @description,
+             @originAddress, @originAddressInput, @originAddressResolved,
+             @originRoutableLat, @originRoutableLng, @originExactLat, @originExactLng,
+             @originRoutableLat, @originRoutableLng, @originInstructions,
+             1,
+             @destinationAddress, @destinationAddressInput, @destinationAddressResolved,
+             @destinationRoutableLat, @destinationRoutableLng, @destinationExactLat, @destinationExactLng,
+             @destinationRoutableLat, @destinationRoutableLng, @destinationInstructions,
+             1,
+             @distanceKm, @distanceKm, @durationMinutes,
+             @routingProvider, @routingProfile, @now,
+             @fareCop, @platformCommissionCop, @riderEarningsCop,
+             @fareCop, @platformCommissionCop, @riderEarningsCop,
+             'requested', @paymentMethod, @pin, @now, @now, @now
+           )`,
         )
-        .run(
+        .run({
           id,
           userId,
-          data.type,
-          data.description,
-          data.origin_address,
-          data.origin_lat,
-          data.origin_lng,
-          data.destination_address,
-          data.destination_lat,
-          data.destination_lng,
-          quote.estimated_distance_km,
-          quote.estimated_distance_km,
-          quote.estimated_duration_minutes,
-          quote.routing_provider,
-          quote.routing_profile,
+          type: data.type,
+          description: data.description,
+          originAddress,
+          originAddressInput,
+          originAddressResolved,
+          originExactLat,
+          originExactLng,
+          originRoutableLat,
+          originRoutableLng,
+          originInstructions,
+          destinationAddress,
+          destinationAddressInput,
+          destinationAddressResolved,
+          destinationExactLat,
+          destinationExactLng,
+          destinationRoutableLat,
+          destinationRoutableLng,
+          destinationInstructions,
+          distanceKm: quote.estimated_distance_km,
+          durationMinutes: quote.estimated_duration_minutes,
+          routingProvider: quote.routing_provider,
+          routingProfile: quote.routing_profile,
           now,
-          quote.fare_cop,
-          quote.platform_commission_cop,
-          quote.rider_earnings_cop,
-          quote.fare_cop,
-          quote.platform_commission_cop,
-          quote.rider_earnings_cop,
-          data.payment_method,
+          fareCop: quote.fare_cop,
+          platformCommissionCop: quote.platform_commission_cop,
+          riderEarningsCop: quote.rider_earnings_cop,
+          paymentMethod: data.payment_method,
           pin,
-          now,
-          now,
-          now,
-        );
+        });
     });
 
     createFromQuote();
@@ -591,7 +693,7 @@ export class ErrandMolecule implements IMolecule {
     // The pin should only be visible to the user (owner) and the assigned rider
     return this.db
       .prepare(
-        "SELECT id, user_id, rider_id, type, description, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, estimated_distance, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, NULL as pin, cancellation_reason, requested_at, accepted_at, picked_up_at, delivered_at, cancelled_at, created_at, updated_at FROM errands WHERE status = 'requested' ORDER BY requested_at DESC",
+        "SELECT id, user_id, rider_id, type, description, origin_address, origin_address_input, origin_address_resolved, origin_lat, origin_lng, origin_exact_lat, origin_exact_lng, origin_routable_lat, origin_routable_lng, origin_instructions, origin_confirmed, destination_address, destination_address_input, destination_address_resolved, destination_lat, destination_lng, destination_exact_lat, destination_exact_lng, destination_routable_lat, destination_routable_lng, destination_instructions, destination_confirmed, estimated_distance, fare, platform_commission, rider_earnings, fare_cop, platform_commission_cop, rider_earnings_cop, status, payment_method, NULL as pin, cancellation_reason, requested_at, accepted_at, picked_up_at, delivered_at, cancelled_at, created_at, updated_at FROM errands WHERE status = 'requested' ORDER BY requested_at DESC",
       )
       .all() as Errand[];
   }

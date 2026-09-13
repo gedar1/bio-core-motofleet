@@ -1,7 +1,7 @@
 import React from "react";
 import { useAvailableErrands, useErrandActions } from "../../hooks";
-import { Card, Button, RiderRouteActions } from "../../components/ui";
-import { t, translateStatus } from "../../i18n";
+import { t } from "../../i18n";
+import { AvailableErrandCard } from "./components/AvailableErrandCard";
 
 export const AvailableErrands: React.FC = () => {
   const { errands, loading, refresh } = useAvailableErrands();
@@ -16,8 +16,9 @@ export const AvailableErrands: React.FC = () => {
     }
   };
 
-  if (loading)
+  if (loading) {
     return <p className="caption text-center py-2xl">{t.common.loading}</p>;
+  }
 
   const firstAvailableErrandId = errands[0]?.id;
 
@@ -31,38 +32,13 @@ export const AvailableErrands: React.FC = () => {
           </p>
         ) : (
           <div className="flex flex-col gap-lg">
-            {errands.map((e) => (
-              <Card
-                key={e.id}
-                className="flex flex-col overflow-hidden p-0 lg:p-xl"
-              >
-                <RiderRouteActions
-                  errand={e}
-                  mobileMapFirst
-                  autoLoadOnMobile={e.id === firstAvailableErrandId}
-                />
-                <div className="order-2 z-10 -mt-md flex flex-col gap-md rounded-t-xl bg-canvas px-xl py-2xl shadow-card lg:order-1 lg:mt-0 lg:flex-row lg:items-start lg:justify-between lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
-                  <div>
-                    <p className="caption">{translateStatus(e.type)}</p>
-                    <p className="font-body text-body-md text-ink mt-xs">
-                      {e.description}
-                    </p>
-                    <p className="font-body text-body-sm text-slate mt-xs">
-                      {e.origin_address} → {e.destination_address}
-                    </p>
-                    <p className="caption mt-sm">
-                      {t.rider.earn}: ${e.rider_earnings} · {t.rider.fare}: $
-                      {e.fare}
-                    </p>
-                  </div>
-                  <Button
-                    className="w-full lg:w-auto"
-                    onClick={() => handleAccept(e.id)}
-                  >
-                    {t.rider.accept}
-                  </Button>
-                </div>
-              </Card>
+            {errands.map((errand) => (
+              <AvailableErrandCard
+                key={errand.id}
+                errand={errand}
+                autoLoadOnMobile={errand.id === firstAvailableErrandId}
+                onAccept={handleAccept}
+              />
             ))}
           </div>
         )}
