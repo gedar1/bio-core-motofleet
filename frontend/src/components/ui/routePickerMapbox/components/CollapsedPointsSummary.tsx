@@ -1,3 +1,4 @@
+import { Icon } from "@/components/shared/components/Icon";
 import type { RouteValue } from "../RoutePickerMapbox.types";
 
 interface CollapsedPointsSummaryProps {
@@ -45,7 +46,7 @@ export const CollapsedPointsSummary = ({
       onClick={onEdit}
       aria-label="Editar origen y destino"
     >
-      Editar puntos
+      <Icon name="squarePen" size={18} />
     </button>
   </div>
 );

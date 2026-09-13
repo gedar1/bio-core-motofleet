@@ -6,10 +6,11 @@ import Map, {
   Source,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { Errand } from "../../hooks/useErrands";
-import type { RouteEstimateResponse } from "../../types/api";
-import { useErrandActions } from "../../hooks";
-import { Button } from "./Button";
+import "./index.module.css";
+import type { Errand } from "../../../hooks/useErrands";
+import type { RouteEstimateResponse } from "../../../types/api";
+import { useErrandActions } from "../../../hooks";
+import { Button } from "../Button";
 
 interface RiderRouteActionsProps {
   readonly errand: Errand;
@@ -44,6 +45,10 @@ const getNavigationUrl = (
 
   return `https://waze.com/ul?ll=${encodeURIComponent(coordinates)}&navigate=yes`;
 };
+
+const sameAddress = (left: string | null, right: string | null): boolean =>
+  (left ?? "").trim().toLocaleLowerCase("es-CO") ===
+  (right ?? "").trim().toLocaleLowerCase("es-CO");
 
 export const RiderRouteActions = ({
   errand,
@@ -161,11 +166,24 @@ export const RiderRouteActions = ({
     navigationTarget === "origin"
       ? errand.origin_address
       : errand.destination_address;
+  const targetInputAddress =
+    navigationTarget === "origin"
+      ? errand.origin_address_input
+      : errand.destination_address_input;
+  const targetResolvedAddress =
+    navigationTarget === "origin"
+      ? errand.origin_address_resolved
+      : errand.destination_address_resolved;
   const targetInstructions =
     navigationTarget === "origin"
       ? errand.origin_instructions
       : errand.destination_instructions;
   const targetLabel = navigationTarget === "origin" ? "recogida" : "entrega";
+  const hasWrittenReference = !sameAddress(targetInputAddress, targetAddress);
+  const hasSeparatePinAddress = !sameAddress(
+    targetResolvedAddress,
+    targetAddress,
+  );
 
   const copyLocation = async () => {
     const mapUrl = `https://www.google.com/maps?q=${target.latitude},${target.longitude}`;
@@ -319,6 +337,19 @@ export const RiderRouteActions = ({
               : "Punto de entrega"}
             : {targetAddress}
           </p>
+          {hasWrittenReference && targetInputAddress && (
+            <p className="caption mt-xxs text-ink">
+              <strong>Dirección indicada por el usuario:</strong>{" "}
+              {targetInputAddress}
+            </p>
+          )}
+          {(hasWrittenReference || hasSeparatePinAddress) &&
+            targetResolvedAddress && (
+              <p className="caption mt-xxs text-ink">
+                <strong>Ubicación confirmada en el mapa:</strong>{" "}
+                {targetResolvedAddress}. Sigue el pin exacto en el mapa.
+              </p>
+            )}
           <p className="caption text-muted">
             La navegación usa el acceso vial; el pin exacto aparece en el mapa.
           </p>

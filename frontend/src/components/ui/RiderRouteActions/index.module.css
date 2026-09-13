@@ -1,0 +1,25 @@
+:global(.rider-route-map) {
+  height: min(68svh, 620px);
+  min-height: 420px;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(var(--color-hairline-strong));
+  border-radius: 0;
+  background: rgb(var(--color-surface));
+}
+
+@media (min-width: 1024px) {
+  :global(.rider-route-map) {
+    height: 480px;
+    min-height: 0;
+    border-radius: 0.375rem;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  :global(.rider-route-map)
+    :global(.mapboxgl-ctrl-top-right)
+    :global(.mapboxgl-ctrl-group) {
+    display: none;
+  }
+}

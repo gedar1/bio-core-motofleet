@@ -19,6 +19,7 @@ export { default as x } from "./x.svg";
 export { default as x_light } from "./x_light.svg";
 export { default as menuLight } from "./menuLight.svg";
 export { default as menuDark } from "./menuDark.svg";
+export { default as refresh_ccw_dot } from "./refresh_ccw_dot.svg";
 
 // Chart & Analytics
 export { default as chart_bar } from "./chart-bar.svg";

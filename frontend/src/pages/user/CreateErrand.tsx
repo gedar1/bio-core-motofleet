@@ -205,16 +205,13 @@ export const CreateErrand: React.FC = () => {
   return (
     <div className="section-mobile md:section px-lg">
       <div className="mx-auto w-full max-w-[1200px]">
-        <h2 className="hidden mb-2xl lg:block">{t.user.createErrandTitle}</h2>
+        <h2 className="hidden mb-lg lg:block">{t.user.createErrandTitle}</h2>
         <form
           onSubmit={handleSubmit}
           className="flex w-full flex-col gap-0 lg:grid lg:grid-cols-[minmax(320px,0.8fr)_minmax(0,1.5fr)] lg:items-start lg:gap-xl"
         >
-          <div className="order-1 py-2xl lg:hidden">
+          <div className="order-1 py-lg lg:hidden">
             <h2 className="mb-xs">{t.user.createErrandTitle}</h2>
-            <p className="caption">
-              Selecciona origen y destino directamente en el mapa.
-            </p>
           </div>
 
           <div className="order-1 z-20 relative left-1/2 w-screen -translate-x-1/2 lg:order-2 lg:left-auto lg:w-full lg:translate-x-0">

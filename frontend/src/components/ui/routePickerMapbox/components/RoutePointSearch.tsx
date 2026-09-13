@@ -1,13 +1,12 @@
 import { SearchBox } from "@mapbox/search-js-react";
 import { Button } from "../../Button";
-import {
-  normalizeColombianAddressQuery,
-} from "../RoutePickerMapbox.helpers";
+import { normalizeColombianAddressQuery } from "../RoutePickerMapbox.helpers";
 import type {
   PointKind,
   RouteLocation,
   SearchBoxRetrieveResponse,
 } from "../RoutePickerMapbox.types";
+import { Icon } from "@/components/shared/components/Icon";
 
 const SEARCH_BOX_OPTIONS = {
   country: "CO",
@@ -63,10 +62,10 @@ export const RoutePointSearch = ({
         </span>
         <button
           type="button"
-          className="route-picker-mapbox-change-button"
+          className="route-picker-mapbox-change-button route-picker-mapbox-change-button--confirmed"
           onClick={onOpenOverlay}
         >
-          Cambiar
+          <Icon name="squarePen" size={18} />
         </button>
       </div>
     );
