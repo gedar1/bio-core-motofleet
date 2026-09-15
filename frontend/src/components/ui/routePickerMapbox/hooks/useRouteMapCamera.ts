@@ -1,23 +1,61 @@
 import { useCallback, useRef, type RefObject } from "react";
 import type { MapRef } from "react-map-gl/mapbox";
-import type { PointKind, RouteValue } from "../RoutePickerMapbox.types";
+import type {
+  PointKind,
+  RouteLocation,
+  RouteValue,
+} from "../RoutePickerMapbox.types";
 
-const ROUTE_FIT_PADDING = { top: 180, right: 56, bottom: 128, left: 56 };
+const DESKTOP_ROUTE_FIT_PADDING = {
+  top: 180,
+  right: 56,
+  bottom: 128,
+  left: 56,
+};
+const MOBILE_ROUTE_FIT_PADDING = {
+  top: 184,
+  right: 32,
+  bottom: 112,
+  left: 32,
+};
 const ROUTE_FIT_MAX_ZOOM = 15;
+const SINGLE_POINT_MAX_ZOOM = 16;
 const ROUTE_FIT_DURATION_MS = 600;
 const PENDING_COUNTERPART_FOCUS_DURATION_MS = 800;
 
 interface UseRouteMapCameraParams {
   readonly mapRef: RefObject<MapRef | null>;
   readonly value: RouteValue;
+  readonly isMobileLayout: boolean;
 }
 
 /** Coordinates initial framing, pending-point focus, and final route framing. */
 export const useRouteMapCamera = ({
   mapRef,
   value,
+  isMobileLayout,
 }: UseRouteMapCameraParams) => {
   const hasFittedConfirmedRouteRef = useRef(false);
+  const routeFitPadding = isMobileLayout
+    ? MOBILE_ROUTE_FIT_PADDING
+    : DESKTOP_ROUTE_FIT_PADDING;
+
+  const focusLocation = useCallback(
+    (location: Pick<RouteLocation, "latitude" | "longitude">, duration = 0) => {
+      mapRef.current?.fitBounds(
+        [
+          [location.longitude, location.latitude],
+          [location.longitude, location.latitude],
+        ],
+        {
+          padding: routeFitPadding,
+          maxZoom: SINGLE_POINT_MAX_ZOOM,
+          duration,
+        },
+      );
+    },
+    [mapRef, routeFitPadding],
+  );
 
   const fitRoute = useCallback(
     (route: RouteValue): void => {
@@ -30,18 +68,23 @@ export const useRouteMapCamera = ({
           [destination.longitude, destination.latitude],
         ],
         {
-          padding: ROUTE_FIT_PADDING,
+          padding: routeFitPadding,
           maxZoom: ROUTE_FIT_MAX_ZOOM,
           duration: ROUTE_FIT_DURATION_MS,
         },
       );
     },
-    [mapRef],
+    [mapRef, routeFitPadding],
   );
 
   const onMapLoad = useCallback((): void => {
-    fitRoute(value);
-  }, [fitRoute, value]);
+    if (value.origin && value.destination) {
+      fitRoute(value);
+      return;
+    }
+
+    if (value.origin) focusLocation(value.origin);
+  }, [fitRoute, focusLocation, value]);
 
   const fitConfirmedRoute = useCallback(
     (nextValue: RouteValue, confirmedKind: PointKind): boolean => {
@@ -78,21 +121,16 @@ export const useRouteMapCamera = ({
       const counterpart: PointKind =
         confirmedKind === "origin" ? "destination" : "origin";
       const counterpartLocation = value[counterpart];
-      const map = mapRef.current;
 
-      if (!counterpartLocation || counterpartLocation.confirmed || !map) return;
-
-      map.flyTo({
-        center: [counterpartLocation.longitude, counterpartLocation.latitude],
-        zoom: map.getZoom(),
-        duration: PENDING_COUNTERPART_FOCUS_DURATION_MS,
-      });
+      if (!counterpartLocation || counterpartLocation.confirmed) return;
+      focusLocation(counterpartLocation, PENDING_COUNTERPART_FOCUS_DURATION_MS);
     },
-    [mapRef, value],
+    [focusLocation, value],
   );
 
   return {
     fitConfirmedRoute,
+    focusLocation,
     focusPendingCounterpart,
     onMapLoad,
     resetConfirmedRouteFit,
