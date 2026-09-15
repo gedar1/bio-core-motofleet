@@ -210,11 +210,11 @@ export const CreateErrand: React.FC = () => {
           onSubmit={handleSubmit}
           className="flex w-full flex-col gap-0 lg:grid lg:grid-cols-[minmax(320px,0.8fr)_minmax(0,1.5fr)] lg:items-start lg:gap-xl"
         >
-          <div className="order-1 py-lg lg:hidden">
-            <h2 className="mb-xs">{t.user.createErrandTitle}</h2>
+          <div className="order-1 pt-xs lg:hidden">
+            <h4>{t.user.createErrandTitle}</h4>
           </div>
 
-          <div className="order-1 z-20 relative left-1/2 w-screen -translate-x-1/2 lg:order-2 lg:left-auto lg:w-full lg:translate-x-0">
+          <div className="order-1 z-20 relative left-1/2 w-[98vw] -translate-x-1/2 lg:order-2 lg:left-auto lg:w-full lg:translate-x-0">
             <RoutePickerMapbox
               value={route}
               onChange={setRoute}

@@ -25,8 +25,12 @@ import type {
   RoutePickerMapboxProps,
   SearchBoxRetrieveResponse,
 } from "./RoutePickerMapbox.types";
-import { CollapsedPointsSummary } from "./components/CollapsedPointsSummary";
+import {
+  CollapsedPointSummary,
+  CollapsedPointsSummary,
+} from "./components/CollapsedPointsSummary";
 import { useMarkerClickSuppression } from "./hooks/useMarkerClickSuppression";
+import { useMobileRoutePickerLayout } from "./hooks/useMobileRoutePickerLayout";
 import { useRouteMapCamera } from "./hooks/useRouteMapCamera";
 import { RouteMapMarker } from "./components/RouteMapMarker";
 import { RoutePickerHelpButton } from "./components/RoutePickerHelpButton";
@@ -99,6 +103,9 @@ export const RoutePickerMapbox = ({
     destination: "",
   });
   const [isSearchExpanded, setIsSearchExpanded] = useState(true);
+  const [mobileEditableKind, setMobileEditableKind] =
+    useState<PointKind | null>("origin");
+  const isMobileLayout = useMobileRoutePickerLayout();
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const {
     onMarkerDragStart,
@@ -107,12 +114,14 @@ export const RoutePickerMapbox = ({
   } = useMarkerClickSuppression();
   const {
     fitConfirmedRoute,
+    focusLocation,
     focusPendingCounterpart,
     onMapLoad,
     resetConfirmedRouteFit,
   } = useRouteMapCamera({
     mapRef,
     value,
+    isMobileLayout,
   });
   const mapboxAccessToken = MAPBOX_PUBLIC_TOKEN ?? "";
 
@@ -166,6 +175,17 @@ export const RoutePickerMapbox = ({
     }
   }, [value.origin?.confirmed, value.destination?.confirmed]);
 
+  useEffect(() => {
+    if (!isMobileLayout) return;
+    if (!value.origin) {
+      setMobileEditableKind("origin");
+      return;
+    }
+    if (value.origin.confirmed && !value.destination) {
+      setMobileEditableKind("destination");
+    }
+  }, [isMobileLayout, value.destination, value.origin]);
+
   const selectLocation = (kind: PointKind, location: RouteLocation) => {
     const nextValue = { ...valueRef.current, [kind]: location };
     valueRef.current = nextValue;
@@ -188,6 +208,7 @@ export const RoutePickerMapbox = ({
     onChange(nextValue);
     setSearchValues((previous) => ({ ...previous, [kind]: "" }));
     setIsSearchExpanded(true);
+    if (isMobileLayout) setMobileEditableKind(kind);
     setMessage(null);
   };
 
@@ -200,6 +221,7 @@ export const RoutePickerMapbox = ({
     onChange(nextValue);
     setSearchValues({ origin: "", destination: "" });
     setIsSearchExpanded(true);
+    setMobileEditableKind("origin");
     setMessage(null);
   };
 
@@ -216,6 +238,7 @@ export const RoutePickerMapbox = ({
       const nextRouteValue = { ...valueRef.current, [kind]: null };
       valueRef.current = nextRouteValue;
       onChange(nextRouteValue);
+      if (isMobileLayout) setMobileEditableKind(kind);
     }
   };
 
@@ -259,6 +282,10 @@ export const RoutePickerMapbox = ({
         : "Punto de entrega confirmado",
     );
 
+    if (isMobileLayout) {
+      setMobileEditableKind(kind === "origin" ? "destination" : null);
+    }
+
     if (!fitConfirmedRoute(nextValue, kind)) {
       focusPendingCounterpart(kind);
     }
@@ -294,6 +321,7 @@ export const RoutePickerMapbox = ({
       confirmed: false,
     };
     selectLocation(kind, pendingLocation);
+    if (isMobileLayout) setMobileEditableKind(null);
 
     const markUnresolved = () => {
       if (reverseGeocodingRequestRef.current[kind] !== requestId) return;
@@ -384,10 +412,15 @@ export const RoutePickerMapbox = ({
         confirmed: false,
       } as const;
 
-      selectLocation(kind, {
+      const selectedLocation: RouteLocation = {
         ...locationBase,
         addressResolution: classifyAddressResolution(kind, locationBase),
-      });
+      };
+      selectLocation(kind, selectedLocation);
+      if (isMobileLayout) {
+        setMobileEditableKind(null);
+        focusLocation(selectedLocation, 350);
+      }
       setMessage(
         usesDifferentRoutablePoint
           ? "La dirección tiene un acceso vial distinto. Revisa el pin y confirma el punto."
@@ -414,7 +447,7 @@ export const RoutePickerMapbox = ({
         invalidateReverseGeocoding("origin");
         setLocating(false);
         const address = CURRENT_LOCATION_ADDRESS;
-        selectLocation("origin", {
+        const currentLocation: RouteLocation = {
           address,
           inputAddress: address,
           resolvedAddress: null,
@@ -426,12 +459,18 @@ export const RoutePickerMapbox = ({
           referenceKind: "address",
           addressResolution: "pin_only",
           confirmed: false,
-        });
-        mapRef.current?.flyTo({
-          center: [position.coords.longitude, position.coords.latitude],
-          zoom: 16,
-          duration: 800,
-        });
+        };
+        selectLocation("origin", currentLocation);
+        if (isMobileLayout) {
+          setMobileEditableKind(null);
+          focusLocation(currentLocation, 350);
+        } else {
+          mapRef.current?.flyTo({
+            center: [position.coords.longitude, position.coords.latitude],
+            zoom: 16,
+            duration: 800,
+          });
+        }
       },
       (error) => {
         setLocating(false);
@@ -467,6 +506,45 @@ export const RoutePickerMapbox = ({
     />
   );
 
+  const renderMobilePointAreas = () => {
+    const renderPointSummary = (kind: PointKind, location: RouteLocation) => (
+      <CollapsedPointSummary
+        kind={kind}
+        location={location}
+        onEdit={() => {
+          if (location.confirmed) {
+            openOverlay(kind);
+            return;
+          }
+          setMobileEditableKind(kind);
+        }}
+      />
+    );
+
+    if (!value.origin || mobileEditableKind === "origin") {
+      return renderPointArea("origin");
+    }
+
+    const originSummary = renderPointSummary("origin", value.origin);
+    if (!value.origin.confirmed) return originSummary;
+
+    if (!value.destination || mobileEditableKind === "destination") {
+      return (
+        <>
+          {originSummary}
+          {renderPointArea("destination")}
+        </>
+      );
+    }
+
+    return (
+      <>
+        {originSummary}
+        {renderPointSummary("destination", value.destination)}
+      </>
+    );
+  };
+
   const routeData = routePreview
     ? {
         type: "Feature" as const,
@@ -484,6 +562,8 @@ export const RoutePickerMapbox = ({
   }
 
   const stage = getStage(value);
+  const isMapVisible =
+    shouldShowMap(value) || (isMobileLayout && !!value.origin);
   const activeOverlayMode =
     activeOverlayKind && value[activeOverlayKind]
       ? getOverlayMode(activeOverlayKind, value)
@@ -494,10 +574,15 @@ export const RoutePickerMapbox = ({
       <legend
         ref={legendRef}
         tabIndex={-1}
-        className="flex w-full flex-col items-center justify-center gap-xxs pb-md text-center font-body text-body-md-medium text-ink"
+        className="flex w-full flex-col items-center justify-center gap-xxs pb-xs text-center font-body text-body-md-medium text-ink"
       >
         <span className="flex items-center gap-sm">
-          <span>¿A dónde necesitas enviar algo?</span>
+          {/* <span>¿A dónde necesitas enviar algo?</span> */}
+          <span className="caption text-micro">
+            {!value.origin?.confirmed
+              ? "Indica y confirma el punto de recogida."
+              : "Ahora indica y confirma el punto de entrega."}
+          </span>
           <RoutePickerHelpButton
             isOpen={isHelpOpen}
             onToggle={() => setIsHelpOpen((previous) => !previous)}
@@ -512,11 +597,11 @@ export const RoutePickerMapbox = ({
             </button>
           )}
         </span>
-        <span className="caption text-muted">
+        {/* <span className="caption text-muted">
           {!value.origin?.confirmed
             ? "Indica y confirma el punto de recogida."
             : "Ahora indica y confirma el punto de entrega."}
-        </span>
+        </span> */}
         {isHelpOpen && (
           <p className="route-picker-mapbox-help-popover caption text-muted">
             Selecciona una sugerencia o arrastra los pines para reubicarlos. La
@@ -525,16 +610,20 @@ export const RoutePickerMapbox = ({
           </p>
         )}
       </legend>
-      {shouldShowMap(value) ? (
+      {isMapVisible ? (
         <div
           className={`route-picker-mapbox${
+            isMobileLayout ? " route-picker-mapbox--mobile" : ""
+          }${
             activeOverlayMode === "edit"
               ? " route-picker-mapbox--edit-open"
               : ""
           }`}
         >
           <div className="route-picker-mapbox-search">
-            {isSearchExpanded ? (
+            {isMobileLayout ? (
+              renderMobilePointAreas()
+            ) : isSearchExpanded ? (
               <>
                 {renderPointArea("origin")}
                 {renderPointArea("destination")}
@@ -639,8 +728,15 @@ export const RoutePickerMapbox = ({
         </div>
       ) : (
         <div className="route-picker-mapbox-precapture">
-          {renderPointArea("origin")}
-          {stage === "capture-destination" && renderPointArea("destination")}
+          {isMobileLayout ? (
+            renderMobilePointAreas()
+          ) : (
+            <>
+              {renderPointArea("origin")}
+              {stage === "capture-destination" &&
+                renderPointArea("destination")}
+            </>
+          )}
         </div>
       )}
       {routePreview && (
