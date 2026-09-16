@@ -126,6 +126,11 @@ export function createApp(
     next();
   });
 
+  // --- Health check (used by Railway to confirm the container is ready) ---
+  app.get("/health", (_req, res) => {
+    res.status(200).json({ status: "ok" });
+  });
+
   // --- Public routes ---
   app.use("/api/auth", createAuthRoutes(molecules.auth));
   app.use("/api/users", createUserRoutes(molecules.users));
