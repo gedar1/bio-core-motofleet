@@ -81,7 +81,7 @@ export const RoutePointSearch = ({
           <div className="route-picker-mapbox-point-actions">
             <Button
               type="button"
-              variant="secondary"
+              variant="primary"
               className="route-picker-mapbox-location-button"
               onClick={onUseCurrentLocation}
               disabled={locating}

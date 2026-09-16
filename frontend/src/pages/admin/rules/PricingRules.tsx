@@ -34,29 +34,36 @@ export const PricingRules: React.FC = () => {
           </p>
         ) : (
           <div className="flex flex-col gap-lg">
-            {rules.map((r) => (
-              <Card key={r.id} className="p-xl">
+            {rules.map((rule) => (
+              <Card key={rule.id} className="p-xl">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="caption">{translateStatus(r.errand_type)}</p>
+                    <p className="caption">
+                      {translateStatus(rule.errand_type)}
+                    </p>
                     <p className="font-body text-body-md text-ink mt-xs">
-                      Base: {formatCop(r.base_rate)} · /km:{" "}
-                      {formatCop(r.rate_per_km)} · Comisión:{" "}
-                      {r.commission_percentage}%
+                      Bello: {formatCop(rule.inside_bello_flat_fare_cop)} fijo ·
+                      Fuera de Bello: mínimo{" "}
+                      {formatCop(rule.outside_minimum_fare_cop)}
+                    </p>
+                    <p className="caption text-slate mt-xxs">
+                      Fórmula exterior: {formatCop(rule.base_rate)} +{" "}
+                      {formatCop(rule.rate_per_km)}/km · Comisión:{" "}
+                      {rule.commission_percentage}%
                     </p>
                     <p className="caption text-slate mt-sm">
-                      Creado: {formatDateColombia(r.created_at)} · Actualizado:{" "}
-                      {formatDateColombia(r.updated_at)}
+                      Creado: {formatDateColombia(rule.created_at)} ·
+                      Actualizado: {formatDateColombia(rule.updated_at)}
                     </p>
                   </div>
                   <div className="flex items-start gap-lg">
                     <span
-                      className={`caption ${r.active ? "text-success" : "text-muted"}`}
+                      className={`caption ${rule.active ? "text-success" : "text-muted"}`}
                     >
-                      {r.active ? t.admin.active : t.admin.inactive}
+                      {rule.active ? t.admin.active : t.admin.inactive}
                     </span>
                     <Link
-                      to={`/admin?tab=pricing&mode=edit&id=${r.id}`}
+                      to={`/admin?tab=pricing&mode=edit&id=${rule.id}`}
                       className="whitespace-nowrap font-body text-body-sm-medium text-primary hover:underline"
                     >
                       <Icon name="squarePen" size={18} />

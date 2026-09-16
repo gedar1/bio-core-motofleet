@@ -1,7 +1,12 @@
 import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  readonly variant?: "primary" | "dark" | "secondary" | "cream";
+  readonly variant?:
+    | "primary"
+    | "dark"
+    | "secondary"
+    | "cream"
+    | "primarySmall";
   readonly children: React.ReactNode;
 }
 
@@ -16,6 +21,7 @@ export const Button: React.FC<ButtonProps> = ({
     dark: "btn-dark",
     secondary: "btn-secondary",
     cream: "btn-cream",
+    primarySmall: "btn-primary-small",
   };
 
   return (

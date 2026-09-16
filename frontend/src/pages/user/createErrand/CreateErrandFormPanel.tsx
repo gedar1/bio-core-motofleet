@@ -35,16 +35,12 @@ export const CreateErrandFormPanel = ({
   onDescriptionChange,
   onPaymentMethodChange,
 }: CreateErrandFormPanelProps) => (
-  <section className="order-2 z-10 mt-md flex min-w-0 flex-col gap-lg rounded-t-xl bg-canvas md:px-xl py-2xl lg:order-1 lg:mt-0 lg:rounded-lg lg:border lg:border-hairline-soft">
+  <section className="order-2 z-10 mt-md flex min-w-0 flex-col gap-sm rounded-t-xl bg-canvas md:px-xl pb-2xl lg:order-1 lg:mt-0 lg:rounded-lg lg:border lg:border-hairline-soft">
     <div className="w-full">
-      <label className="block mb-xs font-body text-body-sm-medium text-ink">
+      <label className="block mb-xxs font-body text-body-sm-medium text-ink">
         {t.user.type}
       </label>
-      <select
-        value={form.type}
-        onChange={onTypeChange}
-        className="input-field"
-      >
+      <select value={form.type} onChange={onTypeChange} className="input-field">
         <option value="object_transport">{t.user.objectTransport}</option>
         <option value="purchase">{t.user.purchase}</option>
         <option value="errand">{t.user.errand}</option>

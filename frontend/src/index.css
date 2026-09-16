@@ -104,6 +104,12 @@ html.dark {
            rounded-md px-md py-xs min-h-touch
            transition-colors duration-150;
   }
+  .btn-primary-small {
+    @apply inline-flex items-center justify-center
+           font-body text-button text-on-primary bg-primary
+           rounded-md px-md  min-h-3xl
+           transition-colors duration-150;
+  }
   .btn-primary:active {
     @apply bg-primary-deep;
   }
@@ -192,8 +198,8 @@ html.dark {
   /* Inputs */
   .input-field {
     @apply w-full bg-canvas border border-hairline-strong
-           text-ink font-body text-body-md rounded-md
-           px-md h-[44px]
+           text-ink font-body text-body-sm rounded-md
+           px-md h-[36px]
            placeholder:text-muted
            focus:border-primary focus:border-2 focus:outline-none
            transition-colors duration-150;

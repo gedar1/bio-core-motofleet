@@ -78,6 +78,14 @@ export const CreateErrand: React.FC = () => {
       type: form.type,
       origin: originCoordinates,
       destination: destinationCoordinates,
+      originExact: {
+        latitude: origin.latitude,
+        longitude: origin.longitude,
+      },
+      destinationExact: {
+        latitude: destination.latitude,
+        longitude: destination.longitude,
+      },
     })
       .then((nextQuote) => {
         if (current) {
