@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
-import {
-  api,
-  type AdminPricingRuleDetails,
-} from "../../../services/api";
+import { api, type AdminPricingRuleDetails } from "../../../services/api";
 import { Button, Input } from "../../../components/ui";
 import { inputRules } from "../../../validation/inputRules";
 import { t, translateStatus } from "../../../i18n";
@@ -12,18 +9,24 @@ import { t, translateStatus } from "../../../i18n";
 interface PricingFormState {
   base_rate: string;
   rate_per_km: string;
+  inside_bello_flat_fare_cop: string;
+  outside_minimum_fare_cop: string;
   commission_percentage: string;
 }
 
 const emptyForm: PricingFormState = {
   base_rate: "",
   rate_per_km: "",
+  inside_bello_flat_fare_cop: "",
+  outside_minimum_fare_cop: "",
   commission_percentage: "",
 };
 
 const toFormState = (rule: AdminPricingRuleDetails): PricingFormState => ({
   base_rate: String(rule.base_rate),
   rate_per_km: String(rule.rate_per_km),
+  inside_bello_flat_fare_cop: String(rule.inside_bello_flat_fare_cop),
+  outside_minimum_fare_cop: String(rule.outside_minimum_fare_cop),
   commission_percentage: String(rule.commission_percentage),
 });
 
@@ -85,6 +88,8 @@ export const EditPricingRule: React.FC<{ readonly ruleId: string }> = ({
 
     const baseRate = Number(form.base_rate);
     const ratePerKm = Number(form.rate_per_km);
+    const belloFlatFare = Number(form.inside_bello_flat_fare_cop);
+    const outsideMinimumFare = Number(form.outside_minimum_fare_cop);
     const commission = Number(form.commission_percentage);
 
     if (
@@ -92,12 +97,16 @@ export const EditPricingRule: React.FC<{ readonly ruleId: string }> = ({
       baseRate < 1 ||
       !Number.isSafeInteger(ratePerKm) ||
       ratePerKm < 0 ||
+      !Number.isSafeInteger(belloFlatFare) ||
+      belloFlatFare < 1 ||
+      !Number.isSafeInteger(outsideMinimumFare) ||
+      outsideMinimumFare <= belloFlatFare ||
       !Number.isSafeInteger(commission) ||
       commission < 1 ||
       commission > 50
     ) {
       setError(
-        "Ingresa valores enteros en COP y una comisión entera entre 1% y 50%.",
+        "Usa valores enteros: el mínimo fuera de Bello debe ser mayor que la tarifa local.",
       );
       return;
     }
@@ -108,6 +117,8 @@ export const EditPricingRule: React.FC<{ readonly ruleId: string }> = ({
       await api.updatePricingRule(token, ruleId, {
         base_rate: baseRate,
         rate_per_km: ratePerKm,
+        inside_bello_flat_fare_cop: belloFlatFare,
+        outside_minimum_fare_cop: outsideMinimumFare,
         commission_percentage: commission,
       });
       navigate("/admin?tab=pricing");
@@ -141,8 +152,9 @@ export const EditPricingRule: React.FC<{ readonly ruleId: string }> = ({
       <div className="mx-auto max-w-[600px]">
         <h2 className="mb-sm">Editar regla de tarifa</h2>
         <p className="mb-2xl font-body text-body-sm text-muted">
-          El tipo de mandado y el estado de la regla se mantienen separados de
-          la edición de sus valores económicos.
+          Ambos pines exactos dentro de Bello aplican la tarifa local. Si alguno
+          queda fuera, se cobra el mínimo exterior o la fórmula por km, el que
+          sea mayor.
         </p>
 
         <div className="mb-lg grid grid-cols-1 gap-lg sm:grid-cols-2">
@@ -161,7 +173,25 @@ export const EditPricingRule: React.FC<{ readonly ruleId: string }> = ({
         <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
           <Input
             {...inputRules.positiveInteger}
-            label="Tarifa base (COP)"
+            label="Tarifa fija dentro de Bello (COP)"
+            name="inside_bello_flat_fare_cop"
+            type="number"
+            value={form.inside_bello_flat_fare_cop}
+            onChange={handleChange("inside_bello_flat_fare_cop")}
+            required
+          />
+          <Input
+            {...inputRules.positiveInteger}
+            label="Mínimo si sale de Bello (COP)"
+            name="outside_minimum_fare_cop"
+            type="number"
+            value={form.outside_minimum_fare_cop}
+            onChange={handleChange("outside_minimum_fare_cop")}
+            required
+          />
+          <Input
+            {...inputRules.positiveInteger}
+            label="Tarifa base fuera de Bello (COP)"
             name="base_rate"
             type="number"
             value={form.base_rate}
@@ -170,7 +200,7 @@ export const EditPricingRule: React.FC<{ readonly ruleId: string }> = ({
           />
           <Input
             {...inputRules.nonNegativeInteger}
-            label="Tarifa por Km (COP)"
+            label="Tarifa por km fuera de Bello (COP)"
             name="rate_per_km"
             type="number"
             value={form.rate_per_km}

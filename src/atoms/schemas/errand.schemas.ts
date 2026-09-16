@@ -17,6 +17,9 @@ export const quoteErrandRequestSchema = routeEstimateRequestSchema.extend({
       message: "Type must be object_transport, purchase or errand",
     }),
   }),
+  // Exact pins determine municipal coverage; origin/destination remain routable.
+  originExact: routeCoordinatesSchema,
+  destinationExact: routeCoordinatesSchema,
 });
 
 const addressInputSchema = z.string().trim().min(1).max(300);

@@ -80,6 +80,9 @@ export interface RouteCoordinates {
 
 export interface QuoteErrandRequest extends RouteEstimateRequest {
   type: "object_transport" | "purchase" | "errand";
+  /** Exact pins used by the server to apply municipal coverage rules. */
+  originExact: RouteCoordinates;
+  destinationExact: RouteCoordinates;
 }
 
 /** A short-lived, server-authoritative amount the user approves before creation. */

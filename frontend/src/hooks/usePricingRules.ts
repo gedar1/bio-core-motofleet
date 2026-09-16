@@ -7,6 +7,8 @@ export interface PricingRule {
   errand_type: string;
   base_rate: number;
   rate_per_km: number;
+  inside_bello_flat_fare_cop: number;
+  outside_minimum_fare_cop: number;
   commission_percentage: number;
   active: boolean;
   created_at: string;
@@ -24,8 +26,8 @@ export const usePricingRules = () => {
     setLoading(true);
     setError(null);
     try {
-      const data: any = await api.getPricingRules(token);
-      setRules(data.data || data);
+      const data: unknown = await api.getPricingRules(token);
+      setRules(Array.isArray(data) ? (data as PricingRule[]) : []);
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "Error loading pricing rules",
