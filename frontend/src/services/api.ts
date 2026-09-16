@@ -71,6 +71,8 @@ export interface AdminPricingRuleDetails {
   errand_type: string;
   base_rate: number;
   rate_per_km: number;
+  inside_bello_flat_fare_cop: number;
+  outside_minimum_fare_cop: number;
   commission_percentage: number;
   active: number | boolean;
   created_at: string;
