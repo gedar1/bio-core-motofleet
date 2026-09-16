@@ -570,7 +570,7 @@ export const RoutePickerMapbox = ({
       : null;
 
   return (
-    <fieldset className="w-full flex flex-col gap-sm">
+    <fieldset className="w-full flex flex-col">
       <legend
         ref={legendRef}
         tabIndex={-1}
@@ -597,11 +597,6 @@ export const RoutePickerMapbox = ({
             </button>
           )}
         </span>
-        {/* <span className="caption text-muted">
-          {!value.origin?.confirmed
-            ? "Indica y confirma el punto de recogida."
-            : "Ahora indica y confirma el punto de entrega."}
-        </span> */}
         {isHelpOpen && (
           <p className="route-picker-mapbox-help-popover caption text-muted">
             Selecciona una sugerencia o arrastra los pines para reubicarlos. La
@@ -746,7 +741,7 @@ export const RoutePickerMapbox = ({
         </p>
       )}
       {message && (
-        <p className="caption p-xs m-xs rounded-md text-warning">{message}</p>
+        <p className="caption p-xs rounded-md text-warning">{message}</p>
       )}
     </fieldset>
   );

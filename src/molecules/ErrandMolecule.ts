@@ -5,7 +5,8 @@ import type { ILogger } from "../infrastructure/logger.js";
 import type { IMolecule, PaginatedResult, Role } from "./IMolecule.js";
 import { isValidErrandTransition } from "../atoms/stateMachines.js";
 import type { ErrandState } from "../atoms/stateMachines.js";
-import { calculateFare } from "../atoms/tarifa.js";
+import { calculateFare, calculateFlatFare } from "../atoms/tarifa.js";
+import { isPointInsideBello } from "../infrastructure/geofencing/belloBoundary.js";
 import { getCurrentUtcTimestamp } from "../atoms/dateUtils.js";
 import {
   BusinessRuleViolation,
@@ -66,8 +67,12 @@ export interface CreateErrandInput {
 
 export interface QuoteErrandInput {
   type: ErrandType;
+  /** Road-access coordinates used exclusively for route calculation. */
   origin: { latitude: number; longitude: number };
   destination: { latitude: number; longitude: number };
+  /** Exact confirmed pins used exclusively for municipal pricing coverage. */
+  originExact: { latitude: number; longitude: number };
+  destinationExact: { latitude: number; longitude: number };
 }
 
 export type ErrandQuote = Awaited<ReturnType<RoutingProvider["getRoute"]>> & {
@@ -214,8 +219,12 @@ export class ErrandMolecule implements IMolecule {
             errand_type: ErrandType;
             origin_lat: number;
             origin_lng: number;
+            origin_exact_lat: number | null;
+            origin_exact_lng: number | null;
             destination_lat: number;
             destination_lng: number;
+            destination_exact_lat: number | null;
+            destination_exact_lng: number | null;
             estimated_distance_km: number;
             estimated_duration_minutes: number;
             routing_provider: string;
@@ -241,8 +250,12 @@ export class ErrandMolecule implements IMolecule {
         quote.errand_type !== data.type ||
         quote.origin_lat !== originRoutableLat ||
         quote.origin_lng !== originRoutableLng ||
+        quote.origin_exact_lat !== originExactLat ||
+        quote.origin_exact_lng !== originExactLng ||
         quote.destination_lat !== destinationRoutableLat ||
-        quote.destination_lng !== destinationRoutableLng
+        quote.destination_lng !== destinationRoutableLng ||
+        quote.destination_exact_lat !== destinationExactLat ||
+        quote.destination_exact_lng !== destinationExactLng
       ) {
         throw new ConflictError(
           "Quote does not match the selected route or errand type",
@@ -349,12 +362,23 @@ export class ErrandMolecule implements IMolecule {
 
     const pricingRule = this.db
       .prepare(
-        "SELECT base_rate, rate_per_km, commission_percentage FROM pricing_rules WHERE errand_type = ? AND active = 1",
+        `SELECT
+           base_rate,
+           rate_per_km,
+           inside_bello_flat_fare_cop,
+           outside_minimum_fare_cop,
+           commission_percentage
+         FROM pricing_rules
+         WHERE errand_type = ? AND active = 1
+         ORDER BY updated_at DESC, id DESC
+         LIMIT 1`,
       )
       .get(data.type) as
       | {
           base_rate: number;
           rate_per_km: number;
+          inside_bello_flat_fare_cop: number;
+          outside_minimum_fare_cop: number;
           commission_percentage: number;
         }
       | undefined;
@@ -366,20 +390,37 @@ export class ErrandMolecule implements IMolecule {
 
     const route = await this.estimateRoute(data.origin, data.destination);
     const distanceKm = Math.max(0.5, route.distanceKm);
-    const pricing = calculateFare({
-      baseRateCop: pricingRule.base_rate,
-      ratePerKmCop: pricingRule.rate_per_km,
-      commissionBasisPoints: pricingRule.commission_percentage * 100,
-      distanceKm,
-    });
+    const commissionBasisPoints = pricingRule.commission_percentage * 100;
+    const isBelloLocalService =
+      isPointInsideBello(data.originExact) &&
+      isPointInsideBello(data.destinationExact);
+    const pricing = isBelloLocalService
+      ? calculateFlatFare({
+          fareCop: pricingRule.inside_bello_flat_fare_cop,
+          commissionBasisPoints,
+        })
+      : calculateFare({
+          baseRateCop: pricingRule.base_rate,
+          ratePerKmCop: pricingRule.rate_per_km,
+          minimumFareCop: pricingRule.outside_minimum_fare_cop,
+          commissionBasisPoints,
+          distanceKm,
+        });
     const quoteId = uuidv4();
     const createdAt = new Date().toISOString();
     const expiresAt = new Date(Date.now() + 5 * 60_000).toISOString();
 
     this.db
       .prepare(
-        `INSERT INTO errand_quotes (id, user_id, errand_type, origin_lat, origin_lng, destination_lat, destination_lng, estimated_distance_km, estimated_duration_minutes, routing_provider, routing_profile, fare_cop, platform_commission_cop, rider_earnings_cop, expires_at, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO errand_quotes (
+           id, user_id, errand_type,
+           origin_lat, origin_lng, origin_exact_lat, origin_exact_lng,
+           destination_lat, destination_lng, destination_exact_lat, destination_exact_lng,
+           estimated_distance_km, estimated_duration_minutes,
+           routing_provider, routing_profile,
+           fare_cop, platform_commission_cop, rider_earnings_cop,
+           expires_at, created_at
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         quoteId,
@@ -387,8 +428,12 @@ export class ErrandMolecule implements IMolecule {
         data.type,
         data.origin.latitude,
         data.origin.longitude,
+        data.originExact.latitude,
+        data.originExact.longitude,
         data.destination.latitude,
         data.destination.longitude,
+        data.destinationExact.latitude,
+        data.destinationExact.longitude,
         distanceKm,
         route.durationMinutes,
         route.provider,
