@@ -1,6 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createApp, type MoleculeContainer } from "./app.js";
+import { createApp, waitForDrain, type MoleculeContainer } from "./app.js";
 import {
   createDatabase,
   runMigrations,
@@ -165,8 +165,24 @@ async function main(): Promise<void> {
 
     scheduler.shutdown();
 
-    server.close(() => {
-      logger.info("HTTP server closed");
+    // Stop accepting new connections, then wait for all in-flight async
+    // handlers to finish before closing the database. This prevents the
+    // better-sqlite3 crash that occurs when ErrandMolecule.quote() resumes
+    // after its Mapbox await and finds the DB connection already closed.
+    server.close(async () => {
+      logger.info("HTTP server closed, waiting for in-flight requests...");
+
+      const DRAIN_TIMEOUT_MS = 8_000;
+      await Promise.race([
+        waitForDrain(),
+        new Promise<void>((resolve) => {
+          setTimeout(() => {
+            logger.warn("Drain timeout reached, closing database anyway");
+            resolve();
+          }, DRAIN_TIMEOUT_MS);
+        }),
+      ]);
+
       closeDatabase();
       logger.info("Database connection closed");
       process.exit(0);
