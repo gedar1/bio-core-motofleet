@@ -83,10 +83,20 @@ export function createApp(
   // --- In-flight request counter ---
   // Must be the first middleware so every request is tracked, including those
   // that await external services (e.g. Mapbox) before touching the database.
+  // A single flag per response prevents double-decrement: both "finish" and
+  // "close" can fire on the same response (e.g. normal HTTP/1.1 completion),
+  // so we guard with `decremented` to ensure onRequestFinished runs only once.
   app.use((_req, res, next) => {
     inFlightRequests += 1;
-    res.on("finish", onRequestFinished);
-    res.on("close", onRequestFinished);
+    let decremented = false;
+    const decrement = () => {
+      if (!decremented) {
+        decremented = true;
+        onRequestFinished();
+      }
+    };
+    res.on("finish", decrement);
+    res.on("close", decrement);
     next();
   });
 
