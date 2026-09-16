@@ -43,6 +43,34 @@ export interface MoleculeContainer {
 }
 
 /**
+ * Tracks the number of HTTP requests currently being processed.
+ * Incremented when a request arrives, decremented when the response finishes.
+ * Used during graceful shutdown to delay database closure until all async
+ * handlers (e.g. the Mapbox await in ErrandMolecule.quote) have completed.
+ */
+let inFlightRequests = 0;
+const drainListeners: Array<() => void> = [];
+
+function onRequestFinished(): void {
+  inFlightRequests = Math.max(0, inFlightRequests - 1);
+  if (inFlightRequests === 0 && drainListeners.length > 0) {
+    const listeners = drainListeners.splice(0);
+    for (const fn of listeners) fn();
+  }
+}
+
+/**
+ * Returns a Promise that resolves when all in-flight requests have finished.
+ * Resolves immediately if there are no active requests.
+ */
+export function waitForDrain(): Promise<void> {
+  if (inFlightRequests === 0) return Promise.resolve();
+  return new Promise<void>((resolve) => {
+    drainListeners.push(resolve);
+  });
+}
+
+/**
  * Creates and configures the Express application.
  * Mounts JSON parser, CORS headers, all route modules, and global error handler.
  */
@@ -51,6 +79,16 @@ export function createApp(
   db?: import("better-sqlite3").Database,
 ): express.Application {
   const app = express();
+
+  // --- In-flight request counter ---
+  // Must be the first middleware so every request is tracked, including those
+  // that await external services (e.g. Mapbox) before touching the database.
+  app.use((_req, res, next) => {
+    inFlightRequests += 1;
+    res.on("finish", onRequestFinished);
+    res.on("close", onRequestFinished);
+    next();
+  });
 
   // --- Body parsing ---
   app.use(express.json());
