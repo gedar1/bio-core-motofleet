@@ -6,7 +6,6 @@ import Map, {
   Source,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import "./index.module.css";
 import type { Errand } from "../../../hooks/useErrands";
 import type { RouteEstimateResponse } from "../../../types/api";
 import { useErrandActions } from "../../../hooks";
