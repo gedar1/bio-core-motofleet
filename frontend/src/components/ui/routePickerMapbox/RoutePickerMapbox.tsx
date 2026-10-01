@@ -127,6 +127,7 @@ export const RoutePickerMapbox = ({
 
   useEffect(() => {
     valueRef.current = value;
+    console.log(valueRef);
   }, [value]);
 
   useEffect(

@@ -5,6 +5,7 @@ import { t } from "../../../i18n";
 import type { ErrandQuoteResponse } from "../../../types/api";
 import { inputRules } from "../../../validation/inputRules";
 import type { CreateErrandForm } from "./types";
+import { QuotePrice } from "../components/QuotePrice";
 
 const formatCop = new Intl.NumberFormat("es-CO", {
   style: "currency",
@@ -35,7 +36,9 @@ export const CreateErrandFormPanel = ({
   onDescriptionChange,
   onPaymentMethodChange,
 }: CreateErrandFormPanelProps) => (
-  <section className="order-2 z-10 mt-md flex min-w-0 flex-col gap-sm rounded-t-xl bg-canvas md:px-xl pb-2xl lg:order-1 lg:mt-0 lg:rounded-lg lg:border lg:border-hairline-soft">
+  <section
+    className={`${quotePreview ? "order-1" : "order-2"} z-10 mt-md flex min-w-0 flex-col gap-sm rounded-t-xl bg-canvas md:px-xl pb-2xl lg:order-1 lg:mt-0 lg:rounded-lg lg:border lg:border-hairline-soft`}
+  >
     <div className="w-full">
       <label className="block mb-xxs font-body text-body-sm-medium text-ink">
         {t.user.type}
@@ -71,37 +74,12 @@ export const CreateErrandFormPanel = ({
       </select>
     </div>
 
-    {quotePreview ? (
-      <div className="rounded-md border border-primary bg-cream px-md py-md">
-        <p className="font-body text-body-sm-medium text-ink">
-          Valor total del favor
-        </p>
-        <p className="font-body text-heading-3 text-primary">
-          {formatCop.format(quotePreview.fareCop)}
-        </p>
-        <p className="caption">
-          Esta cotización se aplicará al crear el favor y vence a las{" "}
-          {new Date(quotePreview.expiresAt).toLocaleTimeString("es-CO", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-          .
-        </p>
-      </div>
-    ) : (
-      route.origin &&
-      route.destination && (
-        <p className="caption">Calculando el valor de tu favor...</p>
-      )
-    )}
-
-    {error && <p className="font-body text-caption text-error">{error}</p>}
-    <Button
-      type="submit"
-      className="w-full"
-      disabled={loading || !quotePreview}
-    >
-      {submitLabel}
-    </Button>
+    <QuotePrice
+      quotePreview={quotePreview}
+      error={error}
+      route={route}
+      loading={loading}
+      submitLabel={submitLabel}
+    />
   </section>
 );

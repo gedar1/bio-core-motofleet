@@ -46,20 +46,8 @@ const ResolutionNotice = ({
     return (
       <div className="route-picker-mapbox-discrepancy-high">
         <p className="m-0">
-          ⚠ La dirección indicada por el usuario no coincide con la ubicación
-          del pin.
-        </p>
-        <p className="m-0 mt-xxs">
-          <strong>Dirección indicada por el usuario:</strong>{" "}
-          {location.inputAddress}
-        </p>
-        <p className="m-0 mt-xxs">
-          <strong>Ubicación confirmada en el mapa:</strong>{" "}
-          {location.resolvedAddress}
-        </p>
-        <p className="m-0">
-          ⚠ La dirección digitada por el usuario sera la que vera el rider. Esta
-          ubicacion se usa como guia para llegar al punto.
+          ⚠ La dirección digitada sera la que vera el rider. Esta ubicacion se
+          usara como guia para llegar al punto.
         </p>
       </div>
     );
@@ -121,7 +109,7 @@ export const RoutePointOverlay = ({
   onConfirm,
   onClose,
 }: RoutePointOverlayProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
   const headingId = `route-picker-overlay-heading-${kind}`;
   const addressResolution = getAddressResolution(kind, location);
   const isResolutionPending = isAddressResolutionPending(kind, location);
@@ -132,13 +120,29 @@ export const RoutePointOverlay = ({
       ?.focus();
   }, [kind, mode]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const container = containerRef.current;
+      if (
+        event.key === "Escape" &&
+        container &&
+        event.target instanceof Node &&
+        container.contains(event.target)
+      ) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   return (
-    <div
+    <section
       ref={containerRef}
       className={`route-picker-mapbox-overlay${
         mode === "edit" ? " route-picker-mapbox-overlay--edit" : ""
       }`}
-      role="region"
       aria-labelledby={headingId}
       aria-live="polite"
       style={{
@@ -150,9 +154,6 @@ export const RoutePointOverlay = ({
         maxHeight: "60%",
         overflowY: mode === "edit" ? "visible" : "auto",
         pointerEvents: "auto",
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "Escape") onClose();
       }}
     >
       <div className="route-picker-mapbox-overlay-header">
@@ -224,6 +225,6 @@ export const RoutePointOverlay = ({
           </Button>
         </>
       )}
-    </div>
+    </section>
   );
 };

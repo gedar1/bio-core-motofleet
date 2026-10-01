@@ -222,7 +222,9 @@ export const CreateErrand: React.FC = () => {
             <h4>{t.user.createErrandTitle}</h4>
           </div>
 
-          <div className="order-1 z-20 relative left-1/2 w-[98vw] -translate-x-1/2 lg:order-2 lg:left-auto lg:w-full lg:translate-x-0">
+          <div
+            className={`${routePreview ? "order-2" : "order-1"} z-20 relative left-1/2 w-[98vw] -translate-x-1/2 lg:order-2 lg:left-auto lg:w-full lg:translate-x-0`}
+          >
             <RoutePickerMapbox
               value={route}
               onChange={setRoute}
