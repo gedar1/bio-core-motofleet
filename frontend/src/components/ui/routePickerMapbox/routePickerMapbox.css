@@ -2,8 +2,8 @@
 .route-picker-mapbox {
   position: relative;
   order: -1;
-  height: min(68svh, 620px);
-  min-height: 420px;
+  height: calc(100dvh - 128px - env(safe-area-inset-bottom));
+  min-height: 0;
   width: 100%;
   overflow: hidden;
   border: 1px solid rgb(var(--color-hairline-strong));
@@ -11,8 +11,24 @@
   background: rgb(var(--color-surface));
 }
 
+@media (min-width: 1024px) {
+  .route-picker-mapbox {
+    height: calc(100dvh - 64px);
+  }
+}
+
 .route-picker-mapbox--edit-open {
   overflow: visible;
+}
+
+.route-picker-mapbox-map-actions {
+  position: absolute;
+  z-index: 3;
+  top: 12rem;
+  right: 0.75rem;
+  background-color: #ffffffe8;
+  border-radius: 100%;
+  border: 1px solid #fa520f;
 }
 
 .route-picker-mapbox-search {
@@ -358,7 +374,10 @@
 }
 
 .route-picker-mapbox-reset-button {
-  padding: 0.25rem;
+  padding: 0.5rem;
+}
+.route-picker-mapbox-reset-button span {
+  display: flex;
 }
 
 .route-picker-mapbox-change-button:focus-visible,
@@ -441,7 +460,7 @@
 @media (min-width: 1024px) {
   .route-picker-mapbox {
     order: initial;
-    height: 560px;
+    height: calc(100dvh - 64px);
     min-height: 0;
     border-radius: 0.375rem;
   }
@@ -456,8 +475,7 @@
 /* On phones, one active field plus compact summaries leaves a usable map area. */
 @media (max-width: 1023px) {
   .route-picker-mapbox--mobile {
-    height: clamp(420px, calc(100vh - 14rem), 620px);
-    height: clamp(420px, calc(100dvh - 14rem), 620px);
+    height: calc(100dvh - 128px - env(safe-area-inset-bottom));
     min-height: 0;
   }
 
@@ -480,6 +498,6 @@
     bottom: 0 !important;
     left: 0 !important;
     width: auto !important;
-    max-height: 58% !important;
+    max-height: 70% !important;
   }
 }

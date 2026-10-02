@@ -17,7 +17,6 @@ import {
   isAddressResolutionPending,
   MAP_SELECTION_FALLBACK_ADDRESS,
   resolveDisplayAddress,
-  shouldShowMap,
 } from "./RoutePickerMapbox.helpers";
 import type {
   PointKind,
@@ -33,7 +32,6 @@ import { useMarkerClickSuppression } from "./hooks/useMarkerClickSuppression";
 import { useMobileRoutePickerLayout } from "./hooks/useMobileRoutePickerLayout";
 import { useRouteMapCamera } from "./hooks/useRouteMapCamera";
 import { RouteMapMarker } from "./components/RouteMapMarker";
-import { RoutePickerHelpButton } from "./components/RoutePickerHelpButton";
 import { RoutePointOverlay } from "./components/RoutePointOverlay";
 import { RoutePointSearch } from "./components/RoutePointSearch";
 import { Icon } from "@/components/shared/components/Icon";
@@ -97,7 +95,6 @@ export const RoutePickerMapbox = ({
   const [confirmationToast, setConfirmationToast] = useState<string | null>(
     null,
   );
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [searchValues, setSearchValues] = useState<Record<PointKind, string>>({
     origin: "",
     destination: "",
@@ -127,6 +124,7 @@ export const RoutePickerMapbox = ({
 
   useEffect(() => {
     valueRef.current = value;
+    console.log(valueRef);
   }, [value]);
 
   useEffect(
@@ -562,8 +560,7 @@ export const RoutePickerMapbox = ({
   }
 
   const stage = getStage(value);
-  const isMapVisible =
-    shouldShowMap(value) || (isMobileLayout && !!value.origin);
+  const isMapVisible = true;
   const activeOverlayMode =
     activeOverlayKind && value[activeOverlayKind]
       ? getOverlayMode(activeOverlayKind, value)
@@ -571,39 +568,8 @@ export const RoutePickerMapbox = ({
 
   return (
     <fieldset className="w-full flex flex-col">
-      <legend
-        ref={legendRef}
-        tabIndex={-1}
-        className="flex w-full flex-col items-center justify-center gap-xxs pb-xs text-center font-body text-body-md-medium text-ink"
-      >
-        <span className="flex items-center gap-sm">
-          {/* <span>¿A dónde necesitas enviar algo?</span> */}
-          <span className="caption text-micro">
-            {!value.origin?.confirmed
-              ? "Indica y confirma el punto de recogida."
-              : "Ahora indica y confirma el punto de entrega."}
-          </span>
-          <RoutePickerHelpButton
-            isOpen={isHelpOpen}
-            onToggle={() => setIsHelpOpen((previous) => !previous)}
-          />
-          {(value.origin || value.destination) && (
-            <button
-              type="button"
-              className="route-picker-mapbox-reset-button"
-              onClick={resetRoute}
-            >
-              <Icon name="refresh_ccw_dot" size={30} />
-            </button>
-          )}
-        </span>
-        {isHelpOpen && (
-          <p className="route-picker-mapbox-help-popover caption text-muted">
-            Selecciona una sugerencia o arrastra los pines para reubicarlos. La
-            ruta usará el acceso vial más cercano, pero el rider verá el punto
-            exacto y tus instrucciones.
-          </p>
-        )}
+      <legend ref={legendRef} tabIndex={-1} className="sr-only">
+        Selección de puntos de recogida y entrega
       </legend>
       {isMapVisible ? (
         <div
@@ -615,13 +581,25 @@ export const RoutePickerMapbox = ({
               : ""
           }`}
         >
+          <div className="route-picker-mapbox-map-actions">
+            {(value.origin || value.destination) && (
+              <button
+                type="button"
+                className="route-picker-mapbox-reset-button"
+                onClick={resetRoute}
+                aria-label="Reiniciar puntos de la ruta"
+              >
+                <Icon name="refresh_ccw_dot" size={30} />
+              </button>
+            )}
+          </div>
           <div className="route-picker-mapbox-search">
             {isMobileLayout ? (
               renderMobilePointAreas()
             ) : isSearchExpanded ? (
               <>
                 {renderPointArea("origin")}
-                {renderPointArea("destination")}
+                {value.origin && renderPointArea("destination")}
               </>
             ) : (
               <CollapsedPointsSummary
