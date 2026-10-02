@@ -162,10 +162,8 @@ export class ErrandMolecule implements IMolecule {
     if (user.status !== "active") {
       throw new BusinessRuleViolation("User account is not active");
     }
-    if (data.description.length < 10 || data.description.length > 500) {
-      throw new ValidationError(
-        "Description must be between 10 and 500 characters",
-      );
+    if (data.description.length > 500) {
+      throw new ValidationError("Description must be at most 500 characters");
     }
     if (!data.origin_address.trim() || !data.destination_address.trim()) {
       throw new ValidationError(

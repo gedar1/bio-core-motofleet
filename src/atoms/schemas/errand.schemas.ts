@@ -35,10 +35,7 @@ export const createErrandSchema = z
         message: "Type must be object_transport, purchase or errand",
       }),
     }),
-    description: z
-      .string()
-      .min(10, "Description must be at least 10 characters")
-      .max(500, "Description must be at most 500 characters"),
+    description: z.string().trim().max(500).optional().default(""),
     // address is the label confirmed by the user and shown to the rider
     origin_address: addressInputSchema,
     origin_address_input: addressInputSchema.optional(),
