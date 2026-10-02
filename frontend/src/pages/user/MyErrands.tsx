@@ -22,7 +22,7 @@ export const UserMyErrands: React.FC = () => {
     return <p className="caption text-center py-2xl">{t.common.loading}</p>;
 
   return (
-    <div className="section px-2xl">
+    <div className="pt-section-sm pb-section-sm px-2xl">
       <div className="max-w-[1280px] mx-auto">
         <h2 className="mb-2xl">{t.user.myErrandsTitle}</h2>
         {errands.length === 0 ? (
@@ -33,6 +33,16 @@ export const UserMyErrands: React.FC = () => {
           <div className="flex flex-col gap-lg">
             {errands.map((e) => (
               <Card key={e.id} className="p-xl">
+                {(e.status === "requested" || e.status === "accepted") && (
+                  <div className="flex justify-end pb-md">
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleCancel(e.id)}
+                    >
+                      {t.user.cancel}
+                    </Button>
+                  </div>
+                )}
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="caption">
@@ -77,14 +87,6 @@ export const UserMyErrands: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  {(e.status === "requested" || e.status === "accepted") && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleCancel(e.id)}
-                    >
-                      {t.user.cancel}
-                    </Button>
-                  )}
                 </div>
               </Card>
             ))}

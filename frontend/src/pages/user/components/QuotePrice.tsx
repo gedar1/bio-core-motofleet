@@ -1,15 +1,15 @@
-import { ErrandQuoteResponse } from "@/types/api";
-import { Button, RouteValue } from "../../../components/ui";
-
+import type { ErrandQuoteResponse } from "@/types/api";
+import { Button } from "../../../components/ui";
+import type { RouteValue } from "../../../components/ui";
 import { formatCop } from "@/utils";
-import { SvgSpinnersPulse3 } from "@/assets/icons";
 
 interface QuotePriceProps {
   readonly quotePreview: ErrandQuoteResponse | null;
   readonly route: RouteValue;
   readonly error: string | null;
   readonly loading: boolean;
-  readonly submitLabel: string;
+  readonly accepted: boolean;
+  readonly onAccept: () => void;
 }
 
 export const QuotePrice = ({
@@ -17,38 +17,33 @@ export const QuotePrice = ({
   route,
   error,
   loading,
-  submitLabel,
+  accepted,
+  onAccept,
 }: QuotePriceProps) => (
   <>
     {quotePreview ? (
-      <div className="rounded-md border border-primary bg-cream px-md py-sm">
-        <div className="flex flex-row items-center gap-sm">
-          {/* <p className="font-body text-body-sm-medium text-ink">
-            Valor total del favor
-          </p> */}
-          {/* <p className="font-body text-heading-5 text-primary">
-            {formatCop.format(quotePreview.fareCop)}
-          </p> */}
+      <section
+        aria-label="Precio estimado del favor"
+        className={`rounded-md border border-primary bg-cream px-md py-sm ${
+          accepted
+            ? ""
+            : "fixed inset-x-0 bottom-[calc(64px+env(safe-area-inset-bottom))] z-30 rounded-none shadow-[0_-4px_16px_rgba(0,0,0,0.16)] lg:bottom-0 lg:mx-auto lg:max-w-[720px] lg:rounded-md"
+        }`}
+      >
+        <div className="flex flex-col gap-xs sm:flex-row sm:items-center sm:justify-between">
           <Button
-            type="submit"
-            className="w-full "
-            disabled={loading || !quotePreview}
+            type="button"
+            variant={accepted ? "success" : "primary"}
+            className="w-full sm:w-auto"
+            onClick={onAccept}
+            disabled={loading || accepted}
           >
-            {loading || !quotePreview ? (
-              <span>
-                <div className=" text-primary">
-                  <SvgSpinnersPulse3 />
-                </div>
-                {submitLabel}
-              </span>
-            ) : (
-              <p className="font-body text-body-sm-medium text-on-dark ">
-                Valor del favor {formatCop.format(quotePreview.fareCop)}
-              </p>
-            )}
+            {accepted
+              ? `Precio aceptado ${formatCop.format(quotePreview.fareCop)}`
+              : "Aceptar precio y continuar"}
           </Button>
         </div>
-        <p className="caption">
+        <p className="caption mt-xs">
           Esta cotización se aplicará al crear el favor y vence a las{" "}
           {new Date(quotePreview.expiresAt).toLocaleTimeString("es-CO", {
             hour: "2-digit",
@@ -56,7 +51,7 @@ export const QuotePrice = ({
           })}
           .
         </p>
-      </div>
+      </section>
     ) : (
       route.origin &&
       route.destination && (
@@ -64,15 +59,5 @@ export const QuotePrice = ({
       )
     )}
     {error && <p className="font-body text-caption text-error">{error}</p>}
-    {/* <Button
-      type="submit"
-      className="w-full"
-      disabled={loading || !quotePreview}
-    >
-      <div className=" text-primary">
-        <SvgSpinnersPulse3 />
-      </div>
-      {submitLabel}
-    </Button> */}
   </>
 );

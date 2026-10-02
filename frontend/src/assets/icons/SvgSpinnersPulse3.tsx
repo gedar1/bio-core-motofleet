@@ -1,4 +1,4 @@
-import React, { SVGProps } from "react";
+import { SVGProps } from "react";
 
 interface SvgSpinnersPulse3Props extends SVGProps<SVGSVGElement> {
   readonly width?: string | number;

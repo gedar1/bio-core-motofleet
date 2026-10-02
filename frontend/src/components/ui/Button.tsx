@@ -6,7 +6,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     | "dark"
     | "secondary"
     | "cream"
-    | "primarySmall";
+    | "primarySmall"
+    | "success";
   readonly children: React.ReactNode;
 }
 
@@ -22,6 +23,7 @@ export const Button: React.FC<ButtonProps> = ({
     secondary: "btn-secondary",
     cream: "btn-cream",
     primarySmall: "btn-primary-small",
+    success: "btn-success",
   };
 
   return (

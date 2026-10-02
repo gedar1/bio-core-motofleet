@@ -117,6 +117,18 @@ html.dark {
     @apply bg-hairline text-muted cursor-not-allowed;
   }
 
+  .btn-success {
+    @apply inline-flex items-center justify-center
+           font-body text-button text-on-dark bg-[#16803a]
+           rounded-md px-md py-xs min-h-touch
+           transition-colors duration-150;
+  }
+  .btn-success:disabled {
+    @apply cursor-default;
+    background-color: #16803aad;
+    color: #ffffff;
+  }
+
   .btn-dark {
     @apply inline-flex items-center justify-center
            font-body text-button

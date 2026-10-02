@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useErrandActions } from "../../hooks";
 import {
@@ -7,8 +7,8 @@ import {
   type RoutePreview,
   type RouteValue,
 } from "../../components/ui";
-import { t } from "../../i18n";
 import type { ErrandQuoteResponse } from "../../types/api";
+import { QuotePrice } from "./components/QuotePrice";
 import { CreateErrandFormPanel } from "./createErrand/CreateErrandFormPanel";
 import { CreateErrandSuccess } from "./createErrand/CreateErrandSuccess";
 import type { CreateErrandForm } from "./createErrand/types";
@@ -26,6 +26,7 @@ export const CreateErrand: React.FC = () => {
   const [quotePreview, setQuotePreview] = useState<ErrandQuoteResponse | null>(
     null,
   );
+  const [quoteAccepted, setQuoteAccepted] = useState(false);
   const [routeEstimateError, setRouteEstimateError] = useState<string | null>(
     null,
   );
@@ -41,6 +42,7 @@ export const CreateErrand: React.FC = () => {
     payment_method: "cash",
   });
   const [createdPin, setCreatedPin] = useState<string | null>(null);
+  const formSectionRef = useRef<HTMLDivElement>(null);
 
   const handleChange =
     (field: keyof typeof form) =>
@@ -63,6 +65,7 @@ export const CreateErrand: React.FC = () => {
     ) {
       setRoutePreview(null);
       setQuotePreview(null);
+      setQuoteAccepted(false);
       setRouteEstimateError(null);
       return () => {
         current = false;
@@ -71,6 +74,7 @@ export const CreateErrand: React.FC = () => {
 
     setRoutePreview(null);
     setQuotePreview(null);
+    setQuoteAccepted(false);
     setRouteEstimateError(null);
     const originCoordinates = toRoutingCoordinates(origin);
     const destinationCoordinates = toRoutingCoordinates(destination);
@@ -120,6 +124,36 @@ export const CreateErrand: React.FC = () => {
     route.origin?.confirmed,
   ]);
 
+  const handleAcceptQuote = () => {
+    if (!quotePreview) return;
+
+    if (new Date(quotePreview.expiresAt).getTime() <= Date.now()) {
+      setQuotePreview(null);
+      setQuoteAccepted(false);
+      setQuoteRefreshKey((previous) => previous + 1);
+      setError(
+        "La cotización venció. Revisa el nuevo valor antes de continuar.",
+      );
+      return;
+    }
+
+    setError(null);
+    setQuoteAccepted(true);
+  };
+
+  useEffect(() => {
+    if (!quoteAccepted) return;
+
+    const frameId = window.requestAnimationFrame(() => {
+      formSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [quoteAccepted]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
@@ -139,12 +173,18 @@ export const CreateErrand: React.FC = () => {
     }
 
     if (!quotePreview) {
-      setError("Espera la cotización antes de aprobar y crear el favor.");
+      setError("Espera la cotización antes de continuar.");
+      return;
+    }
+
+    if (!quoteAccepted) {
+      setError("Acepta el precio antes de crear el favor.");
       return;
     }
 
     if (new Date(quotePreview.expiresAt).getTime() <= Date.now()) {
       setQuotePreview(null);
+      setQuoteAccepted(false);
       setQuoteRefreshKey((previous) => previous + 1);
       setError(
         "La cotización venció. Revisa el nuevo valor antes de continuar.",
@@ -194,13 +234,6 @@ export const CreateErrand: React.FC = () => {
     }
   };
 
-  let submitLabel = "Cotizando favor...";
-  if (loading) {
-    submitLabel = t.user.creatingBtn;
-  } else if (quotePreview) {
-    submitLabel = "Aprobar costo y crear favor";
-  }
-
   if (createdPin) {
     return (
       <CreateErrandSuccess
@@ -211,43 +244,47 @@ export const CreateErrand: React.FC = () => {
   }
 
   return (
-    <div className="section-mobile md:section px-lg">
-      <div className="mx-auto w-full max-w-[1200px]">
-        <h2 className="hidden mb-lg lg:block">{t.user.createErrandTitle}</h2>
-        <form
-          onSubmit={handleSubmit}
-          className="flex w-full flex-col gap-0 lg:grid lg:grid-cols-[minmax(320px,0.8fr)_minmax(0,1.5fr)] lg:items-start lg:gap-xl"
-        >
-          <div className="order-1 pt-xs lg:hidden">
-            <h4>{t.user.createErrandTitle}</h4>
-          </div>
-
-          <div
-            className={`${routePreview ? "order-2" : "order-1"} z-20 relative left-1/2 w-[98vw] -translate-x-1/2 lg:order-2 lg:left-auto lg:w-full lg:translate-x-0`}
-          >
+    <div className="min-h-[calc(100dvh-128px)] w-full lg:min-h-[calc(100dvh-64px)]">
+      <div className="w-full">
+        <form onSubmit={handleSubmit} className="flex w-full flex-col gap-md">
+          <div className="relative z-20 w-full">
             <RoutePickerMapbox
               value={route}
               onChange={setRoute}
               routePreview={routePreview}
             />
             {routeEstimateError && (
-              <p className="px-l pt-sm font-body mx-md text-caption h-section text-error lg:px-0 text-wrap">
+              <p className="mx-md h-section px-l pt-sm font-body text-caption text-error text-wrap lg:mx-0 lg:px-0">
                 {routeEstimateError}
               </p>
             )}
+            <div className="mx-auto mt-sm w-full max-w-[720px] px-md lg:px-0">
+              <QuotePrice
+                quotePreview={quotePreview}
+                route={route}
+                error={quoteAccepted ? null : error}
+                loading={loading}
+                accepted={quoteAccepted}
+                onAccept={handleAcceptQuote}
+              />
+            </div>
           </div>
 
-          <CreateErrandFormPanel
-            form={form}
-            route={route}
-            quotePreview={quotePreview}
-            error={error}
-            loading={loading}
-            submitLabel={submitLabel}
-            onTypeChange={handleChange("type")}
-            onDescriptionChange={handleChange("description")}
-            onPaymentMethodChange={handleChange("payment_method")}
-          />
+          {quoteAccepted && (
+            <div
+              ref={formSectionRef}
+              className="mx-auto w-full max-w-[720px] scroll-mt-20 px-md lg:px-0"
+            >
+              <CreateErrandFormPanel
+                form={form}
+                error={error}
+                loading={loading}
+                onTypeChange={handleChange("type")}
+                onDescriptionChange={handleChange("description")}
+                onPaymentMethodChange={handleChange("payment_method")}
+              />
+            </div>
+          )}
         </form>
       </div>
     </div>
