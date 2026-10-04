@@ -1,24 +1,13 @@
 import type { ChangeEventHandler } from "react";
 import { Button, Input } from "../../../components/ui";
-import type { RouteValue } from "../../../components/ui";
 import { t } from "../../../i18n";
-import type { ErrandQuoteResponse } from "../../../types/api";
 import { inputRules } from "../../../validation/inputRules";
 import type { CreateErrandForm } from "./types";
 
-const formatCop = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
-
 type CreateErrandFormPanelProps = {
   readonly form: CreateErrandForm;
-  readonly route: RouteValue;
-  readonly quotePreview: ErrandQuoteResponse | null;
   readonly error: string | null;
   readonly loading: boolean;
-  readonly submitLabel: string;
   readonly onTypeChange: ChangeEventHandler<HTMLSelectElement>;
   readonly onDescriptionChange: ChangeEventHandler<HTMLInputElement>;
   readonly onPaymentMethodChange: ChangeEventHandler<HTMLSelectElement>;
@@ -26,18 +15,19 @@ type CreateErrandFormPanelProps = {
 
 export const CreateErrandFormPanel = ({
   form,
-  route,
-  quotePreview,
   error,
   loading,
-  submitLabel,
   onTypeChange,
   onDescriptionChange,
   onPaymentMethodChange,
 }: CreateErrandFormPanelProps) => (
-  <section className="order-2 z-10 mt-md flex min-w-0 flex-col gap-sm rounded-t-xl bg-canvas md:px-xl pb-2xl lg:order-1 lg:mt-0 lg:rounded-lg lg:border lg:border-hairline-soft">
+  <section className="flex min-w-0 flex-col gap-sm rounded-t-xl bg-canvas pb-md md:px-xl lg:rounded-lg lg:border lg:border-hairline-soft">
+    <h3 className="font-body text-heading-5 text-ink">
+      Completa los datos del favor
+    </h3>
+
     <div className="w-full">
-      <label className="block mb-xxs font-body text-body-sm-medium text-ink">
+      <label className="mb-xxs block font-body text-body-sm-medium text-ink">
         {t.user.type}
       </label>
       <select value={form.type} onChange={onTypeChange} className="input-field">
@@ -54,11 +44,10 @@ export const CreateErrandFormPanel = ({
       value={form.description}
       onChange={onDescriptionChange}
       placeholder={t.user.descPlaceholder}
-      required
     />
 
     <div className="w-full">
-      <label className="block mb-xs font-body text-body-sm-medium text-ink">
+      <label className="mb-xs block font-body text-body-sm-medium text-ink">
         {t.user.paymentMethod}
       </label>
       <select
@@ -71,37 +60,14 @@ export const CreateErrandFormPanel = ({
       </select>
     </div>
 
-    {quotePreview ? (
-      <div className="rounded-md border border-primary bg-cream px-md py-md">
-        <p className="font-body text-body-sm-medium text-ink">
-          Valor total del favor
-        </p>
-        <p className="font-body text-heading-3 text-primary">
-          {formatCop.format(quotePreview.fareCop)}
-        </p>
-        <p className="caption">
-          Esta cotización se aplicará al crear el favor y vence a las{" "}
-          {new Date(quotePreview.expiresAt).toLocaleTimeString("es-CO", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-          .
-        </p>
-      </div>
-    ) : (
-      route.origin &&
-      route.destination && (
-        <p className="caption">Calculando el valor de tu favor...</p>
-      )
+    {error && (
+      <p role="alert" className="font-body text-caption text-error">
+        {error}
+      </p>
     )}
 
-    {error && <p className="font-body text-caption text-error">{error}</p>}
-    <Button
-      type="submit"
-      className="w-full"
-      disabled={loading || !quotePreview}
-    >
-      {submitLabel}
+    <Button type="submit" className="w-full" disabled={loading}>
+      {loading ? t.user.creatingBtn : t.user.createBtn}
     </Button>
   </section>
 );

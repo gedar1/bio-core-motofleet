@@ -1,7 +1,7 @@
 import { Button, Card, RiderRouteActions } from "../../../components/ui";
-import type { Errand } from "../../../hooks/useErrands";
-import { t, translateStatus } from "../../../i18n";
-import { RiderErrandLocationDetails } from "./RiderErrandLocationDetails";
+import type { Errand } from "../../../types/errand";
+import { t } from "../../../i18n";
+import { ActiveRiderErrandStages } from "./ActiveRiderErrandStages";
 
 export type RiderErrandAction = "pickup" | "deliver" | "cancel";
 
@@ -21,6 +21,7 @@ export const ActiveRiderErrandCard = ({
       errand={errand}
       mobileMapFirst
       autoLoadOnMobile={autoLoadOnMobile}
+      showTargetDetails={false}
       navigationTarget={
         errand.status === "accepted"
           ? "origin"
@@ -29,43 +30,29 @@ export const ActiveRiderErrandCard = ({
             : undefined
       }
     />
-    <div className="order-2 z-10 mt-md flex flex-col gap-md rounded-t-xl bg-canvas px-xl py-2xl shadow-card lg:order-1 lg:mt-0 lg:flex-row lg:items-start lg:justify-between lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
-      <div>
-        <p className="caption">
-          {translateStatus(errand.type)} · {translateStatus(errand.status)}
-        </p>
-        <RiderErrandLocationDetails errand={errand} />
-        <p className="caption mt-sm">
-          {t.rider.earn}: ${errand.rider_earnings}
-        </p>
-        {errand.pin && (
-          <div className="mt-md p-md bg-warning-50 rounded-lg border border-warning-200">
-            <p className="caption text-warning-800 font-semibold">
-              🔐 PIN de verificación:{" "}
-              <span className="text-lg font-bold tracking-wider">
-                {errand.pin}
-              </span>
-            </p>
-            <p className="text-xs text-muted mt-xs">
-              Pide este código al recoger y entregar el paquete
-            </p>
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col gap-sm">
+    <div className="order-2 z-10 flex flex-col gap-lg border-t border-hairline px-lg py-lg lg:order-1 lg:flex-row lg:items-start lg:justify-between lg:border-t-0 lg:p-0">
+      <ActiveRiderErrandStages errand={errand} />
+      <div className="flex w-full flex-col gap-sm lg:max-w-[220px]">
         {errand.status === "accepted" && (
-          <Button onClick={() => onAction(errand.id, "pickup")}>
+          <Button
+            className="w-full"
+            onClick={() => onAction(errand.id, "pickup")}
+          >
             {t.rider.pickup}
           </Button>
         )}
         {errand.status === "picked_up" && (
-          <Button onClick={() => onAction(errand.id, "deliver")}>
+          <Button
+            className="w-full"
+            onClick={() => onAction(errand.id, "deliver")}
+          >
             {t.rider.deliver}
           </Button>
         )}
         {(errand.status === "accepted" || errand.status === "picked_up") && (
           <Button
             variant="secondary"
+            className="w-full"
             onClick={() => onAction(errand.id, "cancel")}
           >
             {t.rider.cancel}

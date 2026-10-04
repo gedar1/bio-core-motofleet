@@ -21,12 +21,12 @@ import type { RoutingProvider } from "../domains/errands/RoutingProvider.js";
 export type ErrandType = "object_transport" | "purchase" | "errand";
 
 /**
- * Generates a random 6-digit PIN for delivery verification.
+ * Generates a random 4-digit PIN for delivery verification.
  * The PIN ensures secure handoff between user, rider, and recipient.
  */
 function generatePin(): string {
-  // Generate a random 6-digit number (100000-999999)
-  const pin = crypto.randomInt(100000, 1000000);
+  // Generate a random 4-digit number (1000-9999)
+  const pin = crypto.randomInt(1000, 10000);
   return pin.toString();
 }
 
@@ -162,10 +162,8 @@ export class ErrandMolecule implements IMolecule {
     if (user.status !== "active") {
       throw new BusinessRuleViolation("User account is not active");
     }
-    if (data.description.length < 10 || data.description.length > 500) {
-      throw new ValidationError(
-        "Description must be between 10 and 500 characters",
-      );
+    if (data.description.length > 500) {
+      throw new ValidationError("Description must be at most 500 characters");
     }
     if (!data.origin_address.trim() || !data.destination_address.trim()) {
       throw new ValidationError(

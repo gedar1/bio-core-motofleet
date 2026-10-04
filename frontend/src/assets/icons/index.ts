@@ -60,5 +60,9 @@ export { default as square_pen } from "./square-pen.svg";
 // Logo
 export { default as logo_fvr_v1_svg } from "./logo-fvr-v1.svg";
 export { default as logo_fvr_v1_png } from "./logo-fvr-v1.png";
+export { default as wazeIcon } from "./wazeIcon.svg";
+export { default as googleMaps } from "./googleMaps.svg";
+export { default as mapPin } from "./mapPin.svg";
 
+export { SvgSpinnersPulse3 } from "./SvgSpinnersPulse3";
 export { rawIcons, type IconName } from "./raw";
