@@ -4,6 +4,7 @@ import type {
   RouteEstimateRequest,
   RouteEstimateResponse,
 } from "../types/api";
+import type { Errand } from "../types/errand";
 
 import { translateApiError } from "../i18n/errors";
 
@@ -178,7 +179,7 @@ export const api = {
   },
 
   acceptErrand(token: string, errandId: string) {
-    return this.request(`/errands/${errandId}/accept`, {
+    return this.request<Errand>(`/errands/${errandId}/accept`, {
       method: "PATCH",
       token,
     });

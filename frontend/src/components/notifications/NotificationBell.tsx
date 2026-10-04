@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { bell } from "@/assets/icons";
 import { useNotifications } from "../../hooks/useNotifications";
 import { NotificationList } from "./NotificationList";
@@ -7,6 +8,7 @@ import { NotificationToast } from "./NotificationToast";
 const TOAST_DURATION_MS = 7_000;
 
 export const NotificationBell: React.FC = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -70,6 +72,14 @@ export const NotificationBell: React.FC = () => {
     openInboxFromToast();
   };
 
+  const handleOpenAvailable = () => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    clearToast();
+    navigate("/rider/available");
+  };
+
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -100,6 +110,7 @@ export const NotificationBell: React.FC = () => {
           notification={toastNotification}
           onClose={clearToast}
           onOpenInbox={handleOpenInboxFromToast}
+          onOpenAvailable={handleOpenAvailable}
         />
       )}
 
