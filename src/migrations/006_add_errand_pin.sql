@@ -1,5 +1,5 @@
 -- Add PIN column for delivery verification
--- The PIN is a 6-digit code used to verify both pickup and delivery
+-- The PIN is a 4-digit code used to verify both pickup and delivery
 -- User shares the PIN with the recipient for secure handoff
 ALTER TABLE errands ADD COLUMN pin TEXT;
 

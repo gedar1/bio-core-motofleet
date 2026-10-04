@@ -6,16 +6,23 @@ import Map, {
   Source,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { Errand } from "../../../hooks/useErrands";
+import type { Errand } from "../../../types/errand";
 import type { RouteEstimateResponse } from "../../../types/api";
 import { useErrandActions } from "../../../hooks";
+import {
+  getCachedRoutePreview,
+  getOrLoadRoutePreview,
+} from "../../../pages/rider/utils/riderRoutePreviewCache";
 import { Button } from "../Button";
+import { googleMaps, mapPin, wazeIcon } from "@/assets/icons";
 
 interface RiderRouteActionsProps {
   readonly errand: Errand;
   readonly navigationTarget?: "origin" | "destination";
   readonly mobileMapFirst?: boolean;
   readonly autoLoadOnMobile?: boolean;
+  /** Hide the textual target summary when the parent already presents it. */
+  readonly showTargetDetails?: boolean;
 }
 
 const MAPBOX_PUBLIC_TOKEN = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN as
@@ -54,10 +61,13 @@ export const RiderRouteActions = ({
   navigationTarget,
   mobileMapFirst = false,
   autoLoadOnMobile = false,
+  showTargetDetails = true,
 }: RiderRouteActionsProps) => {
   const { getRoutePreview } = useErrandActions();
   const [routePreview, setRoutePreview] =
-    useState<RouteEstimateResponse | null>(null);
+    useState<RouteEstimateResponse | null>(() =>
+      getCachedRoutePreview(errand.id),
+    );
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -78,16 +88,21 @@ export const RiderRouteActions = ({
     if (
       !autoLoadOnMobile ||
       !hasCoordinates ||
-      routePreview ||
       !MAPBOX_PUBLIC_TOKEN ||
       !window.matchMedia("(max-width: 1023px)").matches
     ) {
       return;
     }
 
+    if (routePreview) {
+      setIsMapVisible(true);
+      return;
+    }
+
     let active = true;
     setLoading(true);
-    getRoutePreview(errand.id)
+    setMessage(null);
+    getOrLoadRoutePreview(errand.id, () => getRoutePreview(errand.id))
       .then((preview) => {
         if (!active) return;
         setRoutePreview(preview);
@@ -149,7 +164,11 @@ export const RiderRouteActions = ({
     setLoading(true);
     setMessage(null);
     try {
-      setRoutePreview(await getRoutePreview(errand.id));
+      setRoutePreview(
+        await getOrLoadRoutePreview(errand.id, () =>
+          getRoutePreview(errand.id),
+        ),
+      );
       setIsMapVisible(true);
     } catch {
       setMessage(
@@ -223,6 +242,72 @@ export const RiderRouteActions = ({
       {isMapVisible && routePreview && MAPBOX_PUBLIC_TOKEN && (
         <>
           <div className="rider-route-map">
+            {navigationTarget && (
+              <div className="flex flex-row pt-xs justify-around px-xs gap-sm sm:flex-row sm:flex-wrap">
+                <div className=" flex flex-col justify-center items-center h-section-lg">
+                  <button
+                    className="flex justify-center items-center w-section h-section border border-primary border-opacity-40 rounded-full"
+                    onClick={() =>
+                      window.open(
+                        getNavigationUrl(
+                          "google",
+                          target.latitude,
+                          target.longitude,
+                        ),
+                        "_blank",
+                        "noopener,noreferrer",
+                      )
+                    }
+                  >
+                    <img
+                      src={googleMaps}
+                      alt=""
+                      aria-hidden="true"
+                      className="w-section-sm h-3 w-3"
+                    />
+                  </button>
+                  <span>Maps</span>
+                </div>
+                <div className=" flex flex-col justify-center items-center h-section-lg">
+                  <button
+                    className="flex justify-center items-center w-section h-section border border-primary border-opacity-40 rounded-full"
+                    onClick={() =>
+                      window.open(
+                        getNavigationUrl(
+                          "waze",
+                          target.latitude,
+                          target.longitude,
+                        ),
+                        "_blank",
+                        "noopener,noreferrer",
+                      )
+                    }
+                  >
+                    <img
+                      src={wazeIcon}
+                      alt=""
+                      aria-hidden="true"
+                      className="w-2xl h-3 w-3"
+                    />
+                  </button>
+                  <span>Waze</span>
+                </div>
+                <div className=" flex flex-col justify-center items-center h-section-lg">
+                  <button
+                    className="flex justify-center items-center w-section h-section border border-primary border-opacity-40 rounded-full"
+                    onClick={copyLocation}
+                  >
+                    <img
+                      src={mapPin}
+                      alt=""
+                      aria-hidden="true"
+                      className="w-2xl h-3 w-3"
+                    />
+                  </button>
+                  <span>Copiar</span>
+                </div>
+              </div>
+            )}
             <Map
               initialViewState={{
                 longitude: (origin.longitude + destination.longitude) / 2,
@@ -288,47 +373,7 @@ export const RiderRouteActions = ({
           </div>
         </>
       )}
-      {navigationTarget && (
-        <div className="flex flex-col px-xs gap-sm sm:flex-row sm:flex-wrap">
-          <Button
-            type="button"
-            variant="dark"
-            className="w-full sm:w-auto"
-            onClick={() =>
-              window.open(
-                getNavigationUrl("google", target.latitude, target.longitude),
-                "_blank",
-                "noopener,noreferrer",
-              )
-            }
-          >
-            Google Maps a {targetLabel}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            className="w-full sm:w-auto"
-            onClick={() =>
-              window.open(
-                getNavigationUrl("waze", target.latitude, target.longitude),
-                "_blank",
-                "noopener,noreferrer",
-              )
-            }
-          >
-            Waze a {targetLabel}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            className="w-full sm:w-auto"
-            onClick={copyLocation}
-          >
-            Copiar ubicación
-          </Button>
-        </div>
-      )}
-      {navigationTarget && (
+      {navigationTarget && showTargetDetails && (
         <div className="mx-xs rounded-md border border-primary-200 bg-primary-50 p-sm">
           <p className="font-body text-body-sm-medium text-ink">
             {targetLabel === "recogida"

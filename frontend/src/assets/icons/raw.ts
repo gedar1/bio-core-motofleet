@@ -10,6 +10,8 @@ import squarePen from "./square-pen.svg?raw";
 import wallet from "./wallet_minimal.svg?raw";
 import note_pencil from "./note-pencil.svg?raw";
 import refresh_ccw_dot from "./refresh_ccw_dot.svg?raw";
+import wazeIcon from "./wazeIcon.svg";
+import mapPin from "./mapPin.svg";
 
 export const rawIcons = {
   calendarDots,
@@ -24,6 +26,8 @@ export const rawIcons = {
   wallet,
   note_pencil,
   refresh_ccw_dot,
+  wazeIcon,
+  mapPin,
 } as const;
 
 export type IconName = keyof typeof rawIcons;

@@ -40,7 +40,7 @@ export const QuotePrice = ({
           >
             {accepted
               ? `Precio aceptado ${formatCop.format(quotePreview.fareCop)}`
-              : "Aceptar precio y continuar"}
+              : `Aceptar ${formatCop.format(quotePreview.fareCop)}`}
           </Button>
         </div>
         <p className="caption mt-xs">

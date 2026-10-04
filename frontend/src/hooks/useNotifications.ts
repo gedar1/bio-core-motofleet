@@ -67,6 +67,13 @@ export const useNotifications = (): UseNotificationsReturn => {
 
         newNotifications.forEach((notification) => {
           seenNotificationIdsRef.current.add(notification.id);
+          if (notification.type === "errand.created") {
+            window.dispatchEvent(
+              new CustomEvent("motofleet:errand-created", {
+                detail: { resourceId: notification.resource_id },
+              }),
+            );
+          }
         });
       } else {
         visibleItems.forEach((notification) => {
