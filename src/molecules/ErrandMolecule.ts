@@ -21,12 +21,12 @@ import type { RoutingProvider } from "../domains/errands/RoutingProvider.js";
 export type ErrandType = "object_transport" | "purchase" | "errand";
 
 /**
- * Generates a random 6-digit PIN for delivery verification.
+ * Generates a random 4-digit PIN for delivery verification.
  * The PIN ensures secure handoff between user, rider, and recipient.
  */
 function generatePin(): string {
-  // Generate a random 6-digit number (100000-999999)
-  const pin = crypto.randomInt(100000, 1000000);
+  // Generate a random 4-digit number (1000-9999)
+  const pin = crypto.randomInt(1000, 10000);
   return pin.toString();
 }
 

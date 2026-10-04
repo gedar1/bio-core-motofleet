@@ -8,6 +8,7 @@ export {
   useAdminErrands,
   useErrandActions,
   type PeriodFilterType,
+  type Errand,
 } from "./useErrands";
 export { useMetrics, type PeriodType, type MetricsData } from "./useMetrics";
 export { useNotifications } from "./useNotifications";
