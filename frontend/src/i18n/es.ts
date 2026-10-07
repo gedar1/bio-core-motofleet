@@ -149,6 +149,32 @@ export const es = {
     status: "Estado",
   },
 
+  // PWA installation
+  pwaInstall: {
+    title: "Instalar RyD Favorcitos",
+    description: "Instala la aplicación para tener tus favores siempre a mano.",
+    previewDescription:
+      "Vista previa de desarrollo: la instalación no está disponible en este navegador.",
+    installButton: "Instalar aplicación",
+    previewButton: "Solo vista previa",
+    iosInstructions:
+      "En Safari, toca Compartir → «Agregar a pantalla de inicio».",
+    success: "RyD Favorcitos se instaló correctamente.",
+    cancelled: "La instalación fue cancelada. Puedes intentarlo de nuevo.",
+    unavailable: "La instalación no está disponible en este navegador.",
+    previewNotice:
+      "Esta es una vista previa de desarrollo; no se realizó ninguna instalación.",
+    iosModalTitle: "Instalar RyD Favorcitos en Safari",
+    iosModalDescription:
+      "Para instalar la aplicación, sigue estos pasos en Safari:",
+    iosStepShare: "Toca Compartir.",
+    iosStepAddToHomeScreen: "Selecciona Agregar a pantalla de inicio.",
+    iosStepAdd: "Toca Agregar.",
+    iosCloseModal: "Cerrar instrucciones de instalación",
+    dismiss: "Cerrar aviso de instalación",
+    dismissStatus: "Cerrar mensaje",
+  },
+
   // Footer
   footer: {
     tagline: "Alquiler de flotas de motocicletas y marketplace de favores",
