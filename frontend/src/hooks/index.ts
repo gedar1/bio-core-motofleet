@@ -13,3 +13,10 @@ export {
 export { useMetrics, type PeriodType, type MetricsData } from "./useMetrics";
 export { useNotifications } from "./useNotifications";
 export { useRiders } from "./useRiders";
+export {
+  usePwaInstall,
+  type BeforeInstallPromptChoice,
+  type BeforeInstallPromptEvent,
+  type BeforeInstallPromptOutcome,
+  type InstallPromptResult,
+} from "./usePwaInstall";

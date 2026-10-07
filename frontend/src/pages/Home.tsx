@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button, Card } from "../components/ui";
+import { PwaInstallCta } from "../components/pwa";
 
 import { t } from "../i18n";
 import { ImageContentHome } from "../components/layout";
@@ -23,12 +24,12 @@ export const Home: React.FC = () => {
   return (
     <>
       {/* Hero Section — warm sunset gradient */}
-      <section className="home-hero-gradient relative flex flex-col items-center justify-center min-h-screen:[80vh] px-2xl py-section-sm text-center lg:py-hero">
+      <section className="home-hero-gradient relative flex flex-col items-center justify-center min-h-screen:[80vh] px-2xl py-2xl  text-center lg:py-hero">
         <ImageContentHome />
-        <p className="mt-xl font-body text-subtitle text-ink-tint max-w-[600px]">
+        <p className="lg:mt-2xl font-body text-body-md text-ink-tint max-w-[600px]">
           {t.home.subtitle}
         </p>
-        <div className="flex gap-lg mt-3xl">
+        <div className="flex gap-lg mt-xl mb-sm">
           <Link to="/register">
             <Button variant="dark">{t.home.getStarted.toUpperCase()}</Button>
           </Link>
@@ -36,6 +37,7 @@ export const Home: React.FC = () => {
             <Button variant="secondary">{t.home.signIn.toUpperCase()}</Button>
           </Link>
         </div>
+        <PwaInstallCta />
       </section>
 
       {/* Features Section */}
