@@ -63,8 +63,10 @@ export const RiderHome: React.FC = () => {
   const isUpdating = refreshing || (loading && hasResolvedMyErrands);
   const retry = () => void refresh(true);
 
+  let content: React.ReactNode;
+
   if (hasActiveErrand) {
-    return (
+    content = (
       <RiderErrandsContent
         errands={visibleErrands}
         refresh={refresh}
@@ -74,10 +76,8 @@ export const RiderHome: React.FC = () => {
         showHistory={false}
       />
     );
-  }
-
-  if (error && !hasKnownSnapshot) {
-    return (
+  } else if (error && !hasKnownSnapshot) {
+    content = (
       <div className="section-mobile md:section px-2xl">
         <div className="mx-auto max-w-[1280px]">
           <h2 className="mb-2xl">{t.nav.activeRoute}</h2>
@@ -99,10 +99,8 @@ export const RiderHome: React.FC = () => {
         </div>
       </div>
     );
-  }
-
-  if (loading && !hasKnownSnapshot) {
-    return (
+  } else if (loading && !hasKnownSnapshot) {
+    content = (
       <div className="section-mobile md:section px-2xl">
         <div className="mx-auto max-w-[1280px]">
           <h2 className="mb-2xl">{t.nav.activeRoute}</h2>
@@ -119,40 +117,44 @@ export const RiderHome: React.FC = () => {
         </div>
       </div>
     );
+  } else {
+    content = (
+      <div className="section-mobile md:section px-2xl">
+        <div className="mx-auto max-w-[1280px]">
+          <h2 className="mb-2xl">{t.nav.activeRoute}</h2>
+          {isUpdating && (
+            <p
+              className="mb-lg text-muted font-body text-body-sm"
+              aria-live="polite"
+              role="status"
+            >
+              {t.rider.refreshingActive}
+            </p>
+          )}
+          {error && (
+            <div className="mb-lg flex flex-col gap-sm" role="alert">
+              <p className="font-body text-body-md text-error">
+                {t.common.failedLoad}
+              </p>
+              <button
+                type="button"
+                className="self-start font-body text-body-sm underline"
+                onClick={retry}
+              >
+                {t.rider.retry}
+              </button>
+            </div>
+          )}
+          <p className="text-muted font-body text-body-md">
+            {t.rider.noActive}
+          </p>
+          <Link to="/rider/available" className="mt-lg inline-block">
+            <Button>{t.rider.viewAvailable}</Button>
+          </Link>
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div className="section-mobile md:section px-2xl">
-      <div className="mx-auto max-w-[1280px]">
-        <h2 className="mb-2xl">{t.nav.activeRoute}</h2>
-        {isUpdating && (
-          <p
-            className="mb-lg text-muted font-body text-body-sm"
-            aria-live="polite"
-            role="status"
-          >
-            {t.rider.refreshingActive}
-          </p>
-        )}
-        {error && (
-          <div className="mb-lg flex flex-col gap-sm" role="alert">
-            <p className="font-body text-body-md text-error">
-              {t.common.failedLoad}
-            </p>
-            <button
-              type="button"
-              className="self-start font-body text-body-sm underline"
-              onClick={retry}
-            >
-              {t.rider.retry}
-            </button>
-          </div>
-        )}
-        <p className="text-muted font-body text-body-md">{t.rider.noActive}</p>
-        <Link to="/rider/available" className="mt-lg inline-block">
-          <Button>{t.rider.viewAvailable}</Button>
-        </Link>
-      </div>
-    </div>
-  );
+  return <>{content}</>;
 };
