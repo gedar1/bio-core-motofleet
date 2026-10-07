@@ -16,7 +16,7 @@ export const PwaInstallCta: React.FC = () => {
     isDismissed,
     isPreview,
     promptInstall,
-    dismiss,
+    // dismiss,
   } = usePwaInstall();
   const [feedback, setFeedback] = useState<FeedbackKind | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
