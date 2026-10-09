@@ -12,6 +12,8 @@ import note_pencil from "./note-pencil.svg?raw";
 import refresh_ccw_dot from "./refresh_ccw_dot.svg?raw";
 import wazeIcon from "./wazeIcon.svg";
 import mapPin from "./mapPin.svg";
+import eye from "./eye.svg";
+import eye_off from "./eye_off.svg";
 
 export const rawIcons = {
   calendarDots,
@@ -28,6 +30,8 @@ export const rawIcons = {
   refresh_ccw_dot,
   wazeIcon,
   mapPin,
+  eye,
+  eye_off,
 } as const;
 
 export type IconName = keyof typeof rawIcons;
