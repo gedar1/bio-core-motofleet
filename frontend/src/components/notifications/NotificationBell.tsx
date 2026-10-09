@@ -1,17 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { bell } from "@/assets/icons";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
+import { bell, check_check } from "@/assets/icons";
 import { useNotifications } from "../../hooks/useNotifications";
 import { NotificationList } from "./NotificationList";
 import { NotificationToast } from "./NotificationToast";
 
-const TOAST_DURATION_MS = 7_000;
+const TOAST_DURATION_MS = 9_000;
 
 export const NotificationBell: React.FC = () => {
-  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const {
     notifications,
@@ -23,20 +21,57 @@ export const NotificationBell: React.FC = () => {
     markAllAsRead,
     deleteNotification,
     clearToast,
-    openInboxFromToast,
   } = useNotifications();
 
-  // Handle toast timeout
+  const dismissToast = useCallback(
+    (notificationId: string) => {
+      toast.dismiss(notificationId);
+      clearToast();
+    },
+    [clearToast],
+  );
+
+  // Show each persisted notification once in the global react-hot-toast host.
   useEffect(() => {
     if (!toastNotification) return;
 
-    toastTimeoutRef.current = setTimeout(clearToast, TOAST_DURATION_MS);
-    return () => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-      }
+    const notification = toastNotification;
+    const isError =
+      notification.type === "errand.cancelled" ||
+      notification.priority === "high" ||
+      notification.priority === "critical";
+    const ariaProps = isError
+      ? { role: "alert" as const, "aria-live": "assertive" as const }
+      : { role: "status" as const, "aria-live": "polite" as const };
+    const toastOptions = {
+      id: notification.id,
+      duration: TOAST_DURATION_MS,
+      ariaProps,
+      style: {
+        width: "min(350px, calc(100vw - 2rem))",
+      },
     };
-  }, [toastNotification, clearToast]);
+    const content = (
+      <NotificationToast
+        notification={notification}
+        onClose={() => dismissToast(notification.id)}
+      />
+    );
+
+    if (notification.type === "errand.delivered") {
+      toast.success(content, toastOptions);
+    } else if (isError) {
+      toast.error(content, toastOptions);
+    } else {
+      toast(content, toastOptions);
+    }
+
+    const timeoutId = window.setTimeout(clearToast, TOAST_DURATION_MS);
+    return () => {
+      window.clearTimeout(timeoutId);
+      toast.dismiss(notification.id);
+    };
+  }, [clearToast, dismissToast, toastNotification]);
 
   // Handle dialog open/close
   useEffect(() => {
@@ -64,22 +99,6 @@ export const NotificationBell: React.FC = () => {
     };
   }, []);
 
-  const handleOpenInboxFromToast = () => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    setIsOpen(true);
-    openInboxFromToast();
-  };
-
-  const handleOpenAvailable = () => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    clearToast();
-    navigate("/rider/available");
-  };
-
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -104,16 +123,6 @@ export const NotificationBell: React.FC = () => {
         )}
       </button>
 
-      {/* Toast */}
-      {toastNotification && (
-        <NotificationToast
-          notification={toastNotification}
-          onClose={clearToast}
-          onOpenInbox={handleOpenInboxFromToast}
-          onOpenAvailable={handleOpenAvailable}
-        />
-      )}
-
       {/* Modal for both desktop and mobile */}
       <dialog
         ref={dialogRef}
@@ -123,9 +132,9 @@ export const NotificationBell: React.FC = () => {
           className="w-full bg-canvas rounded-lg max-h-[80vh] overflow-y-auto flex flex-col"
           aria-label="Bandeja de notificaciones"
         >
-          <header className="sticky top-0 flex items-center justify-between gap-3 border-b border-hairline-soft bg-canvas p-md shrink-0">
+          <header className="sticky top-0 flex items-start justify-between gap-3 border-b border-hairline-soft bg-canvas p-md shrink-0">
             <div>
-              <h2 className="text-heading-4 font-semibold text-ink">
+              <h2 className="text-body-md-medium font-semibold text-ink">
                 Notificaciones
               </h2>
               <p className="text-body-sm text-ink-muted">
@@ -139,7 +148,12 @@ export const NotificationBell: React.FC = () => {
                 disabled={unreadCount === 0}
                 className="text-body-sm text-ink underline disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap"
               >
-                Marcar todas leídas
+                <img
+                  src={check_check}
+                  alt=""
+                  aria-hidden="true"
+                  className=" h-5 w-5"
+                />
               </button>
               <button
                 type="button"
