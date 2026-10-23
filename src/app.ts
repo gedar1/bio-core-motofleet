@@ -10,6 +10,7 @@ import type { PricingMolecule } from "./molecules/PricingMolecule.js";
 import type { ErrandMolecule } from "./molecules/ErrandMolecule.js";
 import type { NotificationMolecule } from "./molecules/NotificationMolecule.js";
 import type { InAppNotificationMolecule } from "./molecules/InAppNotificationMolecule.js";
+import type { WebPushMolecule } from "./molecules/WebPushMolecule.js";
 import type { MetricsMolecule } from "./molecules/MetricsMolecule.js";
 import { createAuthRoutes } from "./routes/auth.routes.js";
 import { createUserRoutes } from "./routes/user.routes.js";
@@ -39,6 +40,7 @@ export interface MoleculeContainer {
   errands: ErrandMolecule;
   notifications: NotificationMolecule;
   inAppNotifications: InAppNotificationMolecule;
+  webPush: WebPushMolecule;
   metrics: MetricsMolecule;
 }
 
@@ -68,6 +70,15 @@ export function waitForDrain(): Promise<void> {
   return new Promise<void>((resolve) => {
     drainListeners.push(resolve);
   });
+}
+
+export function waitForDrainUntil(deadline: number): Promise<void> {
+  const remaining = Math.max(0, deadline - Date.now());
+  if (remaining === 0) return Promise.resolve();
+  return Promise.race([
+    waitForDrain(),
+    new Promise<void>((resolve) => setTimeout(resolve, remaining)),
+  ]);
 }
 
 /**
@@ -172,7 +183,7 @@ export function createApp(
   );
   app.use(
     "/api/notifications",
-    createNotificationRoutes(molecules.inAppNotifications),
+    createNotificationRoutes(molecules.inAppNotifications, molecules.webPush),
   );
 
   // --- Global error handler (must be last) ---

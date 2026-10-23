@@ -8,6 +8,8 @@ import {
   ForbiddenError,
   InvalidStateTransition,
   NotFoundError,
+  PushNotConfiguredError,
+  PushSubscriptionOwnedError,
   UnauthorizedError,
   ValidationError,
 } from "../domains/errors.js";
@@ -48,6 +50,8 @@ function domainErrorToStatus(err: DomainError): number {
   if (err instanceof BusinessRuleViolation) return 400;
   if (err instanceof InvalidStateTransition) return 400;
   if (err instanceof ConflictError) return 409;
+  if (err instanceof PushSubscriptionOwnedError) return 409;
+  if (err instanceof PushNotConfiguredError) return 503;
   if (err instanceof ForbiddenError) return 403;
   if (err instanceof UnauthorizedError) return 401;
   return 500;

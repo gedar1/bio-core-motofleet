@@ -4,6 +4,7 @@ import { bell, check_check } from "@/assets/icons";
 import { useNotifications } from "../../hooks/useNotifications";
 import { NotificationList } from "./NotificationList";
 import { NotificationToast } from "./NotificationToast";
+import { PushNotificationSettings } from "./PushNotificationSettings";
 
 const TOAST_DURATION_MS = 9_000;
 
@@ -167,6 +168,7 @@ export const NotificationBell: React.FC = () => {
           </header>
 
           <div className="flex-1 overflow-y-auto p-md">
+            <PushNotificationSettings />
             <NotificationList
               notifications={notifications}
               isLoading={isLoading}

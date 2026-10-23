@@ -4,6 +4,10 @@ import type { ILogger } from "../infrastructure/logger.js";
 import type { Errand } from "./ErrandMolecule.js";
 import type { IMolecule } from "./IMolecule.js";
 
+export interface WebPushDispatcher {
+  dispatch(notification: InAppNotification): void;
+}
+
 export type NotificationRecipientRole = "user" | "rider" | "admin";
 export type NotificationPriority = "low" | "normal" | "high" | "critical";
 
@@ -50,6 +54,7 @@ export class InAppNotificationMolecule implements IMolecule {
   constructor(
     private readonly db: Database.Database,
     private readonly logger: ILogger,
+    private readonly webPush?: WebPushDispatcher,
   ) {}
 
   create(input: CreateNotificationInput): InAppNotification | null {
@@ -88,6 +93,14 @@ export class InAppNotificationMolecule implements IMolecule {
         type: input.type,
         recipientRole: input.recipientRole,
       });
+      try {
+        this.webPush?.dispatch(notification);
+      } catch (error) {
+        this.logger.error("Web Push dispatch did not complete", {
+          notificationId: id,
+          error: error instanceof Error ? error.message : "unknown",
+        });
+      }
     }
     return notification;
   }

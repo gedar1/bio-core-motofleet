@@ -8,16 +8,18 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-migrations.mjs",
     "dev": "node --env-file=.env --import tsx --watch src/index.ts",
     "start": "node --env-file=.env dist/index.js",
     "test": "vitest --run",
     "test:watch": "vitest",
     "verify:migration:14.7": "node scripts/verify-route-migration.mjs",
-    "seed:demo": "node dist/scripts/seed-demo.js"
+    "seed:demo": "node dist/scripts/seed-demo.js",
+    "ops:revoke-web-push": "node scripts/revoke-web-push-subscription.mjs"
   },
   "dependencies": {
     "@mapbox/mapbox-sdk": "0.16.2",
+    "@types/web-push": "3.6.4",
     "bcrypt": "5.1.1",
     "better-sqlite3": "11.7.0",
     "express": "4.21.2",
@@ -26,6 +28,7 @@
     "pino": "9.6.0",
     "pino-pretty": "13.0.0",
     "uuid": "11.1.0",
+    "web-push": "3.6.7",
     "zod": "3.24.2"
   },
   "devDependencies": {
