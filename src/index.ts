@@ -1,11 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createApp, waitForDrain, type MoleculeContainer } from "./app.js";
-import {
-  createDatabase,
-  runMigrations,
-  closeDatabase,
-} from "./infrastructure/database.js";
+import { createApp, waitForDrainUntil, type MoleculeContainer } from "./app.js";
+import { createDatabase, runMigrations } from "./infrastructure/database.js";
 import { createLogger } from "./infrastructure/logger.js";
 import { Scheduler } from "./infrastructure/scheduler.js";
 import { AuthMolecule } from "./molecules/AuthMolecule.js";
@@ -19,6 +15,7 @@ import { PricingMolecule } from "./molecules/PricingMolecule.js";
 import { ErrandMolecule } from "./molecules/ErrandMolecule.js";
 import { NotificationMolecule } from "./molecules/NotificationMolecule.js";
 import { InAppNotificationMolecule } from "./molecules/InAppNotificationMolecule.js";
+import { WebPushMolecule } from "./molecules/WebPushMolecule.js";
 import { MetricsMolecule } from "./molecules/MetricsMolecule.js";
 import { MapboxRoutingProvider } from "./infrastructure/routing/MapboxRoutingProvider.js";
 
@@ -29,7 +26,7 @@ const logger = createLogger("server");
 
 async function main(): Promise<void> {
   // --- Load environment ---
-  const port = parseInt(process.env.PORT || "3000", 10);
+  const port = Number.parseInt(process.env.PORT || "3000", 10);
   const dbPath = process.env.DB_PATH || path.resolve("data/motofleet.db");
   const migrationsDir = path.resolve(__dirname, "migrations");
 
@@ -87,9 +84,14 @@ async function main(): Promise<void> {
     db,
     createLogger("NotificationMolecule"),
   );
+  const webPushMolecule = new WebPushMolecule(
+    db,
+    createLogger("WebPushMolecule"),
+  );
   const inAppNotificationMolecule = new InAppNotificationMolecule(
     db,
     createLogger("InAppNotificationMolecule"),
+    webPushMolecule,
   );
   const metricsMolecule = new MetricsMolecule(
     db,
@@ -108,6 +110,7 @@ async function main(): Promise<void> {
     errands: errandMolecule,
     notifications: notificationMolecule,
     inAppNotifications: inAppNotificationMolecule,
+    webPush: webPushMolecule,
     metrics: metricsMolecule,
   };
 
@@ -160,43 +163,99 @@ async function main(): Promise<void> {
   });
 
   // --- Graceful shutdown ---
-  const shutdown = (signal: string) => {
-    logger.info(`Received ${signal}, shutting down gracefully...`);
+  let shuttingDown = false;
+  let forceExitTimer: ReturnType<typeof setTimeout> | undefined;
 
-    scheduler.shutdown();
-
-    // Stop accepting new connections, then wait for all in-flight async
-    // handlers to finish before closing the database. This prevents the
-    // better-sqlite3 crash that occurs when ErrandMolecule.quote() resumes
-    // after its Mapbox await and finds the DB connection already closed.
-    server.close(async () => {
-      logger.info("HTTP server closed, waiting for in-flight requests...");
-
-      const DRAIN_TIMEOUT_MS = 8_000;
-      await Promise.race([
-        waitForDrain(),
-        new Promise<void>((resolve) => {
-          setTimeout(() => {
-            logger.warn("Drain timeout reached, closing database anyway");
-            resolve();
-          }, DRAIN_TIMEOUT_MS);
-        }),
-      ]);
-
-      closeDatabase();
-      logger.info("Database connection closed");
-      process.exit(0);
-    });
-
-    // Force exit after 10 seconds if graceful shutdown fails
-    setTimeout(() => {
-      logger.error("Graceful shutdown timed out, forcing exit");
-      process.exit(1);
-    }, 10000);
+  const clearForceExitTimer = (): void => {
+    if (forceExitTimer) {
+      clearTimeout(forceExitTimer);
+      forceExitTimer = undefined;
+    }
   };
 
-  process.on("SIGTERM", () => shutdown("SIGTERM"));
-  process.on("SIGINT", () => shutdown("SIGINT"));
+  const shutdown = async (signal: string): Promise<void> => {
+    if (shuttingDown) {
+      logger.info("Shutdown already in progress; ignoring signal", { signal });
+      return;
+    }
+
+    shuttingDown = true;
+    logger.info("Shutdown initiated by signal", { signal });
+    forceExitTimer = setTimeout(() => {
+      logger.error("Graceful shutdown timed out, forcing exit");
+      process.exit(1);
+    }, 10_000);
+
+    scheduler.shutdown();
+    const deadline = Date.now() + 8_000;
+
+    try {
+      const serverClosed = new Promise<void>((resolve) => {
+        server.close(() => {
+          logger.info("HTTP server closed");
+          resolve();
+        });
+      });
+
+      const serverClosedBeforeDeadline = Promise.race([
+        serverClosed,
+        new Promise<void>((resolve) =>
+          setTimeout(
+            () => {
+              logger.warn("HTTP server close deadline reached");
+              resolve();
+            },
+            Math.max(0, deadline - Date.now()),
+          ),
+        ),
+      ]);
+
+      await Promise.all([
+        serverClosedBeforeDeadline,
+        waitForDrainUntil(deadline),
+        webPushMolecule.waitForPendingJobs(deadline),
+      ]);
+
+      webPushMolecule.close();
+      db.close();
+      logger.info("Database connection closed");
+      clearForceExitTimer();
+      process.exit(0);
+    } catch (error: unknown) {
+      clearForceExitTimer();
+      logger.error("Graceful shutdown failed", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+
+      try {
+        webPushMolecule.close();
+      } catch (closeError: unknown) {
+        logger.error("Web Push close failed", {
+          error:
+            closeError instanceof Error
+              ? closeError.message
+              : String(closeError),
+        });
+      }
+
+      try {
+        db.close();
+        logger.info("Database connection closed");
+      } catch (closeError: unknown) {
+        logger.error("Database close failed", {
+          error:
+            closeError instanceof Error
+              ? closeError.message
+              : String(closeError),
+        });
+      }
+
+      process.exit(1);
+    }
+  };
+
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
+  process.on("SIGINT", () => void shutdown("SIGINT"));
 }
 
 main().catch((error) => {

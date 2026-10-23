@@ -23,7 +23,10 @@ const codeFallbacks: Readonly<Record<string, string>> = {
   BUSINESS_RULE_VIOLATION: es.errors.api.businessRule,
   INVALID_STATE_TRANSITION: es.errors.api.invalidState,
   CONFLICT: es.errors.api.conflict,
-  INTERNAL_ERROR: es.errors.api.internal,
+  PUSH_SUBSCRIPTION_OWNED: es.errors.api.pushOwned,
+  PUSH_NOT_CONFIGURED: es.errors.api.pushNotConfigured,
+  NETWORK_ERROR: es.errors.api.network,
+  API_ERROR: es.errors.api.invalidResponse,
 };
 
 const getCodeFallback = (code: string): string =>
@@ -140,6 +143,10 @@ const translateBackendMessage = (code: string, message: string): string => {
     pattern.test(normalizedMessage),
   )?.message;
 
+  if (code === "NETWORK_ERROR" || code === "API_ERROR") {
+    return fallback;
+  }
+
   return (
     translatedMessage ??
     (normalizedMessage && englishErrorWords.test(normalizedMessage)
@@ -173,7 +180,9 @@ export const translateApiErrorDetails = (
     : undefined;
 };
 
-export const translateApiError = (payload: ApiErrorPayload): {
+export const translateApiError = (
+  payload: ApiErrorPayload,
+): {
   readonly message: string;
   readonly details?: ApiErrorDetails;
 } => {

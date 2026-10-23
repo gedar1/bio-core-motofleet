@@ -98,6 +98,38 @@ export class ApiError extends Error {
   }
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const parseResponseBody = (body: string): unknown => {
+  const trimmedBody = body.trim();
+  if (!trimmedBody) return undefined;
+
+  try {
+    return JSON.parse(trimmedBody) as unknown;
+  } catch {
+    return body;
+  }
+};
+
+const createNetworkError = (error: unknown): ApiError => {
+  const message = error instanceof Error ? error.message : String(error);
+  return new ApiError(0, "NETWORK_ERROR", message);
+};
+
+const getHttpError = (status: number, data: unknown): ApiError => {
+  if (isRecord(data)) {
+    const responseStatus =
+      typeof data.status === "number" ? data.status : status;
+    const code = typeof data.code === "string" ? data.code : "API_ERROR";
+    const message = typeof data.message === "string" ? data.message : "";
+    return new ApiError(responseStatus, code, message, data.details);
+  }
+
+  const message = typeof data === "string" ? data.trim() : "";
+  return new ApiError(status, "API_ERROR", message);
+};
+
 export const api = {
   async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     const { method = "GET", body, token } = options;
@@ -110,16 +142,30 @@ export const api = {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const res = await fetch(`${BASE_URL}${endpoint}`, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
+    let res: Response;
+    try {
+      res = await fetch(`${BASE_URL}${endpoint}`, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+    } catch (error: unknown) {
+      if (error instanceof ApiError) throw error;
+      throw createNetworkError(error);
+    }
 
-    const data = await res.json();
+    let rawBody: string;
+    try {
+      rawBody = await res.text();
+    } catch (error: unknown) {
+      if (error instanceof ApiError) throw error;
+      throw createNetworkError(error);
+    }
+
+    const data = parseResponseBody(rawBody);
 
     if (!res.ok) {
-      throw new ApiError(data.status, data.code, data.message, data.details);
+      throw getHttpError(res.status, data);
     }
 
     return data as T;
@@ -240,6 +286,31 @@ export const api = {
       method: "DELETE",
       token,
     });
+  },
+
+  // --- Web Push ---
+  getWebPushVapidPublicKey(token: string) {
+    return this.request<import("../types/api").VapidPublicKeyResponse>(
+      "/notifications/push/vapid-public-key",
+      { token },
+    );
+  },
+
+  subscribeWebPush(
+    token: string,
+    subscription: import("../types/api").PushSubscriptionRequest,
+  ) {
+    return this.request<import("../types/api").PushSubscriptionActiveResponse>(
+      "/notifications/push/subscriptions",
+      { method: "POST", body: subscription, token },
+    );
+  },
+
+  deleteWebPushSubscription(token: string, endpoint: string) {
+    return this.request<import("../types/api").PushSubscriptionDeletedResponse>(
+      "/notifications/push/subscriptions",
+      { method: "DELETE", body: { endpoint }, token },
+    );
   },
 
   // --- Admin ---

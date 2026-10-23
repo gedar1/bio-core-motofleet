@@ -21,5 +21,6 @@
       "@/*": ["src/*"]
     }
   },
+  "exclude": ["src/sw.ts", "src/sw-env.d.ts"],
   "include": ["src"]
 }
