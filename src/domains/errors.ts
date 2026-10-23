@@ -66,3 +66,19 @@ export class UnauthorizedError extends DomainError {
 export class ConflictError extends DomainError {
   readonly code = "CONFLICT";
 }
+
+export class PushSubscriptionOwnedError extends DomainError {
+  readonly code = "PUSH_SUBSCRIPTION_OWNED";
+
+  constructor() {
+    super("This push subscription belongs to another account");
+  }
+}
+
+export class PushNotConfiguredError extends DomainError {
+  readonly code = "PUSH_NOT_CONFIGURED";
+
+  constructor() {
+    super("Web Push is not configured");
+  }
+}

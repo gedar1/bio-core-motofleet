@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { api } from "../services/api";
+import { webPushSession } from "../services/webPushSession";
 
 interface AuthState {
   token: string | null;
@@ -38,6 +39,25 @@ export const AuthProvider: React.FC<{ readonly children: React.ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (state.token) webPushSession.start(state.token);
+  }, [state.token]);
+
+  useEffect(() => {
+    return webPushSession.subscribe((event) => {
+      if (event.type !== "SESSION_INVALIDATED") return;
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("email");
+      setState({
+        token: null,
+        role: null,
+        email: null,
+        isAuthenticated: false,
+      });
+    });
+  }, []);
+
   const login = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
@@ -52,6 +72,7 @@ export const AuthProvider: React.FC<{ readonly children: React.ReactNode }> = ({
         email,
         isAuthenticated: true,
       });
+      webPushSession.start(data.token);
       return data.role;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Login failed";
@@ -78,6 +99,8 @@ export const AuthProvider: React.FC<{ readonly children: React.ReactNode }> = ({
   };
 
   const logout = () => {
+    const previousToken = state.token ?? localStorage.getItem("token");
+    webPushSession.beginLogout(previousToken);
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("email");
