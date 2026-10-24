@@ -5,15 +5,63 @@ import {
   type Response,
 } from "express";
 import type { InAppNotificationMolecule } from "../molecules/InAppNotificationMolecule.js";
+import {
+  parsePushEndpoint,
+  parsePushSubscriptionInput,
+  type WebPushMolecule,
+} from "../molecules/WebPushMolecule.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 
-/** Routes for an authenticated actor's own in-app notification inbox. */
+/** Routes for an authenticated actor's own in-app notification inbox and Push channel. */
 export function createNotificationRoutes(
   notificationMolecule: InAppNotificationMolecule,
+  webPush: WebPushMolecule,
 ): Router {
   const router = Router();
 
   router.use(authMiddleware);
+
+  router.get(
+    "/push/vapid-public-key",
+    (_req: Request, res: Response, next: NextFunction) => {
+      try {
+        res.status(200).json({ publicKey: webPush.getPublicKey() });
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
+
+  router.post(
+    "/push/subscriptions",
+    (req: Request, res: Response, next: NextFunction) => {
+      try {
+        webPush.assertEnabled();
+        const subscription = parsePushSubscriptionInput(req.body);
+        webPush.upsertSubscription(req.user!.id, req.user!.role, subscription);
+        res.status(200).json({ active: true });
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
+
+  router.delete(
+    "/push/subscriptions",
+    (req: Request, res: Response, next: NextFunction) => {
+      try {
+        webPush.assertEnabled();
+        webPush.deleteSubscription(
+          req.user!.id,
+          req.user!.role,
+          parsePushEndpoint(req.body),
+        );
+        res.status(200).json({ deleted: true });
+      } catch (error) {
+        next(error);
+      }
+    },
+  );
 
   router.get("/", (req: Request, res: Response, next: NextFunction) => {
     try {

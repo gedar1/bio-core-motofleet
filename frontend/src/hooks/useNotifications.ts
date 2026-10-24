@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../services/api";
+import { webPushSession } from "../services/webPushSession";
 import type { InAppNotification } from "../types/api";
 
 const POLL_INTERVAL_MS = 30_000;
@@ -37,6 +38,7 @@ export const useNotifications = (): UseNotificationsReturn => {
     if (!token) return;
 
     const requestVersion = requestVersionRef.current;
+    const generation = webPushSession.getGeneration();
 
     try {
       const [items, unread] = await Promise.all([
@@ -45,7 +47,11 @@ export const useNotifications = (): UseNotificationsReturn => {
       ]);
 
       // Do not let a response that started before a mutation overwrite it.
-      if (requestVersion !== requestVersionRef.current) return;
+      if (
+        requestVersion !== requestVersionRef.current ||
+        !webPushSession.isCurrent(generation, token)
+      )
+        return;
 
       const visibleItems = items.filter(
         (notification) =>
@@ -95,6 +101,61 @@ export const useNotifications = (): UseNotificationsReturn => {
       }
     }
   }, [token]);
+
+  useEffect(() => {
+    if (!token || !("serviceWorker" in navigator)) return;
+    let active = true;
+
+    const announceReady = (registration: ServiceWorkerRegistration) => {
+      (navigator.serviceWorker.controller ?? registration.active)?.postMessage({
+        type: "MOTOFLEET_PUSH_READY",
+      });
+    };
+
+    const handleWorkerMessage = (event: MessageEvent<unknown>) => {
+      if (!active || !event.data || typeof event.data !== "object") return;
+      const data = event.data as {
+        type?: unknown;
+        notificationId?: unknown;
+        notification?: { notificationId?: unknown };
+      };
+      if (data.type === "MOTOFLEET_PUSH_RECEIVED") {
+        if (webPushSession.isCurrent(webPushSession.getGeneration(), token)) {
+          void loadNotifications();
+        }
+        return;
+      }
+      const notificationId =
+        typeof data.notificationId === "string"
+          ? data.notificationId
+          : data.notification &&
+              typeof data.notification.notificationId === "string"
+            ? data.notification.notificationId
+            : null;
+      if (data.type !== "MOTOFLEET_PUSH" || !notificationId) return;
+      const generation = webPushSession.getGeneration();
+      void loadNotifications().then(() => {
+        if (!webPushSession.isCurrent(generation, token)) return;
+        event.ports[0]?.postMessage({
+          type: "MOTOFLEET_PUSH_ACK",
+          notificationId,
+        });
+      });
+    };
+
+    navigator.serviceWorker.addEventListener("message", handleWorkerMessage);
+    void navigator.serviceWorker.ready.then(announceReady);
+    return () => {
+      active = false;
+      navigator.serviceWorker.removeEventListener(
+        "message",
+        handleWorkerMessage,
+      );
+      navigator.serviceWorker.controller?.postMessage({
+        type: "MOTOFLEET_PUSH_NOT_READY",
+      });
+    };
+  }, [loadNotifications, token]);
 
   useEffect(() => {
     deletedNotificationIdsRef.current.clear();

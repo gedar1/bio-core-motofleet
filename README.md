@@ -10,7 +10,7 @@ MotoFleet MVP es una plataforma web **standalone** para administrar una flota de
 
 - Gestión de motocicletas, riders, documentos de identidad, codeudores, contratos y pagos de renta.
 - Métricas operativas, mandados con filtros y reglas de tarifa administrables.
-- Interfaz centrada en tablas y gestión de escritorio; no usa el flujo operativo map-first.
+- Interfaz PWA con notificaciones Web Push opcionales para `user`, `rider` y `admin`; la bandeja persistida sigue siendo la fuente de verdad y Push es un canal adicional best-effort.
 
 ### Usuario: solicitud de mandados
 
@@ -82,13 +82,16 @@ MAPBOX_SECRET_TOKEN=pk.your-server-only-token
 ROUTING_ALLOW_HAVERSINE_FALLBACK=false
 ```
 
-**`frontend/.env` (solo token público visible en el bundle):**
+**`frontend/.env` (solo variables visibles en el bundle):**
 
 ```dotenv
 VITE_MAPBOX_PUBLIC_TOKEN=pk.your-restricted-public-token
+VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
-El token `VITE_MAPBOX_PUBLIC_TOKEN` debe limitarse por URL/origen y permisos mínimos. Nunca use el prefijo `VITE_` para un token secreto, credenciales de pago o cualquier secreto de backend.
+`VITE_API_BASE_URL=http://localhost:3000/api` debe estar en `frontend/.env` para apuntar al backend local. `npm run dev` puede usar el proxy `/api` de `frontend/vite.config.ts`; `vite preview` no usa ese proxy, por lo que la URL debe existir antes de ejecutar `npm run build`.
+
+El token `VITE_MAPBOX_PUBLIC_TOKEN` debe limitarse por URL/origen y permisos mínimos. Las variables del backend, incluidas `WEB_PUSH_VAPID_SUBJECT`, `WEB_PUSH_VAPID_PUBLIC_KEY` y especialmente `WEB_PUSH_VAPID_PRIVATE_KEY`, permanecen únicamente en el `.env` de la raíz. Nunca use el prefijo `VITE_` para un token secreto, credenciales de pago o cualquier secreto de backend.
 
 ### Ejecución
 
@@ -113,15 +116,19 @@ Vite mostrará la URL local de la interfaz y redirigirá las llamadas `/api` al 
 
 ## Variables de entorno
 
-| Variable                                           | Requerida     | Uso                                                                                             |
-| -------------------------------------------------- | ------------- | ----------------------------------------------------------------------------------------------- |
-| `PORT`                                             | No            | Puerto HTTP de la API; por defecto `3000`.                                                      |
-| `JWT_SECRET`                                       | Sí            | Secreto para firmar JWT. Use un valor largo y aleatorio.                                        |
-| `DB_PATH`                                          | No            | Ruta del archivo SQLite; por defecto `./data/motofleet.db`.                                     |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | No            | Configuración de notificaciones por email.                                                      |
-| `MAPBOX_SECRET_TOKEN`                              | Sí para ruteo | Token de backend usado únicamente por Mapbox Directions.                                        |
-| `ROUTING_ALLOW_HAVERSINE_FALLBACK`                 | No            | Actívelo solo con `true` para una contingencia explícita; por defecto el sistema falla cerrado. |
-| `VITE_MAPBOX_PUBLIC_TOKEN`                         | Sí para mapas | Variable de `frontend/.env` para renderizar mapas y geocodificación en el navegador.            |
+| Variable                                           | Requerida      | Uso                                                                                             |
+| -------------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------------- |
+| `PORT`                                             | No             | Puerto HTTP de la API; por defecto `3000`.                                                      |
+| `JWT_SECRET`                                       | Sí             | Secreto para firmar JWT. Use un valor largo y aleatorio.                                        |
+| `DB_PATH`                                          | No             | Ruta del archivo SQLite; por defecto `./data/motofleet.db`.                                     |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | No             | Configuración de notificaciones por email.                                                      |
+| `MAPBOX_SECRET_TOKEN`                              | Sí para ruteo  | Token de backend usado únicamente por Mapbox Directions.                                        |
+| `ROUTING_ALLOW_HAVERSINE_FALLBACK`                 | No             | Actívelo solo con `true` para una contingencia explícita; por defecto el sistema falla cerrado. |
+| `VITE_MAPBOX_PUBLIC_TOKEN`                         | Sí para mapas  | Variable de `frontend/.env` para renderizar mapas y geocodificación en el navegador.            |
+| `WEB_PUSH_ENABLED`                                 | No             | `false` por defecto; habilita el envío Web Push cuando existe una pareja VAPID válida.          |
+| `WEB_PUSH_VAPID_SUBJECT`                           | Si Push activo | Subject `mailto:` o URL HTTPS para VAPID.                                                       |
+| `WEB_PUSH_VAPID_PUBLIC_KEY`                        | Si Push activo | Clave pública VAPID base64url; se expone solo por endpoint autenticado.                         |
+| `WEB_PUSH_VAPID_PRIVATE_KEY`                       | Si Push activo | Clave privada VAPID base64url, únicamente en el ambiente backend.                               |
 
 ## API y autorización
 
@@ -133,6 +140,7 @@ Todas las rutas de la API se agrupan bajo `/api`; las protegidas requieren `Auth
 | Flota y renta                   | `/api/motorcycles`, `/api/contracts`, `/api/contracts/:contractId/payments`, `/api/riders/:riderId/cosigners`                                                                                               | Admin                                                     |
 | Tarifas y operación             | `/api/pricing-rules`, `GET /api/admin/metrics`, `GET /api/admin/errands`                                                                                                                                    | Admin                                                     |
 | Creación y consulta de mandados | `POST /api/errands`, `POST /api/errands/route-estimate`, `GET /api/errands/my`, `PATCH /api/errands/:id/cancel`                                                                                             | Usuario; historial/cancelación también según rol y estado |
+| Notificaciones Push             | `GET /api/notifications/push/vapid-public-key`, `POST/DELETE /api/notifications/push/subscriptions`                                                                                                         | Usuario autenticado (`user`, `rider`, `admin`)            |
 | Ejecución del rider             | `GET /api/errands/available`, `GET /api/errands/:id/route-preview`, `PATCH /api/errands/:id/accept`, `PATCH /api/errands/:id/pickup`, `PATCH /api/errands/:id/deliver`, `PATCH /api/riders/me/availability` | Rider                                                     |
 
 `POST /api/errands/route-estimate` sirve únicamente para la previsualización de creación y no persiste ni cotiza un mandado. `GET /api/errands/:id/route-preview` limita al rider a mandados disponibles o asignados a él; así el navegador no puede usar el backend como proxy de rutas arbitrarias.
@@ -185,7 +193,11 @@ El build de frontend puede advertir que el chunk de Mapbox supera 500 kB. Es un 
 - [Requisitos del dominio](docs/motofleet/REQUIREMENTS.md)
 - [Modelo de dominio](docs/motofleet/DOMAIN_MODEL.md)
 
-## Limitaciones y próximos pasos
+### Push Web y límites del dispositivo
+
+Push Web usa VAPID propio y un Service Worker fuente (`frontend/src/sw.ts`) generado con `injectManifest`; no cachea API ni cabeceras `Authorization`. Se activa únicamente desde la campana de notificaciones y no desde el CTA de instalación PWA. La pareja VAPID se configura fuera del repositorio y se rota deshabilitando Push, revocando las filas con `npm run ops:revoke-web-push -- --endpoint ... --owner-id ... --owner-role ... --confirm`, cambiando las claves y reactivando.
+
+El sonido y la vibración no son controlables de forma universal: dependen del navegador, permiso, volumen, silencio/no molestar, batería, configuración del canal y políticas del sistema operativo. No se implementa audio HTML ni sonido personalizado. Si una pestaña autenticada y lista confirma el evento, refresca la bandeja sin duplicar la alerta del sistema; en cualquier otro contexto el Service Worker muestra la notificación del sistema. Push no cambia la creación, destinatarios, estados, roles ni deduplicación de `notifications`.
 
 - Los enlaces de Google Maps y Waze son externos y opcionales; MotoFleet continúa usando Mapbox como fuente de ruta y precio.
 - No hay rastreo de riders en tiempo real, pagos integrados ni despliegue de producción definido.

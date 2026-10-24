@@ -12,6 +12,7 @@ export {
 } from "./useErrands";
 export { useMetrics, type PeriodType, type MetricsData } from "./useMetrics";
 export { useNotifications } from "./useNotifications";
+export { useWebPushNotifications } from "./useWebPushNotifications";
 export { useRiders } from "./useRiders";
 export {
   usePwaInstall,

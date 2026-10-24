@@ -238,7 +238,42 @@ export interface InAppNotification {
   created_at: string;
 }
 
-/** Métricas del admin */
+export type WebPushPermission = "default" | "granted" | "denied";
+export type WebPushState =
+  | "unsupported"
+  | "disabled"
+  | "permission-default"
+  | "permission-denied"
+  | "inactive"
+  | "active"
+  | "activating"
+  | "deactivating"
+  | "owned-by-previous-session"
+  | "error";
+
+export interface VapidPublicKeyResponse {
+  publicKey: string;
+}
+
+export interface PushSubscriptionKeys {
+  p256dh: string;
+  auth: string;
+}
+
+export interface PushSubscriptionRequest {
+  endpoint: string;
+  expirationTime: number | null;
+  keys: PushSubscriptionKeys;
+}
+
+export interface PushSubscriptionActiveResponse {
+  active: true;
+}
+
+export interface PushSubscriptionDeletedResponse {
+  deleted: true;
+}
+
 export interface AdminMetrics {
   errands_by_status: Record<ErrandState, number>;
   commission_total: number;
