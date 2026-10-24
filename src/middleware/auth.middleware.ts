@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import jsonwebtoken from "jsonwebtoken";
-import type { JwtPayload, Role } from "../molecules/IMolecule.js";
+import type { JwtPayload } from "../molecules/IMolecule.js";
 import { createLogger } from "../infrastructure/logger.js";
 
 const jwt = jsonwebtoken as unknown as typeof jsonwebtoken;
@@ -32,7 +32,7 @@ export function authMiddleware(
 ): void {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!authHeader?.startsWith("Bearer ")) {
     logger.warn("Missing or malformed Authorization header", {
       path: req.path,
     });
@@ -48,11 +48,21 @@ export function authMiddleware(
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as jsonwebtoken.JwtPayload;
+    const role = decoded.role;
+    if (
+      typeof decoded.id !== "string" ||
+      decoded.id.trim().length === 0 ||
+      typeof decoded.email !== "string" ||
+      decoded.email.trim().length === 0 ||
+      (role !== "user" && role !== "rider" && role !== "admin")
+    ) {
+      throw new Error("Invalid JWT claims");
+    }
 
     req.user = {
-      id: decoded.id as string,
-      role: decoded.role as Role,
-      email: decoded.email as string,
+      id: decoded.id,
+      role,
+      email: decoded.email,
     };
 
     next();

@@ -246,6 +246,14 @@ export const es = {
       invalidState: "Esta acción no está disponible en el estado actual.",
       conflict: "No se pudo guardar porque la información ya existe.",
       internal: "Ocurrió un error inesperado. Intenta nuevamente.",
+      pushOwned:
+        "Las notificaciones de este dispositivo pertenecen a otra sesión. Limpia la sesión anterior antes de intentarlo de nuevo.",
+      pushNotConfigured:
+        "Las notificaciones Push no están habilitadas en este momento.",
+      network:
+        "No pudimos conectar con el servidor. Verifica tu conexión e intenta nuevamente.",
+      invalidResponse:
+        "El servidor devolvió una respuesta no válida. Intenta nuevamente.",
       unknown: "No pudimos completar la solicitud. Intenta nuevamente.",
     },
     business: {
