@@ -41,6 +41,7 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const cleanupUnregisterRef = useRef<(() => void) | null>(null);
   const ownedEndpointRef = useRef<string | null>(null);
+  const stateOperationRef = useRef(0);
 
   useEffect(() => {
     if (token) webPushSession.start(token);
@@ -48,6 +49,7 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
 
   useEffect(() => {
     let cancelled = false;
+    const operation = ++stateOperationRef.current;
     if (!token || !isSupported()) {
       setState(token ? "unsupported" : "inactive");
       setVapidPublicKey(null);
@@ -62,6 +64,7 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
       .then(({ publicKey }) => {
         if (
           cancelled ||
+          stateOperationRef.current !== operation ||
           !webPushSession.isCurrent(webPushSession.getGeneration(), token)
         )
           return;
@@ -78,6 +81,7 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
           .then((subscription) => {
             if (
               cancelled ||
+              stateOperationRef.current !== operation ||
               !subscription ||
               !webPushSession.isCurrent(webPushSession.getGeneration(), token)
             )
@@ -100,7 +104,7 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
           });
       })
       .catch((error: unknown) => {
-        if (cancelled) return;
+        if (cancelled || stateOperationRef.current !== operation) return;
         if (error instanceof ApiError && error.code === "PUSH_NOT_CONFIGURED") {
           setState("disabled");
           return;
@@ -129,6 +133,7 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
       state === "active"
     )
       return;
+    const operation = ++stateOperationRef.current;
     const generation = webPushSession.getGeneration();
     setState("activating");
     setErrorMessage(null);
@@ -159,7 +164,11 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
       }
 
       const registration = await navigator.serviceWorker.ready;
-      if (!webPushSession.isCurrent(generation, token)) return;
+      if (
+        stateOperationRef.current !== operation ||
+        !webPushSession.isCurrent(generation, token)
+      )
+        return;
       subscription = await registration.pushManager.getSubscription();
       if (
         subscription?.expirationTime !== null &&
@@ -196,7 +205,11 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
         );
         return;
       }
-      if (!webPushSession.isCurrent(generation, token)) return;
+      if (
+        stateOperationRef.current !== operation ||
+        !webPushSession.isCurrent(generation, token)
+      )
+        return;
 
       const cleanup = async (logoutToken: string) => {
         await cleanupSubscription(logoutToken);
@@ -204,9 +217,12 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
       cleanupUnregisterRef.current?.();
       unregisterCleanup = webPushSession.registerCleanup(endpoint, cleanup);
       cleanupUnregisterRef.current = unregisterCleanup;
-      if (!webPushSession.isCurrent(generation, token)) {
+      if (
+        stateOperationRef.current !== operation ||
+        !webPushSession.isCurrent(generation, token)
+      ) {
         await cleanupSubscription(token).catch(() => undefined);
-        unregisterCleanup();
+        unregisterCleanup?.();
         return;
       }
 
@@ -215,9 +231,12 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
         expirationTime: serialized.expirationTime ?? null,
         keys: { p256dh: serialized.keys.p256dh, auth: serialized.keys.auth },
       });
-      if (!webPushSession.isCurrent(generation, token)) {
+      if (
+        stateOperationRef.current !== operation ||
+        !webPushSession.isCurrent(generation, token)
+      ) {
         await cleanupSubscription(token).catch(() => undefined);
-        unregisterCleanup();
+        unregisterCleanup?.();
         if (cleanupUnregisterRef.current === unregisterCleanup) {
           cleanupUnregisterRef.current = null;
         }
@@ -227,7 +246,10 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
       setState("active");
     } catch (error: unknown) {
       if (isUnauthorized(error)) webPushSession.invalidateCurrentSession();
-      if (!webPushSession.isCurrent(generation, token)) {
+      if (
+        stateOperationRef.current !== operation ||
+        !webPushSession.isCurrent(generation, token)
+      ) {
         await cleanupSubscription(token).catch(() => undefined);
         unregisterCleanup?.();
         return;
@@ -261,6 +283,7 @@ export const useWebPushNotifications = (): UseWebPushNotificationsReturn => {
 
   const deactivate = useCallback(async () => {
     if (!token || state === "deactivating") return;
+    stateOperationRef.current += 1;
     setState("deactivating");
     setErrorMessage(null);
     try {
