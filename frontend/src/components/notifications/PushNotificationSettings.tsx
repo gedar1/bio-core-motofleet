@@ -19,9 +19,7 @@ const stateLabels: Record<string, string> = {
 export const PushNotificationSettings: React.FC = () => {
   const { state, errorMessage, activate, deactivate, retry } =
     useWebPushNotifications();
-  const canActivate = ["permission-default", "inactive", "error"].includes(
-    state,
-  );
+  const canActivate = ["permission-default", "inactive"].includes(state);
   const isBusy = state === "activating" || state === "deactivating";
 
   return (
