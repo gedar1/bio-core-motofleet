@@ -2,7 +2,7 @@
   "name": "bio-core-motofleet",
   "version": "1.0.0",
   "engines": {
-    "node": "20.x"
+    "node": "22.23.4"
   },
   "description": "MotoFleet MVP — Motorcycle fleet rental and errand marketplace",
   "main": "dist/index.js",
