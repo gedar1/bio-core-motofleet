@@ -16,7 +16,7 @@ export const PwaInstallCta: React.FC = () => {
     isDismissed,
     isPreview,
     promptInstall,
-    // dismiss,
+    dismiss,
   } = usePwaInstall();
   const [feedback, setFeedback] = useState<FeedbackKind | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,7 +99,7 @@ export const PwaInstallCta: React.FC = () => {
               ? t.pwaInstall.previewButton
               : t.pwaInstall.installButton}
           </Button>
-          {/* <button
+          <button
             type="button"
             className="min-h-touch min-w-touch rounded-md p-xs text-xl leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             onClick={dismiss}
@@ -107,7 +107,7 @@ export const PwaInstallCta: React.FC = () => {
             aria-label={t.pwaInstall.dismiss}
           >
             ×
-          </button> */}
+          </button>
         </div>
       )}
       {feedbackMessage && (
