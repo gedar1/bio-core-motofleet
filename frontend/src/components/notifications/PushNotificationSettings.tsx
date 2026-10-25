@@ -17,8 +17,7 @@ const stateLabels: Record<string, string> = {
 };
 
 export const PushNotificationSettings: React.FC = () => {
-  const { state, errorMessage, activate, deactivate, retry } =
-    useWebPushNotifications();
+  const { state, activate, deactivate, retry } = useWebPushNotifications();
   const canActivate = ["permission-default", "inactive"].includes(state);
   const isBusy = state === "activating" || state === "deactivating";
 
@@ -65,17 +64,11 @@ export const PushNotificationSettings: React.FC = () => {
           </button>
         ) : null}
       </div>
-      <p className="mt-sm text-body-xs text-ink-muted">
-        El sonido y la vibración dependen del permiso, volumen, modo silencio o
-        no molestar, batería y configuración del canal del dispositivo.
-        MotoFleet no reproduce audio HTML ni puede personalizar o forzar ese
-        comportamiento.
-      </p>
-      {errorMessage && (
+      {/* {errorMessage && (
         <p className="mt-sm text-body-xs text-red-700" role="alert">
           {errorMessage}
         </p>
-      )}
+      )} */}
     </section>
   );
 };
