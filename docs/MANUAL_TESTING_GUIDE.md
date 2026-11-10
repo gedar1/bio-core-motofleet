@@ -325,6 +325,20 @@ fetch('http://localhost:3000/api/admin/metrics', {
 "
 ```
 
+## 2.17 Push Web (user, rider y admin)
+
+Push está desactivado por defecto. Para probarlo, configura una pareja VAPID válida solo en el `.env` del backend y reinicia. Con Push deshabilitado, las tres rutas deben devolver `503` con `code: PUSH_NOT_CONFIGURED` y la bandeja de notificaciones debe seguir funcionando.
+
+Con cualquier JWT válido, prueba la clave pública:
+
+```bash
+curl -H "Authorization: Bearer <TOKEN>" http://localhost:3000/api/notifications/push/vapid-public-key
+```
+
+La activación real se hace desde la campana de la PWA en HTTPS o localhost. Verifica en DevTools/Application que la suscripción se registra una sola vez; dos POST del mismo propietario actualizan la fila y otro rol recibe `409 PUSH_SUBSCRIPTION_OWNED`. El DELETE remoto es idempotente y no llama al borrado de la bandeja.
+
+Prueba con la PWA visible, una ventana oculta, la aplicación cerrada y otra pestaña en login. Una ventana autenticada lista responde el ACK foreground y refresca la bandeja; los demás casos deben mostrar la notificación del sistema. El click solo navega a rutas internas permitidas. Sonido y vibración dependen del OS, permisos, volumen, silencio/no molestar, batería y canal.
+
 ---
 
 ## 3. Pruebas Frontend

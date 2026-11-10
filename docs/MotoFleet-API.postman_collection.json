@@ -590,6 +590,51 @@
           }
         }
       ]
+    },
+    {
+      "name": "Web Push",
+      "item": [
+        {
+          "name": "Get VAPID public key",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/notifications/push/vapid-public-key",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "Register Web Push subscription",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/notifications/push/subscriptions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"endpoint\": \"https://push.example.test/subscription\",\n  \"expirationTime\": null,\n  \"keys\": {\n    \"p256dh\": \"<base64url-65-bytes>\",\n    \"auth\": \"<base64url-16-bytes>\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Web Push subscription",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/notifications/push/subscriptions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"endpoint\": \"https://push.example.test/subscription\"\n}"
+            }
+          }
+        }
+      ]
     }
   ]
 }
